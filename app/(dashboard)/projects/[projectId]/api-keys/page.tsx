@@ -58,7 +58,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useProject } from "@/hooks/use-projects";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
@@ -80,7 +80,6 @@ export default function ApiKeysPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.projectId as string;
-  const { toast } = useToast();
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   
@@ -127,11 +126,7 @@ export default function ApiKeysPage() {
 
   const handleCreateApiKey = async () => {
     if (!newKeyName.trim()) {
-      toast({
-        title: "Error",
-        description: "API key name is required",
-        variant: "destructive",
-      });
+      toast.error("API key name is required");
       return;
     }
 
@@ -143,19 +138,12 @@ export default function ApiKeysPage() {
 
       setGeneratedKey(result.key);
 
-      toast({
-        title: "Success",
-        description: "API key created successfully",
-      });
+      toast.success("API key created successfully");
 
       setNewKeyName("");
       setNewKeyRole("read-only");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create API key",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to create API key");
     }
   };
 
@@ -163,28 +151,18 @@ export default function ApiKeysPage() {
     try {
       await revokeApiKeyMutation.mutateAsync(keyId);
 
-      toast({
-        title: "Success",
-        description: "API key revoked successfully",
-      });
+      toast.success("API key revoked successfully");
       
       // Close the dialog after successful deletion
       setRevokeDialogOpen(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to revoke API key",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to revoke API key");
     }
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied",
-      description: "API key copied to clipboard",
-    });
+    toast.success("API key copied to clipboard");
   };
 
   if (isLoadingProject || permissions.isLoading) {

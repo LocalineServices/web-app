@@ -58,7 +58,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useProject } from "@/hooks/use-projects";
 import { useLocales } from "@/hooks/use-translations";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
@@ -88,7 +88,6 @@ export default function TeamPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params?.projectId as string;
-  const { toast } = useToast();
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const { data: locales = [], isLoading: isLoadingLocales } = useLocales(projectId);
@@ -177,11 +176,7 @@ export default function TeamPage() {
   // Invite member
   const handleInvite = async () => {
     if (!inviteEmail.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive",
-      });
+      toast.error("Please enter an email address");
       return;
     }
 
@@ -192,21 +187,14 @@ export default function TeamPage() {
         assignedLocales: inviteRole === 'editor' && inviteLocales.length > 0 ? inviteLocales : undefined,
       });
 
-      toast({
-        title: "Success",
-        description: "Team member invited successfully",
-      });
+      toast.success("Team member invited successfully");
 
       setIsInviteDialogOpen(false);
       setInviteEmail("");
       setInviteRole("editor");
       setInviteLocales([]);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to invite member",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to invite member");
     }
   };
 
@@ -223,19 +211,12 @@ export default function TeamPage() {
         },
       });
 
-      toast({
-        title: "Success",
-        description: "Team member updated successfully",
-      });
+      toast.success("Team member updated successfully");
 
       setIsEditDialogOpen(false);
       setEditingMember(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update member",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to update member");
     }
   };
 
@@ -246,19 +227,12 @@ export default function TeamPage() {
     try {
       await removeMember.mutateAsync(removingMember.userId);
 
-      toast({
-        title: "Success",
-        description: "Team member removed successfully",
-      });
+      toast.success("Team member removed successfully");
 
       setIsRemoveDialogOpen(false);
       setRemovingMember(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to remove member",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to remove member");
     }
   };
 

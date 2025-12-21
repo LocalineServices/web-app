@@ -24,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { useLocales } from "@/hooks/use-translations";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
 
 const exportFormats = [
@@ -52,7 +52,6 @@ export default function ExportPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.projectId as string;
-  const { toast } = useToast();
   
   // Check permissions
   const permissions = useProjectPermissions(projectId);
@@ -102,11 +101,7 @@ export default function ExportPage() {
 
   const handleExport = async () => {
     if (selectedLocales.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one language",
-        variant: "destructive",
-      });
+      toast.error("Please select at least one language");
       return;
     }
 
@@ -143,16 +138,9 @@ export default function ExportPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast({
-        title: "Success",
-        description: "Translations exported successfully",
-      });
+      toast.success("Translations exported successfully");
     } catch {
-      toast({
-        title: "Error",
-        description: "Failed to export translations",
-        variant: "destructive",
-      });
+      toast.error("Failed to export translations");
     } finally {
       setIsExporting(false);
     }

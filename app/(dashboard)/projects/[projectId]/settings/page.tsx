@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
 
 interface Project {
@@ -41,7 +41,6 @@ export default function ProjectSettingsPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.projectId as string;
-  const { toast } = useToast();
 
   const [project, setProject] = React.useState<Project | null>(null);
   const [isLoadingProject, setIsLoadingProject] = React.useState(true);
@@ -103,17 +102,10 @@ export default function ProjectSettingsPage() {
 
       const data = await response.json();
       setProject(data.data);
-      toast({
-        title: "Project updated",
-        description: "Your project settings have been updated successfully.",
-      });
+      toast.success("Your project settings have been updated successfully.");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update project";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -131,21 +123,14 @@ export default function ProjectSettingsPage() {
         throw new Error(error.error || 'Failed to delete project');
       }
 
-      toast({
-        title: "Project deleted",
-        description: "The project has been deleted successfully.",
-      });
+      toast.success("The project has been deleted successfully.");
       
       // Close dialog and navigate
       setDeleteDialogOpen(false);
       router.push('/projects');
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete project";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }

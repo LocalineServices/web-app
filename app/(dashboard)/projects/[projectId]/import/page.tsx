@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useLocales } from "@/hooks/use-translations";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
 import Image from "next/image";
 
@@ -53,7 +53,6 @@ export default function ImportPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.projectId as string;
-  const { toast } = useToast();
   
   // Check permissions
   const permissions = useProjectPermissions(projectId);
@@ -131,11 +130,7 @@ export default function ImportPage() {
 
   const handleImport = async () => {
     if (!uploadedFile || !selectedLocale || !selectedFormat) {
-      toast({
-        title: "Error",
-        description: "Please select a file, language, and format",
-        variant: "destructive",
-      });
+      toast.error("Please select a file, language, and format");
       return;
     }
 
@@ -162,19 +157,12 @@ export default function ImportPage() {
       }
 
       setImportResult(data.stats);
-      toast({
-        title: "Success",
-        description: `Imported ${data.stats.total} translations successfully`,
-      });
+      toast.success(`Imported ${data.stats.total} translations successfully`);
       
       // Reset form
       setUploadedFile(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to import translations",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to import translations");
     } finally {
       setIsUploading(false);
     }

@@ -7,11 +7,10 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
 
@@ -62,11 +61,7 @@ export default function SignupPage() {
       router.push("/projects");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Signup failed. Please try again.';
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
       setIsLoading(false);
     }
   }

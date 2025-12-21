@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2, LogOut } from "lucide-react";
 import { getGravatarUrl, getInitials } from "@/lib/gravatar";
 import { useRouter } from "next/navigation";
@@ -57,7 +57,6 @@ export default function SettingsPage() {
   const [email, setEmail] = React.useState("");
   const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
-  const { toast } = useToast();
 
   // Fetch user data on mount
   React.useEffect(() => {
@@ -99,17 +98,10 @@ export default function SettingsPage() {
 
       const data = await response.json();
       setUser(data.user);
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
-      });
+      toast.success("Your profile has been updated successfully.");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update profile";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -117,20 +109,12 @@ export default function SettingsPage() {
 
   const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword) {
-      toast({
-        title: "Error",
-        description: "Please fill in both password fields",
-        variant: "destructive",
-      });
+      toast.error("Please fill in both password fields");
       return;
     }
 
     if (newPassword.length < 8) {
-      toast({
-        title: "Error",
-        description: "New password must be at least 8 characters long",
-        variant: "destructive",
-      });
+      toast.error("New password must be at least 8 characters long");
       return;
     }
 
@@ -151,17 +135,10 @@ export default function SettingsPage() {
 
       setCurrentPassword("");
       setNewPassword("");
-      toast({
-        title: "Password updated",
-        description: "Your password has been changed successfully.",
-      });
+      toast.success("Your password has been changed successfully.");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to change password";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsChangingPassword(false);
     }
@@ -178,18 +155,11 @@ export default function SettingsPage() {
         throw new Error('Failed to sign out');
       }
 
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
+      toast.success("You have been signed out successfully.");
       router.push('/login');
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to sign out";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsSigningOut(false);
     }
@@ -201,21 +171,14 @@ export default function SettingsPage() {
       // TODO: Implement delete account endpoint
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      toast({
-        title: "Account deleted",
-        description: "Your account has been permanently deleted.",
-      });
+      toast.success("Your account has been permanently deleted.");
       
       // Close dialog and navigate
       setDeleteDialogOpen(false);
       router.push('/login');
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete account";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }

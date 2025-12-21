@@ -28,7 +28,7 @@ import { useProjects, useCreateProject } from "@/hooks/use-projects";
 import { useLocales } from "@/hooks/use-translations";
 import { useTerms } from "@/hooks/use-terms";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import Image from "next/image";
 
 function getLocaleFlagUrl(localeCode: string): string {
@@ -60,7 +60,6 @@ export default function ProjectsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
   const [newProjectName, setNewProjectName] = React.useState("");
   const [newProjectDescription, setNewProjectDescription] = React.useState("");
-  const { toast } = useToast();
 
   const { data: projects, isLoading, error } = useProjects();
   const createProject = useCreateProject();
@@ -73,20 +72,13 @@ export default function ProjectsPage() {
         name: newProjectName,
         description: newProjectDescription || undefined,
       });
-      toast({
-        title: "Project created",
-        description: `${newProjectName} has been created successfully.`,
-      });
+      toast.success(`${newProjectName} has been created successfully.`);
       setIsCreateDialogOpen(false);
       setNewProjectName("");
       setNewProjectDescription("");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to create project";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     }
   };
 

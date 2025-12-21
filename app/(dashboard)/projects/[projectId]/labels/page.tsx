@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useProject } from "@/hooks/use-projects";
 import { useLabels, useCreateLabel, useDeleteLabel, useUpdateLabel } from "@/hooks/use-labels";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
@@ -73,7 +73,6 @@ export default function LabelsPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params?.projectId as string;
-  const { toast } = useToast();
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const { data: labels = [], isLoading: isLoadingLabels } = useLabels(projectId);
@@ -111,11 +110,7 @@ export default function LabelsPage() {
 
   const handleCreateLabel = async () => {
     if (!newLabelName.trim()) {
-      toast({
-        title: "Error",
-        description: "Label name is required",
-        variant: "destructive",
-      });
+      toast.error("Label name is required");
       return;
     }
 
@@ -126,21 +121,14 @@ export default function LabelsPage() {
         value: newLabelValue.trim() || undefined,
       });
 
-      toast({
-        title: "Success",
-        description: "Label created successfully",
-      });
+      toast.success("Label created successfully");
 
       setIsCreateOpen(false);
       setNewLabelName("");
       setNewLabelColor("#808080");
       setNewLabelValue("");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create label",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to create label");
     }
   };
 
@@ -148,19 +136,12 @@ export default function LabelsPage() {
     try {
       await deleteLabelMutation.mutateAsync(labelId);
 
-      toast({
-        title: "Success",
-        description: "Label deleted successfully",
-      });
+      toast.success("Label deleted successfully");
       
       // Close the dialog after successful deletion
       setDeletingLabelId(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete label",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to delete label");
     }
   };
 
@@ -172,11 +153,7 @@ export default function LabelsPage() {
 
   const handleUpdateLabel = async () => {
     if (!editingLabel || !editingLabel.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Label name is required",
-        variant: "destructive",
-      });
+      toast.error("Label name is required");
       return;
     }
 
@@ -190,19 +167,12 @@ export default function LabelsPage() {
         },
       });
 
-      toast({
-        title: "Success",
-        description: "Label updated successfully",
-      });
+      toast.success("Label updated successfully");
 
       setIsEditOpen(false);
       setEditingLabel(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update label",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to update label");
     }
   };
 

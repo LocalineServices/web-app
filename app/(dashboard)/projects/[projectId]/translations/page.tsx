@@ -64,7 +64,7 @@ import {
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useProject } from "@/hooks/use-projects";
 import { useLocales, useAddLocale, useDeleteLocale, useTranslations, useUpdateTranslation } from "@/hooks/use-translations";
 import { useTerms } from "@/hooks/use-terms";
@@ -98,7 +98,6 @@ export default function TranslationsPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params?.projectId as string;
-  const { toast } = useToast();
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const { data: locales = [], isLoading: isLoadingLocales } = useLocales(projectId);
@@ -215,11 +214,7 @@ export default function TranslationsPage() {
 
   const handleAddLocale = async () => {
     if (!newLocaleCode.trim()) {
-      toast({
-        title: "Error",
-        description: "Locale code is required",
-        variant: "destructive",
-      });
+      toast.error("Locale code is required");
       return;
     }
 
@@ -228,19 +223,12 @@ export default function TranslationsPage() {
         code: newLocaleCode.trim(),
       });
 
-      toast({
-        title: "Success",
-        description: "Locale added successfully",
-      });
+      toast.success("Locale added successfully");
 
       setIsAddLocaleOpen(false);
       setNewLocaleCode("");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add locale",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to add locale");
     }
   };
 
@@ -248,10 +236,7 @@ export default function TranslationsPage() {
     try {
       await deleteLocaleMutation.mutateAsync(localeCode);
 
-      toast({
-        title: "Success",
-        description: "Locale deleted successfully",
-      });
+      toast.success("Locale deleted successfully");
 
       // Reset selected locale if deleted
       if (selectedLocale === localeCode) {
@@ -261,11 +246,7 @@ export default function TranslationsPage() {
       // Close the dialog after successful deletion
       setDeletingLocale(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete locale",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to delete locale");
     }
   };
 
@@ -275,11 +256,7 @@ export default function TranslationsPage() {
 
     // Check if editor can access this locale
     if (!permissions.canAccessLocale(selectedLocale)) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to translate this locale",
-        variant: "destructive",
-      });
+      toast.error("You don't have permission to translate this locale");
       return;
     }
 
@@ -290,21 +267,14 @@ export default function TranslationsPage() {
         data: { value },
       });
 
-      toast({
-        title: "Success",
-        description: "Translation updated successfully",
-      });
+      toast.success("Translation updated successfully");
 
       // Clear editing state
       const newEditing = { ...editingTranslations };
       delete newEditing[termId];
       setEditingTranslations(newEditing);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update translation",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to update translation");
     }
   };
 
@@ -350,10 +320,7 @@ export default function TranslationsPage() {
         throw new Error(errorData.error || 'Failed to update labels');
       }
 
-      toast({
-        title: "Success",
-        description: "Labels updated successfully",
-      });
+      toast.success("Labels updated successfully");
 
       // Refresh terms to show updated labels
       refetchTerms();
@@ -362,11 +329,7 @@ export default function TranslationsPage() {
       setLabelingTerm(null);
       setSelectedLabelIds([]);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update labels",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to update labels");
     } finally {
       setIsSavingLabels(false);
     }
@@ -721,10 +684,7 @@ export default function TranslationsPage() {
                                         className="h-auto"
                                         onClick={() => {
                                           navigator.clipboard.writeText(getReferenceTranslationForTerm(term.id));
-                                          toast({
-                                            title: "Copied",
-                                            description: "Reference translation copied to clipboard",
-                                          });
+                                          toast.success("Reference translation copied to clipboard");
                                         }}
                                         title="Copy to clipboard"
                                       >
