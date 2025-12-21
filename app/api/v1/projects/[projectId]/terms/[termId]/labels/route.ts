@@ -29,7 +29,9 @@ export async function PUT(
     const { termId, projectId } = await params;
     const body: SetLabelsRequest = await request.json();
 
-    // Verify project access
+    // Verify project access and store for reuse
+    let sessionAccess: Awaited<ReturnType<typeof checkProjectAccess>> | null = null;
+    
     if (auth.isApiKey) {
       // API key must match the project
       if (auth.projectId !== projectId) {
@@ -42,9 +44,9 @@ export async function PUT(
       }
     } else {
       // Session user must own the project or be a team member
-      const access = await checkProjectAccess(auth.userId!, projectId);
+      sessionAccess = await checkProjectAccess(auth.userId!, projectId);
       
-      if (!access.hasAccess) {
+      if (!sessionAccess.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
     }
@@ -79,9 +81,8 @@ export async function PUT(
           );
         }
       } else {
-        // Session user must be owner or admin team member
-        const access = await checkProjectAccess(auth.userId!, projectId);
-        if (!access.isOwner && access.memberRole !== 'admin') {
+        // Session user must be owner or admin team member (reuse cached access check)
+        if (!sessionAccess!.isOwner && sessionAccess!.memberRole !== 'admin') {
           return NextResponse.json(
             { error: 'This term is locked and its labels can only be modified by admins' },
             { status: 403 }
