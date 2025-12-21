@@ -2504,7 +2504,7 @@ export const swaggerSpec = {
       get: {
         tags: ['Import/Export'],
         summary: 'Export project translations',
-        description: 'Export all translations in JSON format',
+        description: 'Export translations in various formats (JSON flat, JSON nested, CSV, YAML). If no locales are specified, all project locales will be exported.',
         parameters: [
           {
             name: 'projectId',
@@ -2514,6 +2514,36 @@ export const swaggerSpec = {
               type: 'string',
               format: 'uuid',
             },
+          },
+          {
+            name: 'format',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+              enum: ['json-flat', 'json-nested', 'csv', 'yaml'],
+              default: 'json-flat',
+            },
+            description: 'Export format',
+          },
+          {
+            name: 'locales',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+            },
+            description: 'Comma-separated list of locale codes to export (e.g., "en,es,fr"). If omitted, all project locales will be exported.',
+          },
+          {
+            name: 'includeEmpty',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'boolean',
+              default: false,
+            },
+            description: 'Whether to include terms with empty translations',
           },
         ],
         responses: {
@@ -2531,6 +2561,16 @@ export const swaggerSpec = {
                   },
                 },
               },
+              'text/csv': {
+                schema: {
+                  type: 'string',
+                },
+              },
+              'application/x-yaml': {
+                schema: {
+                  type: 'string',
+                },
+              },
             },
           },
           401: {
@@ -2545,6 +2585,16 @@ export const swaggerSpec = {
           },
           403: {
             description: 'Access denied',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          404: {
+            description: 'No locales found in project',
             content: {
               'application/json': {
                 schema: {

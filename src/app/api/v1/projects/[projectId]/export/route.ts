@@ -28,10 +28,18 @@ export async function GET(
     const localesParam = searchParams.get('locales') || '';
     const includeEmpty = searchParams.get('includeEmpty') === 'true';
     
-    const localeCodes = localesParam.split(',').filter(Boolean);
+    let localeCodes = localesParam.split(',').filter(Boolean);
 
     if (localeCodes.length === 0) {
-      return NextResponse.json({ error: 'No locales specified' }, { status: 400 });
+      const locales = await prisma.locale.findMany({
+        where: { projectId },
+        select: { code: true }
+      });
+      localeCodes = locales.map(l => l.code);
+      
+      if (localeCodes.length === 0) {
+        return NextResponse.json({ error: 'No locales found in project' }, { status: 404 });
+      }
     }
 
     const terms = await prisma.term.findMany({
