@@ -84,11 +84,12 @@ export default function SettingsPage() {
         if (response.ok) {
           const data = await response.json();
           // Count projects where the user is the owner (memberRole is null)
+          // Note: Projects returned with memberRole === null are owned by the user
           const ownedCount = data.data.filter((p: { memberRole: string | null }) => p.memberRole === null).length;
           setOwnedProjectsCount(ownedCount);
         }
       } catch (err) {
-        console.log('Failed to fetch projects:', err);
+        console.error('Failed to fetch projects:', err);
       }
     };
 
