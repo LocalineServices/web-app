@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate && npm run copy-swagger-ui",
-    "copy-swagger-ui": "mkdir -p public/swagger-ui && cp node_modules/swagger-ui-dist/swagger-ui.css node_modules/swagger-ui-dist/swagger-ui-bundle.js node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js public/swagger-ui/ || true"
+    "postinstall": "prisma generate && node scripts/copy-swagger-ui.js",
+    "copy-swagger-ui": "node scripts/copy-swagger-ui.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
