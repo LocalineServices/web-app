@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && node scripts/copy-swagger-ui.js",
+    "copy-swagger-ui": "node scripts/copy-swagger-ui.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -65,6 +66,9 @@
     "react-resizable-panels": "^4.0.13",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-dist": "^5.31.0",
+    "swagger-ui-react": "^5.31.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^13.0.0",
@@ -79,6 +83,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swagger-ui-react": "^5.18.0",
     "@types/uuid": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
