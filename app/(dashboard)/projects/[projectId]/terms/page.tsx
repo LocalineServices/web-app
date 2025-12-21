@@ -59,7 +59,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { useProject } from "@/hooks/use-projects";
 import { useTerms, useCreateTerm, useUpdateTerm, useDeleteTerm, useLockAllTerms, useUnlockAllTerms } from "@/hooks/use-terms";
 import { useLabels } from "@/hooks/use-labels";
@@ -73,6 +72,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 25;
 const DIALOG_ITEMS_PER_PAGE = 5;
@@ -81,7 +81,6 @@ export default function TermsPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params?.projectId as string;
-  const { toast } = useToast();
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const { data: terms = [], isLoading: isLoadingTerms, refetch: refetchTerms } = useTerms(projectId);
@@ -164,10 +163,8 @@ export default function TermsPage() {
 
   const handleCreateTerm = async () => {
     if (!newTermValue.trim()) {
-      toast({
-        title: "Error",
-        description: "Term value is required",
-        variant: "destructive",
+      toast.error("Term value is required", {
+        richColors: true,
       });
       return;
     }
@@ -178,30 +175,19 @@ export default function TermsPage() {
         context: newTermContext.trim() || undefined,
       });
 
-      toast({
-        title: "Success",
-        description: "Term created successfully",
-      });
+      toast.success("Term created successfully");
 
       setIsCreateOpen(false);
       setNewTermValue("");
       setNewTermContext("");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create term",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to create term");
     }
   };
 
   const handleUpdateTerm = async () => {
     if (!editingTerm || !editingTerm.value.trim()) {
-      toast({
-        title: "Error",
-        description: "Term value is required",
-        variant: "destructive",
-      });
+      toast.error("Term value is required");
       return;
     }
 
@@ -214,19 +200,12 @@ export default function TermsPage() {
         },
       });
 
-      toast({
-        title: "Success",
-        description: "Term updated successfully",
-      });
+      toast.success("Term updated successfully");
 
       setIsEditOpen(false);
       setEditingTerm(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update term",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to update term");
     }
   };
 
@@ -234,19 +213,12 @@ export default function TermsPage() {
     try {
       await deleteTermMutation.mutateAsync(termId);
 
-      toast({
-        title: "Success",
-        description: "Term deleted successfully",
-      });
+      toast.success("Term deleted successfully");
       
       // Close the dialog after successful deletion
       setDeletingTermId(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete term",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to delete term");
     }
   };
 
@@ -285,10 +257,7 @@ export default function TermsPage() {
         throw new Error(errorData.error || 'Failed to update labels');
       }
 
-      toast({
-        title: "Success",
-        description: "Labels updated successfully",
-      });
+      toast.success("Labels updated successfully");
 
       // Refresh terms to show updated labels
       refetchTerms();
@@ -297,11 +266,7 @@ export default function TermsPage() {
       setLabelingTerm(null);
       setSelectedLabelIds([]);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update labels",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to update labels");
     } finally {
       setIsSavingLabels(false);
     }
@@ -325,19 +290,12 @@ export default function TermsPage() {
         throw new Error(errorData.error || 'Failed to toggle lock');
       }
 
-      toast({
-        title: "Success",
-        description: `Term ${!currentLockState ? 'locked' : 'unlocked'} successfully`,
-      });
+      toast.success(`Term ${!currentLockState ? 'locked' : 'unlocked'} successfully`);
 
       // Refresh terms to show updated lock status
       refetchTerms();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to toggle lock",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to toggle lock");
     } finally {
       setTogglingLockTermId(null);
     }
@@ -346,32 +304,19 @@ export default function TermsPage() {
   const handleLockAll = async () => {
     try {
       await lockAllMutation.mutateAsync();
-      toast({
-        title: "Success",
-        description: "All terms locked successfully",
-      });
+      toast.success("All terms locked successfully");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to lock all terms",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to lock all terms");
     }
   };
 
   const handleUnlockAll = async () => {
     try {
       await unlockAllMutation.mutateAsync();
-      toast({
-        title: "Success",
-        description: "All terms unlocked successfully",
-      });
+  
+      toast.success("All terms unlocked successfully");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to unlock all terms",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to unlock all terms");
     }
   };
 
