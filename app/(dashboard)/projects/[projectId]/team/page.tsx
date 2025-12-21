@@ -594,7 +594,7 @@ export default function TeamPage() {
                       <div>
                         <p className="font-medium">
                           {(project as { ownerId?: string })?.ownerId === currentUser?.id 
-                            ? `You${ownerInfo?.name ? ` (${ownerInfo.name})` : ''}` 
+                            ? `${ownerInfo?.name || currentUser?.name || 'You'} (You)` 
                             : ownerInfo?.name || "Project Owner"}
                         </p>
                         <p className="text-sm text-muted-foreground">Full access</p>
