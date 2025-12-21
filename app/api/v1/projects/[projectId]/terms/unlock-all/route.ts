@@ -1,3 +1,8 @@
+/**
+ * Lock/Unlock All Terms API endpoints
+ * POST /api/v1/projects/:projectId/terms/unlock-all - Unlock all terms in project (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authenticateRequest, checkProjectAccess } from '@/lib/middleware';

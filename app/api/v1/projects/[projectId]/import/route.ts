@@ -1,3 +1,8 @@
+/**
+ * Import Project Translations API endpoint
+ * POST /api/v1/projects/:projectId/import - Import translations from JSON (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { authenticateRequest, isAuthorized } from '@/lib/middleware';

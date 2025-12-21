@@ -1,3 +1,9 @@
+/**
+ * Locales API endpoints
+ * GET /api/v1/projects/:projectId/translations - List all locales
+ * POST /api/v1/projects/:projectId/translations - Add new locale (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { authenticateRequest, isAuthorized, checkProjectAccess } from '@/lib/middleware';

@@ -1,3 +1,9 @@
+/**
+ * Labels API endpoints
+ * GET /api/v1/projects/:projectId/labels - List all labels
+ * POST /api/v1/projects/:projectId/labels - Create new label (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authenticateRequest, checkProjectAccess } from '@/lib/middleware';

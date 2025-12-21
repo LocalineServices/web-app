@@ -1,3 +1,8 @@
+/**
+ * Export Project Translations API endpoint
+ * GET /api/v1/projects/:projectId/export - Export all project translations in JSON format
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';

@@ -1,3 +1,9 @@
+/**
+ * Individual Label API endpoints
+ * PATCH /api/v1/projects/:projectId/labels/:labelId - Update label (admins only)
+ * DELETE /api/v1/projects/:projectId/labels/:labelId - Delete label (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authenticateRequest, checkProjectAccess } from '@/lib/middleware';
