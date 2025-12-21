@@ -29,7 +29,6 @@ export async function GET(
       );
     }
 
-    // Check method authorization
     if (!isAuthorized(request.method, auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
@@ -39,7 +38,6 @@ export async function GET(
 
     const { projectId } = await params;
 
-    // For API keys, verify it's for the correct project
     if (auth.isApiKey && auth.projectId !== projectId) {
       return NextResponse.json(
         { error: 'API key not valid for this project' },
@@ -47,7 +45,6 @@ export async function GET(
       );
     }
 
-    // For session auth, verify ownership or team membership
     if (!auth.isApiKey) {
       const access = await checkProjectAccess(auth.userId!, projectId);
       
@@ -77,7 +74,6 @@ export async function GET(
       return NextResponse.json({ data: project });
     }
 
-    // For API key auth, just get the project
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: {
@@ -127,7 +123,6 @@ export async function PATCH(
 
     const { projectId } = await params;
 
-    // Project settings require session auth with owner/admin role or admin API key
     if (auth.isApiKey) {
       if (auth.apiKeyRole !== 'admin') {
         return NextResponse.json(
@@ -142,7 +137,6 @@ export async function PATCH(
         );
       }
     } else {
-      // For session auth, verify ownership or admin membership
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
@@ -162,7 +156,6 @@ export async function PATCH(
 
     const body: UpdateProjectRequest = await request.json();
 
-    // Verify project exists
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: { id: true },
@@ -175,7 +168,6 @@ export async function PATCH(
       );
     }
 
-    // Build update data
     const updateData: { name?: string; description?: string | null } = {};
 
     if (body.name !== undefined) {
@@ -192,7 +184,6 @@ export async function PATCH(
       );
     }
 
-    // Update project
     const updatedProject = await prisma.project.update({
       where: { id: projectId },
       data: updateData,
@@ -230,7 +221,6 @@ export async function DELETE(
 
     const { projectId } = await params;
 
-    // Project deletion requires session auth as owner (not team members)
     if (auth.isApiKey) {
       return NextResponse.json(
         { error: 'API keys cannot delete projects' },
@@ -238,7 +228,6 @@ export async function DELETE(
       );
     }
 
-    // Verify project ownership (not just membership)
     const project = await prisma.project.findFirst({
       where: {
         id: projectId,
@@ -254,7 +243,6 @@ export async function DELETE(
       );
     }
 
-    // Delete project (cascade will handle related data)
     await prisma.project.delete({
       where: { id: projectId },
     });

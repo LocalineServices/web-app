@@ -25,7 +25,6 @@ export async function DELETE(
 
     const { projectId, keyId } = await params;
 
-    // Verify project access - must be owner or admin
     const access = await checkProjectAccess(currentUser.userId, projectId);
     
     if (!access.hasAccess) {
@@ -35,7 +34,6 @@ export async function DELETE(
       );
     }
 
-    // Only owners and admins can delete API keys
     if (!access.isOwner && access.memberRole !== 'admin') {
       return NextResponse.json(
         { error: 'Only project owners and admins can delete API keys' },
@@ -43,7 +41,6 @@ export async function DELETE(
       );
     }
 
-    // Verify API key belongs to project
     const apiKey = await prisma.apiKey.findFirst({
       where: {
         id: keyId,
@@ -59,7 +56,6 @@ export async function DELETE(
       );
     }
 
-    // Revoke API key (soft delete)
     await prisma.apiKey.update({
       where: { id: keyId },
       data: { revokedAt: new Date() },

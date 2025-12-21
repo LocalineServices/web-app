@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     const body: LoginRequest = await request.json();
     const { email, password } = body;
 
-    // Validate input
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
@@ -25,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -43,7 +41,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify password
     const isValidPassword = await verifyPassword(password, user.passwordHash);
     if (!isValidPassword) {
       return NextResponse.json(
@@ -52,11 +49,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate token
     const token = generateToken({ userId: user.id, email: user.email });
     await setAuthCookie(token);
 
-    // Return user data (without password)
     return NextResponse.json({
       user: {
         id: user.id,

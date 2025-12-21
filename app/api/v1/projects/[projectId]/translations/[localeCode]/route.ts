@@ -25,7 +25,6 @@ export async function GET(
 
     const { projectId, localeCode } = await params;
 
-    // Verify project access
     const { checkProjectAccess } = await import('@/lib/middleware');
     const access = await checkProjectAccess(
       auth.userId!,
@@ -36,7 +35,6 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get locale
     const locale = await prisma.locale.findFirst({
       where: {
         projectId,
@@ -52,7 +50,6 @@ export async function GET(
       );
     }
 
-    // Get translations for this locale with labels
     const translations = await prisma.translation.findMany({
       where: {
         localeId: locale.id,
@@ -70,7 +67,6 @@ export async function GET(
       orderBy: { createdAt: 'desc' },
     });
 
-    // Transform to expected format
     const transformedTranslations = translations.map((translation) => ({
       termId: translation.termId,
       value: translation.value,
@@ -104,7 +100,6 @@ export async function DELETE(
       );
     }
 
-    // Check if authorized for DELETE (admin only for API keys)
     if (!isAuthorized('DELETE', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - admin access required for deletion' },
@@ -121,7 +116,6 @@ export async function DELETE(
       );
     }
 
-    // Verify project access - admin or owner only for DELETE
     const { checkProjectAccess } = await import('@/lib/middleware');
     const access = await checkProjectAccess(
       auth.userId!,
@@ -132,7 +126,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden - admin access required' }, { status: 403 });
     }
 
-    // Delete locale by code (this will cascade delete translations due to ON DELETE CASCADE)
     const deleteResult = await prisma.locale.deleteMany({
       where: {
         projectId,

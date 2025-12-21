@@ -66,7 +66,6 @@ export async function PATCH(request: NextRequest) {
 
     const body: UpdateProfileRequest = await request.json();
 
-    // Validate input
     const updateData: { name?: string; email?: string } = {};
 
     if (body.name !== undefined) {
@@ -87,7 +86,6 @@ export async function PATCH(request: NextRequest) {
         );
       }
 
-      // Check if email is already taken by another user
       const existingUser = await prisma.user.findFirst({
         where: {
           email: body.email,
@@ -113,7 +111,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Update user
     const updatedUser = await prisma.user.update({
       where: { id: currentUser.userId },
       data: updateData,
@@ -146,7 +143,6 @@ export async function DELETE() {
       );
     }
 
-    // Check if user owns any projects
     const ownedProjectsCount = await prisma.project.count({
       where: { ownerId: currentUser.userId },
     });
@@ -158,13 +154,10 @@ export async function DELETE() {
       );
     }
 
-    // Delete user account
-    // Note: ProjectMember entries will be automatically deleted due to onDelete: Cascade in the schema
     await prisma.user.delete({
       where: { id: currentUser.userId },
     });
 
-    // Clear authentication cookie
     await removeAuthCookie();
 
     return NextResponse.json({ 

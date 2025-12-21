@@ -32,7 +32,6 @@ export async function GET(
 
     const { projectId } = await params;
 
-    // Verify project access - only owner and admin members can manage API keys
     const access = await checkProjectAccess(currentUser.userId, projectId);
     
     if (!access.hasAccess) {
@@ -49,7 +48,6 @@ export async function GET(
       );
     }
 
-    // Get API keys (excluding keyHash)
     const apiKeys = await prisma.apiKey.findMany({
       where: {
         projectId,
@@ -92,7 +90,6 @@ export async function POST(
     const { projectId } = await params;
     const body: CreateApiKeyRequest = await request.json();
 
-    // Verify project access - only owner and admin members can manage API keys
     const access = await checkProjectAccess(currentUser.userId, projectId);
     
     if (!access.hasAccess) {
@@ -109,7 +106,6 @@ export async function POST(
       );
     }
 
-    // Validate input
     if (!body.name || body.name.trim().length === 0) {
       return NextResponse.json(
         { error: 'API key name is required' },
@@ -124,11 +120,9 @@ export async function POST(
       );
     }
 
-    // Generate API key
     const apiKey = generateApiKey();
     const keyHash = await hashApiKey(apiKey);
 
-    // Create API key
     const keyId = uuidv4();
     const createdKey = await prisma.apiKey.create({
       data: {
@@ -146,7 +140,6 @@ export async function POST(
       },
     });
 
-    // Return API key (only time it's shown)
     return NextResponse.json({
       data: {
         id: createdKey.id,

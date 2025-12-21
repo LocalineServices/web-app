@@ -31,14 +31,11 @@ export async function GET(
 
     const { projectId } = await params;
 
-    // Verify project access
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be a team member
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
@@ -46,7 +43,6 @@ export async function GET(
       }
     }
 
-    // Get locales
     const locales = await prisma.locale.findMany({
       where: { projectId },
       select: {
@@ -59,7 +55,6 @@ export async function GET(
       orderBy: { createdAt: 'asc' },
     });
 
-    // Transform to expected format
     const transformedLocales = locales.map((locale) => ({
       id: locale.id,
       locale: {
@@ -94,7 +89,6 @@ export async function POST(
       );
     }
 
-    // Check if authorized for POST
     if (!isAuthorized('POST', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - insufficient permissions' },
@@ -105,21 +99,17 @@ export async function POST(
     const { projectId } = await params;
     const body: AddLocaleRequest = await request.json();
 
-    // Verify project access - editors cannot add locales
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot add locales
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot add locales' },
@@ -128,7 +118,6 @@ export async function POST(
       }
     }
 
-    // Validate input
     if (!body.code || body.code.trim().length === 0) {
       return NextResponse.json(
         { error: 'Locale code is required' },
@@ -136,7 +125,6 @@ export async function POST(
       );
     }
 
-    // Validate locale code against predefined list
     if (!isValidLocaleCode(body.code)) {
       return NextResponse.json(
         { error: 'Invalid locale code. Please use a supported locale code (e.g., en_US, de_DE, fr_FR)' },
@@ -144,7 +132,6 @@ export async function POST(
       );
     }
 
-    // Get locale definition
     const localeDefinition = getLocaleByCode(body.code);
     if (!localeDefinition) {
       return NextResponse.json(
@@ -153,7 +140,6 @@ export async function POST(
       );
     }
 
-    // Check if locale already exists
     const existingLocale = await prisma.locale.findFirst({
       where: {
         projectId,
@@ -169,7 +155,6 @@ export async function POST(
       );
     }
 
-    // Create locale with language and region populated
     const localeId = uuidv4();
     const locale = await prisma.locale.create({
       data: {
@@ -188,7 +173,6 @@ export async function POST(
       },
     });
 
-    // Return created locale
     return NextResponse.json({
       data: {
         id: locale.id,

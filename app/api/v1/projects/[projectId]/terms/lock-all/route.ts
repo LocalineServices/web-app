@@ -18,14 +18,12 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // API keys with admin role can lock terms
     if (auth.isApiKey && auth.apiKeyRole !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { projectId } = await params;
 
-    // Verify project access
     if (auth.isApiKey) {
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -37,7 +35,6 @@ export async function POST(
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot lock terms
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot lock terms' },
@@ -46,7 +43,6 @@ export async function POST(
       }
     }
 
-    // Lock all terms for this project
     const result = await prisma.term.updateMany({
       where: {
         projectId,
