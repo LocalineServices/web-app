@@ -246,7 +246,7 @@ export default function ProjectSettingsPage() {
               }}
             >
               <AlertDialogTrigger asChild>
-                <Button variant="destructive">Delete Project</Button>
+                <Button variant="destructive" disabled={!permissions.isOwner}>Delete Project</Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
