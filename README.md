@@ -1,8 +1,32 @@
-# Translations App
+<div align="center">
+  <img src="images/logo.png" alt="Localine Logo" width="200"/>
 
-A modern translation management system built with Next.js 16, TypeScript, and MariaDB.
+  # Localine
+  
+  [![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
+  [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+  
+  **An open translation management platform for teams**
+  
+  [Features](#features) • [Tech Stack](#tech-stack) • [Configuration](#configuration) • [License](#license)
+</div>
 
-## Features
+---
+
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Configuration](#configuration)
+- [Environment Variables](#environment-variables)
+- [Development](#development)
+- [License](#license)
+- [Support](#support)
+
+---
+
+## ✨ Features
 
 - 🔐 **User Authentication** - Secure signup/login with JWT-based session management
 - 📁 **Project Management** - Create and manage multiple translation projects
@@ -11,164 +35,114 @@ A modern translation management system built with Next.js 16, TypeScript, and Ma
 - 📝 **Terms & Translations** - Manage translation keys and their translations
 - 🔑 **API Keys** - Generate API keys with role-based permissions
 - 🎨 **Modern UI** - Beautiful interface built with Radix UI and Tailwind CSS
+- 📊 **RESTful API** - Complete API for integration with your applications
+- 🔍 **Search & Filter** - Powerful search and filtering capabilities
+- 📥 **Import/Export** - Support for multiple translation file formats
 
-## Getting Started
+---
 
-### Prerequisites
+## 🛠️ Tech Stack
 
-- Node.js 18+ 
-- MariaDB 10.5+ (or MySQL 8.0+)
-- npm or yarn
+| Category | Technology |
+|----------|-----------|
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Database** | MariaDB / MySQL |
+| **ORM** | Prisma |
+| **UI Components** | Radix UI |
+| **Styling** | Tailwind CSS |
+| **State Management** | TanStack Query (React Query) |
+| **Authentication** | JWT with httpOnly cookies |
+| **API Documentation** | Swagger/OpenAPI |
 
-### Installation
+---
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd Translations
-```
+## ⚙️ Configuration
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up the database:
-```bash
-# Create a new database
-mysql -u root -p -e "CREATE DATABASE translations CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-# Import the schema
-mysql -u root -p translations < lib/db-schema.sql
-```
-
-4. Configure environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your database credentials and JWT secret
-```
-
-5. Run the development server:
-```bash
-npm run dev
-```
-
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Environment Variables
+### Environment Variables
 
 See `.env.example` for required environment variables:
 
-- `DB_HOST` - Database host (default: localhost)
-- `DB_PORT` - Database port (default: 3306)
-- `DB_USER` - Database user
-- `DB_PASSWORD` - Database password
-- `DB_NAME` - Database name (default: translations)
-- `JWT_SECRET` - **REQUIRED in production!** Secret key for JWT tokens (min 32 characters, use a strong random string)
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `DATABASE_HOST` | Database host | `localhost` | ✅ |
+| `DATABASE_PORT` | Database port | `3306` | ✅ |
+| `DATABASE_USER` | Database user | - | ✅ |
+| `DATABASE_PASSWORD` | Database password | - | ✅ |
+| `DATABASE_NAME` | Database name | `localine` | ✅ |
+| `JWT_SECRET` | Secret key for JWT tokens (min 32 characters) | - | ✅ (Production) |
 
-## API Documentation
+### Database Setup
 
-### Authentication
+Ensure your database is running and accessible with the credentials specified in your `.env` file.
 
-All API endpoints (except authentication endpoints) require authentication via:
-- **Cookie-based session** (for web interface)
-- **API Key** (for programmatic access)
+---
 
-#### Auth Endpoints
+## 🚀 Development
 
-- `POST /api/auth/signup` - Create new user account
-- `POST /api/auth/login` - Login to existing account
-- `POST /api/auth/logout` - Logout current session
+### Project Structure
 
-### Projects API
-
-- `GET /api/v1/projects` - List all user projects (owned and team member)
-- `POST /api/v1/projects` - Create new project
-- `GET /api/v1/projects/:id` - Get project details
-- `PATCH /api/v1/projects/:id` - Update project (owner or admin members only)
-- `DELETE /api/v1/projects/:id` - Delete project (owner only)
-
-### Team Collaboration API
-
-- `GET /api/v1/projects/:id/members` - List team members (owner or admin members only)
-- `POST /api/v1/projects/:id/members` - Add team member (owner or admin members only)
-- `PATCH /api/v1/projects/:id/members/:userId` - Update team member role/locales (owner or admin members only)
-- `DELETE /api/v1/projects/:id/members/:userId` - Remove team member (owner or admin members only)
-
-#### Team Member Roles
-
-- **editor** - Can only translate existing terms in assigned locales
-  - View project, terms, and translations
-  - Update translations (in assigned locales if specified)
-  - Cannot create/update/delete terms, locales, labels, or manage API keys
-- **admin** - Can do everything except delete the project
-  - All permissions of owner except project deletion
-  - Can manage team members, API keys, terms, locales, and translations
-
-### Terms API
-
-- `GET /api/v1/projects/:id/terms` - List all terms
-- `POST /api/v1/projects/:id/terms` - Create new term (admins only, editors cannot)
-- `PATCH /api/v1/projects/:id/terms/:termId` - Update term (admins only, editors cannot)
-- `DELETE /api/v1/projects/:id/terms/:termId` - Delete term (admins only, editors cannot)
-
-### Locales API
-
-- `GET /api/v1/projects/:id/translations` - List all locales
-- `POST /api/v1/projects/:id/translations` - Add new locale (admins only, editors cannot)
-- `DELETE /api/v1/projects/:id/translations/:localeId` - Remove locale (admins only, editors cannot)
-
-### Translations API
-
-- `GET /api/v1/projects/:id/translations/:localeCode` - Get all translations for locale
-- `PATCH /api/v1/projects/:id/translations/:localeCode/:termId` - Update translation (editors restricted to assigned locales)
-
-### API Keys
-
-- `GET /api/v1/projects/:id/api-keys` - List API keys (owner or admin members only)
-- `POST /api/v1/projects/:id/api-keys` - Create new API key (owner or admin members only)
-- `DELETE /api/v1/projects/:id/api-keys/:keyId` - Revoke API key (owner or admin members only)
-
-#### API Key Roles
-
-- **read-only** - Can only perform GET requests
-- **editor** - Can perform GET, POST, and PATCH requests (manage translations, not terms/locales)
-- **admin** - Full access to project management including team member management
-
-#### Using API Keys
-
-Include the API key in the Authorization header:
-```bash
-curl -H "Authorization: Bearer tk_your_api_key_here" \
-  https://your-domain.com/api/v1/projects
+```
+src/
+├── app/              # Next.js app router pages
+│   ├── (auth)/      # Authentication pages
+│   ├── (dashboard)/ # Dashboard pages
+│   └── api/         # API routes
+├── components/       # React components
+│   ├── ui/          # UI components (Radix)
+│   └── layout/      # Layout components
+├── hooks/           # Custom React hooks
+└── lib/             # Utility libraries
+    ├── auth.ts      # Authentication utilities
+    ├── db.ts        # Database utilities
+    └── prisma.ts    # Prisma client
 ```
 
-## Tech Stack
-
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **Database**: MariaDB / MySQL
-- **UI Components**: Radix UI
-- **Styling**: Tailwind CSS
-- **State Management**: TanStack Query (React Query)
-- **Authentication**: JWT with httpOnly cookies
-
-## Development
+### Available Scripts
 
 ```bash
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Run linter
-npm run lint
+npm run dev         # Start development server
+npm run build       # Build for production
+npm run start       # Start production server
+npm run lint        # Run ESLint
 ```
 
-## License
+### API Documentation
 
-This project is licensed under the MIT License.
+Once the server is running, you can access the API documentation at:
+
+```
+http://localhost:3000/api
+```
+
+---
+
+## 📝 License
+
+This project is licensed under the GNU Affero General Public License v3.0. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📞 Support
+
+If you encounter any problems or have questions, please open an [issue](https://github.com/LocalineServices/web-app/issues) on GitHub.
+
+---
+
+<div align="center">
+  Made with ❤️ by ItzMxritz & LeonJS_
+  
+  [GitHub](https://github.com/LocalineServices)
+</div>
