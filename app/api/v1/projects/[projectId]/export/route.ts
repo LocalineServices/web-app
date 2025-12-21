@@ -1,3 +1,8 @@
+/**
+ * Export Project Translations API endpoint
+ * GET /api/v1/projects/:projectId/export - Export all project translations in JSON format
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';
@@ -14,12 +19,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify project access
     if (auth.isApiKey && auth.projectId !== projectId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get query parameters
     const searchParams = request.nextUrl.searchParams;
     const format = searchParams.get('format') || 'json-flat';
     const localesParam = searchParams.get('locales') || '';
@@ -31,7 +34,6 @@ export async function GET(
       return NextResponse.json({ error: 'No locales specified' }, { status: 400 });
     }
 
-    // Get all terms with their translations using Prisma
     const terms = await prisma.term.findMany({
       where: { projectId },
       include: {
@@ -49,7 +51,6 @@ export async function GET(
       orderBy: { value: 'asc' }
     });
 
-    // Build translations array from Prisma result
     const translations = terms.flatMap(term =>
       localeCodes.map(localeCode => {
         const translation = term.translations.find(t => t.locale.code === localeCode);
@@ -62,7 +63,6 @@ export async function GET(
       })
     );
 
-    // Build export data based on format
     let exportData: string;
     let contentType: string;
     let filename: string;
@@ -150,7 +150,6 @@ export async function GET(
         }
       });
 
-      // Simple YAML serialization
       const yamlLines: string[] = [];
       Object.entries(data).forEach(([locale, translations]) => {
         yamlLines.push(`${locale}:`);

@@ -28,7 +28,6 @@ export async function PATCH(
       );
     }
 
-    // Check if authorized for PATCH
     if (!isAuthorized('PATCH', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - insufficient permissions' },
@@ -39,7 +38,6 @@ export async function PATCH(
     const { projectId, termId } = await params;
     const body: UpdateTermRequest = await request.json();
 
-    // Verify term exists and get project info
     const existingTerm = await prisma.term.findUnique({
       where: { id: termId },
       select: { projectId: true, isLocked: true },
@@ -53,14 +51,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Term not found in this project' }, { status: 404 });
     }
 
-    // Verify project access - editors cannot update terms
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       
-      // If term is locked, only admin API keys can update
       if (existingTerm.isLocked && auth.apiKeyRole !== 'admin') {
         return NextResponse.json(
           { error: 'This term is locked and can only be modified by admins' },
@@ -68,14 +63,12 @@ export async function PATCH(
         );
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot update terms
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot update terms' },
@@ -83,7 +76,6 @@ export async function PATCH(
         );
       }
       
-      // If term is locked, only owner or admin member can update
       if (existingTerm.isLocked && !access.isOwner && access.memberRole !== 'admin') {
         return NextResponse.json(
           { error: 'This term is locked and can only be modified by admins' },
@@ -92,7 +84,6 @@ export async function PATCH(
       }
     }
 
-    // Build update data
     const updateData: { value?: string; context?: string | null } = {};
 
     if (body.value !== undefined) {
@@ -109,7 +100,6 @@ export async function PATCH(
       );
     }
 
-    // Update term
     const updatedTerm = await prisma.term.update({
       where: { id: termId },
       data: updateData,
@@ -166,7 +156,6 @@ export async function DELETE(
       );
     }
 
-    // Check if authorized for DELETE (admin only for API keys)
     if (!isAuthorized('DELETE', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - admin access required for deletion' },
@@ -176,7 +165,6 @@ export async function DELETE(
 
     const { projectId, termId } = await params;
 
-    // Verify term exists and get project info
     const existingTerm = await prisma.term.findUnique({
       where: { id: termId },
       select: { projectId: true },
@@ -190,21 +178,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Term not found in this project' }, { status: 404 });
     }
 
-    // Verify project access - editors cannot delete terms
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot delete terms
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot delete terms' },
@@ -213,7 +197,6 @@ export async function DELETE(
       }
     }
 
-    // Delete term (cascade will handle translations)
     await prisma.term.delete({
       where: { id: termId },
     });

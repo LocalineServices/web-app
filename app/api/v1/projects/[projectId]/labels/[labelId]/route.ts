@@ -1,3 +1,9 @@
+/**
+ * Individual Label API endpoints
+ * PATCH /api/v1/projects/:projectId/labels/:labelId - Update label (admins only)
+ * DELETE /api/v1/projects/:projectId/labels/:labelId - Delete label (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authenticateRequest, checkProjectAccess } from '@/lib/middleware';
@@ -13,7 +19,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // API keys with admin role can update labels
     if (auth.isApiKey && auth.apiKeyRole !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -22,21 +27,17 @@ export async function PATCH(
     const body = await request.json();
     const { name, color, value } = body;
 
-    // Verify project access
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot update labels
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot update labels' },
@@ -45,7 +46,6 @@ export async function PATCH(
       }
     }
 
-    // Verify label exists and belongs to project
     const label = await prisma.label.findFirst({
       where: {
         id: labelId,
@@ -65,7 +65,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Label not found' }, { status: 404 });
     }
 
-    // Check if new name conflicts with existing label
     if (name && name.trim() !== label.name) {
       const existing = await prisma.label.findFirst({
         where: {
@@ -84,7 +83,6 @@ export async function PATCH(
       }
     }
 
-    // Build update data
     const updateData: { name?: string; color?: string; value?: string | null } = {};
 
     if (name !== undefined && name.trim()) {
@@ -100,7 +98,6 @@ export async function PATCH(
     }
 
     if (Object.keys(updateData).length === 0) {
-      // Transform to match expected format
       const transformedLabel = {
         id: label.id,
         project_id: label.projectId,
@@ -125,7 +122,6 @@ export async function PATCH(
       },
     });
 
-    // Transform to match expected format
     const transformedLabel = {
       id: updatedLabel.id,
       project_id: updatedLabel.projectId,
@@ -155,28 +151,23 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // API keys with admin role can delete labels
     if (auth.isApiKey && auth.apiKeyRole !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { projectId, labelId } = await params;
 
-    // Verify project access
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot delete labels
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot delete labels' },
@@ -185,7 +176,6 @@ export async function DELETE(
       }
     }
 
-    // Verify label exists and belongs to project
     const label = await prisma.label.findFirst({
       where: {
         id: labelId,
@@ -198,7 +188,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Label not found' }, { status: 404 });
     }
 
-    // Delete the label (cascade will handle junction tables)
     await prisma.label.delete({
       where: { id: labelId },
     });

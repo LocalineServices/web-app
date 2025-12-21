@@ -1,3 +1,8 @@
+/**
+ * Lock/Unlock All Terms API endpoints
+ * POST /api/v1/projects/:projectId/terms/unlock-all - Unlock all terms in project (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authenticateRequest, checkProjectAccess } from '@/lib/middleware';
@@ -13,14 +18,12 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // API keys with admin role can unlock terms
     if (auth.isApiKey && auth.apiKeyRole !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { projectId } = await params;
 
-    // Verify project access
     if (auth.isApiKey) {
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -32,7 +35,6 @@ export async function POST(
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot unlock terms
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot unlock terms' },
@@ -41,7 +43,6 @@ export async function POST(
       }
     }
 
-    // Unlock all terms for this project
     const result = await prisma.term.updateMany({
       where: {
         projectId,

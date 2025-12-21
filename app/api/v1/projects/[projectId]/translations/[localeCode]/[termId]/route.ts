@@ -27,7 +27,6 @@ export async function PATCH(
       );
     }
 
-    // Check if authorized for PATCH
     if (!isAuthorized('PATCH', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - insufficient permissions' },
@@ -38,21 +37,17 @@ export async function PATCH(
     const { projectId, localeCode, termId } = await params;
     const body: UpdateTranslationRequest = await request.json();
 
-    // Verify project access
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be a team member
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Check if editor has access to this locale
       if (access.memberRole === 'editor') {
         if (!canAccessLocale(localeCode, access.assignedLocales)) {
           return NextResponse.json(
@@ -63,7 +58,6 @@ export async function PATCH(
       }
     }
 
-    // Validate input
     if (!body.value) {
       return NextResponse.json(
         { error: 'Translation value is required' },
@@ -71,7 +65,6 @@ export async function PATCH(
       );
     }
 
-    // Get locale
     const locale = await prisma.locale.findFirst({
       where: {
         projectId,
@@ -87,7 +80,6 @@ export async function PATCH(
       );
     }
 
-    // Verify term exists in project and check lock status
     const term = await prisma.term.findFirst({
       where: {
         id: termId,
@@ -103,10 +95,8 @@ export async function PATCH(
       );
     }
     
-    // If term is locked, check if user is admin
     if (term.isLocked) {
       if (auth.isApiKey) {
-        // Only admin API keys can update locked terms
         if (auth.apiKeyRole !== 'admin') {
           return NextResponse.json(
             { error: 'This term is locked and can only be translated by admins' },
@@ -114,7 +104,6 @@ export async function PATCH(
           );
         }
       } else {
-        // Only owner or admin members can update locked terms
         const access = await checkProjectAccess(auth.userId!, projectId);
         if (!access.isOwner && access.memberRole !== 'admin') {
           return NextResponse.json(
@@ -125,7 +114,6 @@ export async function PATCH(
       }
     }
 
-    // Check if translation exists
     const existingTranslation = await prisma.translation.findFirst({
       where: {
         termId,
@@ -136,7 +124,6 @@ export async function PATCH(
 
     let translation;
     if (existingTranslation) {
-      // Update existing translation
       translation = await prisma.translation.update({
         where: { id: existingTranslation.id },
         data: { value: body.value },
@@ -148,7 +135,6 @@ export async function PATCH(
         },
       });
     } else {
-      // Create new translation
       const translationId = uuidv4();
       translation = await prisma.translation.create({
         data: {
@@ -166,7 +152,6 @@ export async function PATCH(
       });
     }
 
-    // Return translation
     return NextResponse.json({
       data: {
         termId: translation.termId,

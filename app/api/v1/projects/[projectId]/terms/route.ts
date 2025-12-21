@@ -31,14 +31,11 @@ export async function GET(
 
     const { projectId } = await params;
 
-    // Verify project access
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be a team member
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
@@ -46,7 +43,6 @@ export async function GET(
       }
     }
 
-    // Get terms with labels
     const terms = await prisma.term.findMany({
       where: { projectId },
       select: {
@@ -68,7 +64,6 @@ export async function GET(
       orderBy: { createdAt: 'desc' },
     });
 
-    // Transform to expected format
     const transformedTerms = terms.map((term) => ({
       id: term.id,
       value: term.value,
@@ -105,7 +100,6 @@ export async function POST(
       );
     }
 
-    // Check if authorized for POST
     if (!isAuthorized('POST', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - insufficient permissions' },
@@ -116,21 +110,17 @@ export async function POST(
     const { projectId } = await params;
     const body: CreateTermRequest = await request.json();
 
-    // Verify project access - editors cannot create terms, only admins
     if (auth.isApiKey) {
-      // API key must match the project and have admin or editor role
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot create terms, only translate
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors can only translate existing terms' },
@@ -139,7 +129,6 @@ export async function POST(
       }
     }
 
-    // Validate input
     if (!body.value || body.value.trim().length === 0) {
       return NextResponse.json(
         { error: 'Term value is required' },
@@ -147,7 +136,21 @@ export async function POST(
       );
     }
 
-    // Create term
+    const existingTerm = await prisma.term.findFirst({
+      where: {
+        projectId,
+        value: body.value.trim(),
+      },
+      select: { id: true },
+    });
+
+    if (existingTerm) {
+      return NextResponse.json(
+        { error: 'A term with this key already exists in this project' },
+        { status: 409 }
+      );
+    }
+
     const termId = uuidv4();
     const term = await prisma.term.create({
       data: {
@@ -166,7 +169,6 @@ export async function POST(
       },
     });
 
-    // Return created term
     return NextResponse.json({
       data: {
         id: term.id,

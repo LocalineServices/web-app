@@ -36,12 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+import { User } from "@/lib/types";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -84,7 +79,6 @@ export default function SettingsPage() {
         if (response.ok) {
           const data = await response.json();
           // Count projects where the user is the owner (memberRole is null)
-          // Note: Projects returned with memberRole === null are owned by the user
           const ownedCount = data.data.filter((p: { memberRole: string | null }) => p.memberRole === null).length;
           setOwnedProjectsCount(ownedCount);
         }
@@ -223,7 +217,7 @@ export default function SettingsPage() {
   }
 
   const gravatarUrl = user ? getGravatarUrl(user.email, 160) : "";
-  const initials = user ? getInitials(user.name) : "?";
+  const initials = user ? getInitials(user.name!) : "?";
 
   return (
     <div className="space-y-6">
@@ -295,7 +289,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-center">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={gravatarUrl} alt={user?.name} />
+                  <AvatarImage src={gravatarUrl} alt={user?.name || "U"} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-xl">
                     {initials}
                   </AvatarFallback>
@@ -443,11 +437,21 @@ export default function SettingsPage() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={handleDeleteAccount}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteAccount();
+                      }}
                       disabled={isDeleting || ownedProjectsCount > 0}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                      {isDeleting ? "Deleting..." : "Delete account"}
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        "Delete account"
+                      )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

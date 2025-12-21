@@ -6,17 +6,12 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-// Context to allow closing the dialog from the overlay
 const AlertDialogCloseContext = React.createContext<(() => void) | null>(null);
 
-const AlertDialog = React.forwardRef<
-  React.ElementRef<typeof AlertDialogPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>
->((props, ref) => {
+const AlertDialog: React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>> = (props) => {
   const { onOpenChange, open: controlledOpen, ...rest } = props;
   const [internalOpen, setInternalOpen] = React.useState(props.defaultOpen ?? false);
   
-  // Use controlled open if provided, otherwise use internal state
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   
   const handleOpenChange = React.useCallback((newOpen: boolean) => {
@@ -36,11 +31,10 @@ const AlertDialog = React.forwardRef<
         {...rest} 
         open={open} 
         onOpenChange={handleOpenChange}
-        ref={ref}
       />
     </AlertDialogCloseContext.Provider>
   );
-})
+}
 AlertDialog.displayName = "AlertDialog"
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger
@@ -53,7 +47,7 @@ const AlertDialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/80 data-state-open:animate-in data-state-closed:animate-out data-state-closed:fade-out-0 data-state-open:fade-in-0",
       className
     )}
     {...props}
@@ -81,7 +75,7 @@ const AlertDialogContent = React.forwardRef<
       <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg",
+          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-state-open:animate-in data-state-closed:animate-out data-state-closed:fade-out-0 data-state-open:fade-in-0 data-state-closed:zoom-out-95 data-state-open:zoom-in-95 sm:rounded-lg",
           className
         )}
         {...props}

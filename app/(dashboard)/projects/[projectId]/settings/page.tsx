@@ -30,12 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
-
-interface Project {
-  id: string;
-  name: string;
-  description: string | null;
-}
+import { Project } from "@/lib/types";
 
 export default function ProjectSettingsPage() {
   const params = useParams();
@@ -244,11 +239,21 @@ export default function ProjectSettingsPage() {
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={handleDeleteProject}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteProject();
+                    }}
                     disabled={isDeleting}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    Delete Project
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete Project"
+                    )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

@@ -31,7 +31,6 @@ export async function PATCH(
     const { projectId, userId } = await params;
     const body: UpdateMemberRequest = await request.json();
 
-    // Verify project access - API key must be admin role, or user must be owner or admin member
     if (auth.isApiKey) {
       if (auth.apiKeyRole !== 'admin') {
         return NextResponse.json(
@@ -46,7 +45,6 @@ export async function PATCH(
         );
       }
     } else {
-      // For session auth, verify ownership or admin membership
       const canManage = await canManageTeamMembers(auth.userId!, projectId);
       
       if (!canManage) {
@@ -57,7 +55,6 @@ export async function PATCH(
       }
     }
 
-    // Check if member exists
     const member = await prisma.projectMember.findFirst({
       where: {
         projectId,
@@ -73,7 +70,6 @@ export async function PATCH(
       );
     }
 
-    // Build update data
     const updateData: {
       role?: string;
       assignedLocales?: string | null;
@@ -88,14 +84,12 @@ export async function PATCH(
       }
       updateData.role = body.role;
       
-      // If changing to admin, clear assigned locales
       if (body.role === 'admin') {
         updateData.assignedLocales = null;
       }
     }
 
     if (body.assignedLocales !== undefined) {
-      // Get the current or new role
       const currentMember = await prisma.projectMember.findUnique({
         where: { id: member.id },
         select: { role: true },
@@ -103,10 +97,8 @@ export async function PATCH(
       
       const effectiveRole = body.role || currentMember?.role;
 
-      // Only allow assigned locales for editors
       if (effectiveRole === 'editor') {
         if (body.assignedLocales.length > 0) {
-          // Verify all locales exist in the project
           const locales = await prisma.locale.findMany({
             where: {
               projectId,
@@ -127,7 +119,6 @@ export async function PATCH(
           updateData.assignedLocales = null;
         }
       } else if (effectiveRole === 'admin') {
-        // When changing to admin, clear assigned locales
         updateData.assignedLocales = null;
       }
     }
@@ -139,7 +130,6 @@ export async function PATCH(
       );
     }
 
-    // Update member
     const updatedMember = await prisma.projectMember.update({
       where: { id: member.id },
       data: updateData,
@@ -158,7 +148,6 @@ export async function PATCH(
       },
     });
 
-    // Transform response
     const assignedLocales = parseAssignedLocales(updatedMember.assignedLocales);
 
     return NextResponse.json({
@@ -197,7 +186,6 @@ export async function DELETE(
 
     const { projectId, userId } = await params;
 
-    // Verify project access - API key must be admin role, or user must be owner or admin member
     if (auth.isApiKey) {
       if (auth.apiKeyRole !== 'admin') {
         return NextResponse.json(
@@ -212,7 +200,6 @@ export async function DELETE(
         );
       }
     } else {
-      // For session auth, verify ownership or admin membership
       const canManage = await canManageTeamMembers(auth.userId!, projectId);
       
       if (!canManage) {
@@ -223,7 +210,6 @@ export async function DELETE(
       }
     }
 
-    // Check if member exists
     const member = await prisma.projectMember.findFirst({
       where: {
         projectId,
@@ -239,7 +225,6 @@ export async function DELETE(
       );
     }
 
-    // Delete member
     await prisma.projectMember.delete({
       where: { id: member.id },
     });

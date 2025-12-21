@@ -26,7 +26,6 @@ export async function GET() {
       );
     }
 
-    // Get projects owned by the user
     const ownedProjects = await prisma.project.findMany({
       where: { ownerId: currentUser.userId },
       select: {
@@ -39,7 +38,6 @@ export async function GET() {
       },
     });
 
-    // Get projects where user is a team member
     const memberProjects = await prisma.projectMember.findMany({
       where: { userId: currentUser.userId },
       select: {
@@ -57,7 +55,6 @@ export async function GET() {
       },
     });
 
-    // Combine and sort by creation date
     const allProjects = [
       ...ownedProjects.map(p => ({ ...p, memberRole: null })),
       ...memberProjects.map(m => ({ ...m.project, memberRole: m.role })),
@@ -87,7 +84,6 @@ export async function POST(request: NextRequest) {
     const body: CreateProjectRequest = await request.json();
     const { name, description } = body;
 
-    // Validate input
     if (!name || name.trim().length === 0) {
       return NextResponse.json(
         { error: 'Project name is required' },
@@ -95,7 +91,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create project
     const projectId = uuidv4();
     const project = await prisma.project.create({
       data: {

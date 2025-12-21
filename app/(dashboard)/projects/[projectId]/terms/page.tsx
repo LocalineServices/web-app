@@ -219,6 +219,7 @@ export default function TermsPage() {
       setDeletingTermId(null);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete term");
+      // Don't close dialog on error so user can retry
     }
   };
 
@@ -607,8 +608,11 @@ export default function TermsPage() {
                               onOpenChange={(open) => {
                                 if (open) {
                                   setDeletingTermId(term.id);
-                                } else if (!deleteTermMutation.isPending) {
-                                  setDeletingTermId(null);
+                                } else {
+                                  // Prevent closing while deletion is in progress
+                                  if (!deleteTermMutation.isPending) {
+                                    setDeletingTermId(null);
+                                  }
                                 }
                               }}
                             >
@@ -631,7 +635,10 @@ export default function TermsPage() {
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDeleteTerm(term.id)}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleDeleteTerm(term.id);
+                                    }}
                                     disabled={deleteTermMutation.isPending && deletingTermId === term.id}
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >

@@ -1,3 +1,9 @@
+/**
+ * Labels API endpoints
+ * GET /api/v1/projects/:projectId/labels - List all labels
+ * POST /api/v1/projects/:projectId/labels - Create new label (admins only)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authenticateRequest, checkProjectAccess } from '@/lib/middleware';
@@ -16,14 +22,11 @@ export async function GET(
 
     const { projectId } = await params;
 
-    // Verify project access
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be a team member
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
@@ -44,7 +47,6 @@ export async function GET(
       orderBy: { name: 'asc' },
     });
 
-    // Transform to match expected format
     const transformedLabels = labels.map(label => ({
       id: label.id,
       project_id: label.projectId,
@@ -74,7 +76,6 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // API keys with admin role can create labels
     if (auth.isApiKey && auth.apiKeyRole !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -87,21 +88,17 @@ export async function POST(
       return NextResponse.json({ error: 'Label name is required' }, { status: 400 });
     }
 
-    // Verify project access - editors cannot create labels
     if (auth.isApiKey) {
-      // API key must match the project
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else {
-      // Session user must own the project or be an admin member (not editor)
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Editors cannot create labels
       if (access.memberRole === 'editor') {
         return NextResponse.json(
           { error: 'Editors cannot create labels' },
@@ -110,7 +107,6 @@ export async function POST(
       }
     }
 
-    // Check if label with same name already exists
     const existing = await prisma.label.findFirst({
       where: {
         projectId,
@@ -147,7 +143,6 @@ export async function POST(
       },
     });
 
-    // Transform to match expected format
     const transformedLabel = {
       id: label.id,
       project_id: label.projectId,

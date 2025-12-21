@@ -1,63 +1,14 @@
 /**
  * Term Labels API endpoints
- * PUT /api/v1/projects/:projectId/terms/:termId/labels - Set term labels
+ * PUT /api/v1/projects/:projectId/terms/:termId/labels - Set term labels (editors and admins)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { authenticateRequest, isAuthorized, checkProjectAccess } from '@/lib/middleware';
 import { prisma } from '@/lib/db';
 
 interface SetLabelsRequest {
   labelIds: string[];
-}
-
-// Helper to verify term access (owner or team member)
-async function verifyTermAccess(termId: string, projectId: string, userId: string): Promise<{
-  hasAccess: boolean;
-  isLocked: boolean;
-  isOwner: boolean;
-  isAdmin: boolean;
-}> {
-  const term = await prisma.term.findFirst({
-    where: {
-      id: termId,
-      projectId,
-    },
-    select: { 
-      id: true,
-      isLocked: true,
-      project: {
-        select: {
-          ownerId: true,
-          members: {
-            where: {
-              userId,
-            },
-            select: {
-              id: true,
-              role: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  
-  if (!term) {
-    return { hasAccess: false, isLocked: false, isOwner: false, isAdmin: false };
-  }
-  
-  const isOwner = term.project.ownerId === userId;
-  const member = term.project.members[0];
-  const isAdmin = isOwner || (member && member.role === 'admin');
-  
-  // Allow if user is owner or a team member
-  return {
-    hasAccess: isOwner || term.project.members.length > 0,
-    isLocked: term.isLocked,
-    isOwner,
-    isAdmin,
-  };
 }
 
 // PUT /api/v1/projects/:projectId/terms/:termId/labels
@@ -66,9 +17,9 @@ export async function PUT(
   { params }: { params: Promise<{ projectId: string; termId: string }> }
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const auth = await authenticateRequest(request);
     
-    if (!currentUser) {
+    if (!auth) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
@@ -78,24 +29,60 @@ export async function PUT(
     const { termId, projectId } = await params;
     const body: SetLabelsRequest = await request.json();
 
-    // Verify access (owner or team member)
-    const access = await verifyTermAccess(termId, projectId, currentUser.userId);
-    if (!access.hasAccess) {
+    let sessionAccess: Awaited<ReturnType<typeof checkProjectAccess>> | null = null;
+    
+    if (auth.isApiKey) {
+      if (auth.projectId !== projectId) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      
+      if (!isAuthorized('PUT', auth.apiKeyRole)) {
+        return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      }
+    } else {
+      sessionAccess = await checkProjectAccess(auth.userId!, projectId);
+      
+      if (!sessionAccess.hasAccess) {
+        return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      }
+    }
+
+    const term = await prisma.term.findFirst({
+      where: {
+        id: termId,
+        projectId,
+      },
+      select: {
+        id: true,
+        isLocked: true,
+      },
+    });
+
+    if (!term) {
       return NextResponse.json(
-        { error: 'Term not found or access denied' },
+        { error: 'Term not found' },
         { status: 404 }
       );
     }
     
-    // If term is locked, only admins can modify labels
-    if (access.isLocked && !access.isAdmin) {
-      return NextResponse.json(
-        { error: 'This term is locked and its labels can only be modified by admins' },
-        { status: 403 }
-      );
+    if (term.isLocked) {
+      if (auth.isApiKey) {
+        if (auth.apiKeyRole !== 'admin') {
+          return NextResponse.json(
+            { error: 'This term is locked and its labels can only be modified by admins' },
+            { status: 403 }
+          );
+        }
+      } else {
+        if (!sessionAccess!.isOwner && sessionAccess!.memberRole !== 'admin') {
+          return NextResponse.json(
+            { error: 'This term is locked and its labels can only be modified by admins' },
+            { status: 403 }
+          );
+        }
+      }
     }
 
-    // Validate that all label IDs belong to the project
     if (body.labelIds && body.labelIds.length > 0) {
       const labels = await prisma.label.findMany({
         where: {
@@ -113,8 +100,7 @@ export async function PUT(
       }
     }
 
-    // Update term labels using set operation
-    const term = await prisma.term.update({
+    const updatedTerm = await prisma.term.update({
       where: { id: termId },
       data: {
         labels: {
@@ -139,13 +125,13 @@ export async function PUT(
 
     return NextResponse.json({
       data: {
-        id: term.id,
-        value: term.value,
-        context: term.context,
-        labels: term.labels,
+        id: updatedTerm.id,
+        value: updatedTerm.value,
+        context: updatedTerm.context,
+        labels: updatedTerm.labels,
         date: {
-          created: term.createdAt,
-          modified: term.updatedAt,
+          created: updatedTerm.createdAt,
+          modified: updatedTerm.updatedAt,
         },
       },
     });

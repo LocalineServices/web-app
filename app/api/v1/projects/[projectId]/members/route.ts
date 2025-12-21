@@ -32,7 +32,6 @@ export async function GET(
 
     const { projectId } = await params;
 
-    // Verify project access - API key must be admin role, or user must be owner or admin member
     if (auth.isApiKey) {
       if (auth.apiKeyRole !== 'admin') {
         return NextResponse.json(
@@ -47,12 +46,9 @@ export async function GET(
         );
       }
     } else {
-      // For session auth, verify ownership or admin membership
       const canManage = await canManageTeamMembers(auth.userId!, projectId);
       
-      // If user can't manage team members, we'll only return their own record
       if (!canManage) {
-        // Get only the current user's team member record
         const members = await prisma.projectMember.findMany({
           where: { 
             projectId,
@@ -74,7 +70,6 @@ export async function GET(
           orderBy: { createdAt: 'asc' },
         });
 
-        // Transform response
         const transformedMembers = members.map((member) => {
           const assignedLocales = parseAssignedLocales(member.assignedLocales);
 
@@ -93,7 +88,6 @@ export async function GET(
       }
     }
 
-    // Get all team members (for users who can manage)
     const members = await prisma.projectMember.findMany({
       where: { projectId },
       select: {
@@ -112,7 +106,6 @@ export async function GET(
       orderBy: { createdAt: 'asc' },
     });
 
-    // Transform response
     const transformedMembers = members.map((member) => {
       const assignedLocales = parseAssignedLocales(member.assignedLocales);
 
@@ -154,7 +147,6 @@ export async function POST(
     const { projectId } = await params;
     const body: AddMemberRequest = await request.json();
 
-    // Verify project access - API key must be admin role, or user must be owner or admin member
     if (auth.isApiKey) {
       if (auth.apiKeyRole !== 'admin') {
         return NextResponse.json(
@@ -169,7 +161,6 @@ export async function POST(
         );
       }
     } else {
-      // For session auth, verify ownership or admin membership
       const canManage = await canManageTeamMembers(auth.userId!, projectId);
       
       if (!canManage) {
@@ -180,7 +171,6 @@ export async function POST(
       }
     }
 
-    // Validate input
     if (!body.email || body.email.trim().length === 0) {
       return NextResponse.json(
         { error: 'Email is required' },
@@ -195,7 +185,6 @@ export async function POST(
       );
     }
 
-    // Check if user exists
     const userToAdd = await prisma.user.findUnique({
       where: { email: body.email },
       select: { id: true, email: true, name: true },
@@ -208,7 +197,6 @@ export async function POST(
       );
     }
 
-    // Check if user is already a member or owner
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: { 
@@ -241,7 +229,6 @@ export async function POST(
       );
     }
 
-    // Validate assigned locales if provided
     let assignedLocalesJson: string | null = null;
     if (body.assignedLocales && body.assignedLocales.length > 0) {
       if (body.role !== 'editor') {
@@ -251,7 +238,6 @@ export async function POST(
         );
       }
 
-      // Verify all locales exist in the project
       const locales = await prisma.locale.findMany({
         where: {
           projectId,
@@ -270,7 +256,6 @@ export async function POST(
       assignedLocalesJson = JSON.stringify(body.assignedLocales);
     }
 
-    // Add team member
     const memberId = uuidv4();
     const member = await prisma.projectMember.create({
       data: {
@@ -295,7 +280,6 @@ export async function POST(
       },
     });
 
-    // Transform response
     const assignedLocales = parseAssignedLocales(member.assignedLocales);
 
     return NextResponse.json({

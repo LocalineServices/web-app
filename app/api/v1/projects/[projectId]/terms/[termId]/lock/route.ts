@@ -26,7 +26,6 @@ export async function PATCH(
       );
     }
 
-    // Check if authorized for PATCH (admin only)
     if (!isAuthorized('PATCH', auth.apiKeyRole)) {
       return NextResponse.json(
         { error: 'Forbidden - insufficient permissions' },
@@ -37,7 +36,6 @@ export async function PATCH(
     const { projectId, termId } = await params;
     const body: LockTermRequest = await request.json();
 
-    // Verify term exists and get project info
     const existingTerm = await prisma.term.findUnique({
       where: { id: termId },
       select: { projectId: true },
@@ -51,9 +49,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Term not found in this project' }, { status: 404 });
     }
 
-    // Verify admin access only
     if (auth.isApiKey) {
-      // API key must match the project and have admin role
       if (auth.projectId !== projectId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
@@ -65,14 +61,12 @@ export async function PATCH(
         );
       }
     } else {
-      // Session user must own the project or be an admin member
       const access = await checkProjectAccess(auth.userId!, projectId);
       
       if (!access.hasAccess) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
 
-      // Only owner or admin member can lock/unlock
       if (!access.isOwner && access.memberRole !== 'admin') {
         return NextResponse.json(
           { error: 'Only admins can lock/unlock terms' },
@@ -81,7 +75,6 @@ export async function PATCH(
       }
     }
 
-    // Validate input
     if (typeof body.isLocked !== 'boolean') {
       return NextResponse.json(
         { error: 'isLocked must be a boolean' },
@@ -89,7 +82,6 @@ export async function PATCH(
       );
     }
 
-    // Update term lock status
     const updatedTerm = await prisma.term.update({
       where: { id: termId },
       data: { isLocked: body.isLocked },
