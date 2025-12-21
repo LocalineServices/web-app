@@ -61,7 +61,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useProject } from "@/hooks/use-projects";
-import { useTerms, useCreateTerm, useUpdateTerm, useDeleteTerm } from "@/hooks/use-terms";
+import { useTerms, useCreateTerm, useUpdateTerm, useDeleteTerm, useLockAllTerms, useUnlockAllTerms } from "@/hooks/use-terms";
 import { useLabels } from "@/hooks/use-labels";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
 import {
@@ -89,6 +89,8 @@ export default function TermsPage() {
   const createTermMutation = useCreateTerm(projectId);
   const updateTermMutation = useUpdateTerm(projectId);
   const deleteTermMutation = useDeleteTerm(projectId);
+  const lockAllMutation = useLockAllTerms(projectId);
+  const unlockAllMutation = useUnlockAllTerms(projectId);
   
   // Check permissions
   const permissions = useProjectPermissions(projectId);
@@ -131,6 +133,15 @@ export default function TermsPage() {
         term.context?.toLowerCase().includes(query)
     );
   }, [terms, searchQuery]);
+
+  // Calculate if all terms are locked or unlocked
+  const allTermsLocked = React.useMemo(() => {
+    return terms.length > 0 && terms.every((term) => term.isLocked);
+  }, [terms]);
+
+  const allTermsUnlocked = React.useMemo(() => {
+    return terms.length > 0 && terms.every((term) => !term.isLocked);
+  }, [terms]);
 
   // Reset to page 1 when search changes
   React.useEffect(() => {
@@ -332,6 +343,38 @@ export default function TermsPage() {
     }
   };
 
+  const handleLockAll = async () => {
+    try {
+      await lockAllMutation.mutateAsync();
+      toast({
+        title: "Success",
+        description: "All terms locked successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to lock all terms",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    try {
+      await unlockAllMutation.mutateAsync();
+      toast({
+        title: "Success",
+        description: "All terms unlocked successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to unlock all terms",
+        variant: "destructive",
+      });
+    }
+  };
+
   const toggleLabel = (labelId: string) => {
     setSelectedLabelIds(prev =>
       prev.includes(labelId)
@@ -466,10 +509,44 @@ export default function TermsPage() {
       {/* Terms Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Terms ({filteredTerms.length})</CardTitle>
-          <CardDescription>
-            All translation keys in your project
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Terms ({filteredTerms.length})</CardTitle>
+              <CardDescription>
+                All translation keys in your project
+              </CardDescription>
+            </div>
+            {permissions.canManageTerms && terms.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLockAll}
+                  disabled={allTermsLocked || lockAllMutation.isPending}
+                >
+                  {lockAllMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Lock className="mr-2 h-4 w-4" />
+                  )}
+                  Lock All
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleUnlockAll}
+                  disabled={allTermsUnlocked || unlockAllMutation.isPending}
+                >
+                  {unlockAllMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Unlock className="mr-2 h-4 w-4" />
+                  )}
+                  Unlock All
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {filteredTerms.length === 0 ? (
@@ -610,10 +687,17 @@ export default function TermsPage() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleDeleteTerm(term.id)}
-                                    loading={deleteTermMutation.isPending && deletingTermId === term.id}
+                                    disabled={deleteTermMutation.isPending && deletingTermId === term.id}
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                Delete
+                                {deleteTermMutation.isPending && deletingTermId === term.id ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  "Delete"
+                                )}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -634,8 +718,8 @@ export default function TermsPage() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious 
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
+                        onClick={() => currentPage > 1 && setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                       />
                     </PaginationItem>
                     
@@ -668,8 +752,8 @@ export default function TermsPage() {
                     
                     <PaginationItem>
                       <PaginationNext 
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
+                        onClick={() => currentPage < totalPages && setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -810,8 +894,8 @@ export default function TermsPage() {
                           <PaginationContent>
                             <PaginationItem>
                               <PaginationPrevious 
-                                onClick={() => setLabelsDialogPage(p => Math.max(1, p - 1))}
-                                disabled={labelsDialogPage === 1}
+                                onClick={() => labelsDialogPage > 1 && setLabelsDialogPage(p => Math.max(1, p - 1))}
+                                className={labelsDialogPage === 1 ? "pointer-events-none opacity-50" : ""}
                               />
                             </PaginationItem>
                             
@@ -847,8 +931,13 @@ export default function TermsPage() {
                             
                             <PaginationItem>
                               <PaginationNext 
-                                onClick={() => setLabelsDialogPage(p => Math.min(Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
-                                disabled={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE)}
+                                onClick={() => {
+                                  const maxPage = Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE);
+                                  if (labelsDialogPage < maxPage) {
+                                    setLabelsDialogPage(p => Math.min(maxPage, p + 1));
+                                  }
+                                }}
+                                className={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE) ? "pointer-events-none opacity-50" : ""}
                               />
                             </PaginationItem>
                           </PaginationContent>
