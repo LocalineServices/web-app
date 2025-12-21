@@ -4,6 +4,7 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  BookOpen,
   Copy,
   Key,
   KeyIcon,
@@ -123,6 +124,11 @@ export default function ApiKeysPage() {
   }, [sortedApiKeys, currentPage]);
 
   const totalPages = Math.ceil(sortedApiKeys.length / ITEMS_PER_PAGE);
+
+  const openApiDocumentation = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    window.open(`${origin}/api`, '_blank');
+  }
 
   const handleCreateApiKey = async () => {
     if (!newKeyName.trim()) {
@@ -487,8 +493,18 @@ export default function ApiKeysPage() {
       {/* Documentation */}
       <Card>
         <CardHeader>
-          <CardTitle>Using Your API Keys</CardTitle>
-          <CardDescription>How to authenticate with your API keys</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Using Your API Keys</CardTitle>
+              <CardDescription>How to authenticate with your API keys</CardDescription>
+            </div>
+            {typeof window !== 'undefined' && (
+              <Button variant="outline" size="sm" onClick={openApiDocumentation}>
+                <BookOpen className="mr-2 h-4 w-4" />
+                API Documentation
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
