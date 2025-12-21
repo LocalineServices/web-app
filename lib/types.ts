@@ -263,15 +263,3 @@ export interface PaginatedResponse<T> {
   page: number;
   perPage: number;
 }
-
-// ============================================================================
-// Chart Types
-// ============================================================================
-
-export interface ChartConfig {
-  [key: string]: {
-    label?: string;
-    color?: string;
-    icon?: React.ComponentType;
-  };
-}
