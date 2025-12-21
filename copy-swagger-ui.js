@@ -8,8 +8,8 @@ const fs = require('fs');
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require('path');
 
-const sourceDir = path.join(__dirname, '..', 'node_modules', 'swagger-ui-dist');
-const targetDir = path.join(__dirname, '..', 'public', 'swagger-ui');
+const sourceDir = path.join(__dirname, 'node_modules', 'swagger-ui-dist');
+const targetDir = path.join(__dirname, 'public', 'swagger-ui');
 
 const filesToCopy = [
   'swagger-ui.css',
