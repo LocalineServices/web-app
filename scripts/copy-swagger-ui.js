@@ -3,7 +3,9 @@
  * Cross-platform script for postinstall
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require('path');
 
 const sourceDir = path.join(__dirname, '..', 'node_modules', 'swagger-ui-dist');
@@ -35,8 +37,7 @@ try {
   });
 
   console.log('Swagger UI assets copied successfully');
-} catch (error) {
-  // Fail silently - this might run before swagger-ui-dist is installed
+} catch {
   console.warn('Note: Swagger UI assets will be copied after installing dependencies');
   process.exit(0);
 }

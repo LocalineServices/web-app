@@ -429,10 +429,17 @@ export default function LabelsPage() {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDeleteLabel(label.id)}
-                                  loading={deleteLabelMutation.isPending && deletingLabelId === label.id}
+                                  disabled={deleteLabelMutation.isPending && deletingLabelId === label.id}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  Delete
+                                  {deleteLabelMutation.isPending && deletingLabelId === label.id ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Deleting...
+                                    </>
+                                  ) : (
+                                    "Delete"
+                                  )}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -452,8 +459,9 @@ export default function LabelsPage() {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious 
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
+                        onClick={currentPage === 1 ? undefined : () => setCurrentPage(p => Math.max(1, p - 1))}
+                        aria-disabled={currentPage === 1}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
                     
@@ -469,6 +477,7 @@ export default function LabelsPage() {
                             <PaginationLink
                               onClick={() => setCurrentPage(page)}
                               isActive={currentPage === page}
+                              className="cursor-pointer"
                             >
                               {page}
                             </PaginationLink>
@@ -486,8 +495,9 @@ export default function LabelsPage() {
                     
                     <PaginationItem>
                       <PaginationNext 
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
+                        onClick={currentPage === totalPages ? undefined : () => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        aria-disabled={currentPage === totalPages}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
                   </PaginationContent>

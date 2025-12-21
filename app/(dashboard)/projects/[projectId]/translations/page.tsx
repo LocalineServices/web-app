@@ -12,9 +12,6 @@ import {
   Trash2,
   Tag,
   Lock,
-  FileWarning,
-  MailWarning,
-  BatteryWarning,
   Info,
   Copy,
 } from "lucide-react";
@@ -562,10 +559,17 @@ export default function TranslationsPage() {
                               handleDeleteLocale(locale.locale.code);
                             }
                           }}
-                          loading={deleteLocaleMutation.isPending && deletingLocale !== null}
+                          disabled={deleteLocaleMutation.isPending && deletingLocale !== null}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                          Delete
+                          {deleteLocaleMutation.isPending && deletingLocale !== null ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            "Delete"
+                          )}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -750,8 +754,9 @@ export default function TranslationsPage() {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
+                            onClick={currentPage === 1 ? undefined : () => setCurrentPage(p => Math.max(1, p - 1))}
+                            aria-disabled={currentPage === 1}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         
@@ -767,6 +772,7 @@ export default function TranslationsPage() {
                                 <PaginationLink
                                   onClick={() => setCurrentPage(page)}
                                   isActive={currentPage === page}
+                                  className="cursor-pointer"
                                 >
                                   {page}
                                 </PaginationLink>
@@ -784,8 +790,9 @@ export default function TranslationsPage() {
                         
                         <PaginationItem>
                           <PaginationNext 
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
+                            onClick={currentPage === totalPages ? undefined : () => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            aria-disabled={currentPage === totalPages}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
@@ -866,8 +873,9 @@ export default function TranslationsPage() {
                           <PaginationContent>
                             <PaginationItem>
                               <PaginationPrevious 
-                                onClick={() => setLabelsDialogPage(p => Math.max(1, p - 1))}
-                                disabled={labelsDialogPage === 1}
+                                onClick={labelsDialogPage === 1 ? undefined : () => setLabelsDialogPage(p => Math.max(1, p - 1))}
+                                aria-disabled={labelsDialogPage === 1}
+                                className={labelsDialogPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                               />
                             </PaginationItem>
                             
@@ -885,6 +893,7 @@ export default function TranslationsPage() {
                                       <PaginationLink
                                         onClick={() => setLabelsDialogPage(page)}
                                         isActive={labelsDialogPage === page}
+                                        className="cursor-pointer"
                                       >
                                         {page}
                                       </PaginationLink>
@@ -903,8 +912,9 @@ export default function TranslationsPage() {
                             
                             <PaginationItem>
                               <PaginationNext 
-                                onClick={() => setLabelsDialogPage(p => Math.min(Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
-                                disabled={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE)}
+                                onClick={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE) ? undefined : () => setLabelsDialogPage(p => Math.min(Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
+                                aria-disabled={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE)}
+                                className={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE) ? "pointer-events-none opacity-50" : "cursor-pointer"}
                               />
                             </PaginationItem>
                           </PaginationContent>

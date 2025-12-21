@@ -423,9 +423,16 @@ export default function ApiKeysPage() {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction 
                                   onClick={() => handleRevokeApiKey(key.id)}
-                                  loading={revokeApiKeyMutation.isPending && revokeDialogOpen === key.id}
+                                  disabled={revokeApiKeyMutation.isPending && revokeDialogOpen === key.id}
                                 >
-                                  Revoke Key
+                                  {revokeApiKeyMutation.isPending && revokeDialogOpen === key.id ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Revoking...
+                                    </>
+                                  ) : (
+                                    "Revoke Key"
+                                  )}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -443,8 +450,9 @@ export default function ApiKeysPage() {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
+                            onClick={currentPage === 1 ? undefined : () => setCurrentPage(p => Math.max(1, p - 1))}
+                            aria-disabled={currentPage === 1}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         
@@ -460,6 +468,7 @@ export default function ApiKeysPage() {
                                 <PaginationLink
                                   onClick={() => setCurrentPage(page)}
                                   isActive={currentPage === page}
+                                  className="cursor-pointer"
                                 >
                                   {page}
                                 </PaginationLink>
@@ -477,8 +486,9 @@ export default function ApiKeysPage() {
                         
                         <PaginationItem>
                           <PaginationNext 
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
+                            onClick={currentPage === totalPages ? undefined : () => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            aria-disabled={currentPage === totalPages}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>

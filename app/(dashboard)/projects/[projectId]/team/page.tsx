@@ -379,8 +379,9 @@ export default function TeamPage() {
                           <PaginationContent>
                             <PaginationItem>
                               <PaginationPrevious 
-                                onClick={() => setInviteLocalesDialogPage(p => Math.max(1, p - 1))}
-                                disabled={inviteLocalesDialogPage === 1}
+                                onClick={inviteLocalesDialogPage === 1 ? undefined : () => setInviteLocalesDialogPage(p => Math.max(1, p - 1))}
+                                aria-disabled={inviteLocalesDialogPage === 1}
+                                className={inviteLocalesDialogPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                               />
                             </PaginationItem>
                             
@@ -398,6 +399,7 @@ export default function TeamPage() {
                                       <PaginationLink
                                         onClick={() => setInviteLocalesDialogPage(page)}
                                         isActive={inviteLocalesDialogPage === page}
+                                        className="cursor-pointer"
                                       >
                                         {page}
                                       </PaginationLink>
@@ -416,8 +418,9 @@ export default function TeamPage() {
                             
                             <PaginationItem>
                               <PaginationNext 
-                                onClick={() => setInviteLocalesDialogPage(p => Math.min(Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
-                                disabled={inviteLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE)}
+                                onClick={inviteLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE) ? undefined : () => setInviteLocalesDialogPage(p => Math.min(Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
+                                aria-disabled={inviteLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE)}
+                                className={inviteLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE) ? "pointer-events-none opacity-50" : "cursor-pointer"}
                               />
                             </PaginationItem>
                           </PaginationContent>
@@ -602,8 +605,9 @@ export default function TeamPage() {
                         <PaginationContent>
                           <PaginationItem>
                             <PaginationPrevious 
-                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                              disabled={currentPage === 1}
+                              onClick={currentPage === 1 ? undefined : () => setCurrentPage(p => Math.max(1, p - 1))}
+                              aria-disabled={currentPage === 1}
+                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                             />
                           </PaginationItem>
                           
@@ -619,6 +623,7 @@ export default function TeamPage() {
                                   <PaginationLink
                                     onClick={() => setCurrentPage(page)}
                                     isActive={currentPage === page}
+                                    className="cursor-pointer"
                                   >
                                     {page}
                                   </PaginationLink>
@@ -636,8 +641,9 @@ export default function TeamPage() {
                           
                           <PaginationItem>
                             <PaginationNext 
-                              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                              disabled={currentPage === totalPages}
+                              onClick={currentPage === totalPages ? undefined : () => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                              aria-disabled={currentPage === totalPages}
+                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                             />
                           </PaginationItem>
                         </PaginationContent>
@@ -711,8 +717,9 @@ export default function TeamPage() {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
-                            onClick={() => setEditLocalesDialogPage(p => Math.max(1, p - 1))}
-                            disabled={editLocalesDialogPage === 1}
+                            onClick={editLocalesDialogPage === 1 ? undefined : () => setEditLocalesDialogPage(p => Math.max(1, p - 1))}
+                            aria-disabled={editLocalesDialogPage === 1}
+                            className={editLocalesDialogPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         
@@ -730,6 +737,7 @@ export default function TeamPage() {
                                   <PaginationLink
                                     onClick={() => setEditLocalesDialogPage(page)}
                                     isActive={editLocalesDialogPage === page}
+                                    className="cursor-pointer"
                                   >
                                     {page}
                                   </PaginationLink>
@@ -748,8 +756,9 @@ export default function TeamPage() {
                         
                         <PaginationItem>
                           <PaginationNext 
-                            onClick={() => setEditLocalesDialogPage(p => Math.min(Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
-                            disabled={editLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE)}
+                            onClick={editLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE) ? undefined : () => setEditLocalesDialogPage(p => Math.min(Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
+                            aria-disabled={editLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE)}
+                            className={editLocalesDialogPage === Math.ceil(locales.length / DIALOG_ITEMS_PER_PAGE) ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
