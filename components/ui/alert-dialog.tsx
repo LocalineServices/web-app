@@ -77,7 +77,6 @@ const AlertDialogContent = React.forwardRef<
     <AlertDialogPortal>
       <AlertDialogOverlay 
         onClick={handleOverlayClick}
-        className="cursor-pointer"
       />
       <AlertDialogPrimitive.Content
         ref={ref}
