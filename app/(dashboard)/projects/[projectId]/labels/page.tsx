@@ -8,6 +8,7 @@ import {
   Trash2,
   Loader2,
   Edit2,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,6 +89,7 @@ export default function LabelsPage() {
   const [newLabelColor, setNewLabelColor] = React.useState("#808080");
   const [newLabelValue, setNewLabelValue] = React.useState("");
   const [deletingLabelId, setDeletingLabelId] = React.useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [editingLabel, setEditingLabel] = React.useState<{
     id: string;
@@ -99,14 +101,30 @@ export default function LabelsPage() {
   // Pagination state
   const [currentPage, setCurrentPage] = React.useState(1);
 
+  // Filtered labels
+  const filteredLabels = React.useMemo(() => {
+    if (!searchQuery.trim()) return labels;
+    const query = searchQuery.toLowerCase();
+    return labels.filter(
+      (label) =>
+        label.name.toLowerCase().includes(query) ||
+        label.value?.toLowerCase().includes(query)
+    );
+  }, [labels, searchQuery]);
+
+  // Reset to page 1 when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   // Paginated labels
   const paginatedLabels = React.useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return labels.slice(startIndex, endIndex);
-  }, [labels, currentPage]);
+    return filteredLabels.slice(startIndex, endIndex);
+  }, [filteredLabels, currentPage]);
 
-  const totalPages = Math.ceil(labels.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredLabels.length / ITEMS_PER_PAGE);
 
   const handleCreateLabel = async () => {
     if (!newLabelName.trim()) {
@@ -296,19 +314,32 @@ export default function LabelsPage() {
         )}
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search labels..."
+          className="pl-10"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
       {/* Labels Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Labels ({labels.length})</CardTitle>
+          <CardTitle>Labels ({filteredLabels.length})</CardTitle>
           <CardDescription>
             All labels in your project
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {labels.length === 0 ? (
+          {filteredLabels.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <p className="text-muted-foreground mb-4">No labels yet</p>
-              {permissions.canManageLabels && (
+              <p className="text-muted-foreground mb-4">
+                {searchQuery ? "No labels match your search" : "No labels yet"}
+              </p>
+              {!searchQuery && permissions.canManageLabels && (
                 <Button variant="outline" onClick={() => setIsCreateOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Create Your First Label
