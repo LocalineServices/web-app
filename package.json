@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate && node scripts/copy-swagger-ui.js",
-    "copy-swagger-ui": "node scripts/copy-swagger-ui.js"
+    "postinstall": "prisma generate && node copy-swagger-ui.js",
+    "copy-swagger-ui": "node copy-swagger-ui.js"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.2.0",

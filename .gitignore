@@ -42,7 +42,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/lib/generated/prisma
+/src/lib/generated/prisma
 
 # swagger-ui assets (generated from node_modules)
 /public/swagger-ui/
