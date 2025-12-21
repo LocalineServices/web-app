@@ -2,10 +2,11 @@
  * User Profile API
  * GET /api/users/me - Get current user profile
  * PATCH /api/users/me - Update user profile
+ * DELETE /api/users/me - Delete user account
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, removeAuthCookie } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 interface UpdateProfileRequest {
@@ -125,6 +126,50 @@ export async function PATCH(request: NextRequest) {
     });
 
     return NextResponse.json({ user: updatedUser });
+  } catch {
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/users/me
+export async function DELETE() {
+  try {
+    const currentUser = await getCurrentUser();
+    
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    // Check if user owns any projects
+    const ownedProjectsCount = await prisma.project.count({
+      where: { ownerId: currentUser.userId },
+    });
+
+    if (ownedProjectsCount > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete account while owning projects. Please delete or transfer ownership of all projects first.' },
+        { status: 400 }
+      );
+    }
+
+    // Delete user account
+    // Note: ProjectMember entries will be automatically deleted due to onDelete: Cascade in the schema
+    await prisma.user.delete({
+      where: { id: currentUser.userId },
+    });
+
+    // Clear authentication cookie
+    await removeAuthCookie();
+
+    return NextResponse.json({ 
+      message: 'Account deleted successfully' 
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
