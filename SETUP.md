@@ -1,76 +1,158 @@
-# Setup Guide
+<div align="center">
+  <img src="images/logo.png" alt="Localine Logo" width="200"/>
+  
+  # Localine Setup Guide
+  
+  [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+  [![MariaDB](https://img.shields.io/badge/MariaDB-10.5+-blue.svg)](https://mariadb.org/)
+  [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://www.mysql.com/)
+  
+  **Complete step-by-step guide to set up Localine from scratch**
+  
+  [Prerequisites](#prerequisites) • [Installation](#installation) • [Database](#database-setup) • [Configuration](#configuration) • [Getting Started](#getting-started)
+</div>
 
-This guide will help you set up the Localine application from scratch.
+---
 
-## Prerequisites
+## 📋 Table of Contents
 
-- Node.js 18 or higher
-- MariaDB 10.5+ or MySQL 8.0+
-- npm or yarn
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Database Setup](#database-setup)
+- [Environment Configuration](#environment-configuration)
+- [Starting the Application](#starting-the-application)
+- [Create Your First Account](#create-your-first-account)
+- [API Keys](#api-keys-optional)
+- [Next Steps](#next-steps)
+- [Troubleshooting](#troubleshooting)
+- [Support](#support)
 
-## Step 1: Clone and Install
+---
+
+## 📦 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+| Requirement | Version | Purpose |
+|------------|---------|---------|
+| **Node.js** | 18+ | Runtime environment |
+| **MariaDB** | 10.5+ | Database server |
+| **MySQL** | 8.0+ | Alternative database |
+| **npm** | Latest | Package manager |
+
+---
+
+## 🚀 Installation
+
+### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd LocalineApp
+git clone https://github.com/LocalineServices/web-app.git
+cd web-app
+```
+
+### Step 2: Install Dependencies
+
+```bash
 npm install
 ```
 
 **Note:** The Prisma Client will be automatically generated during `npm install` via the `postinstall` script.
 
-## Step 2: Database Setup
+---
+
+## 🗄️ Database Setup
+
+### Create the Database
+
+Login to MariaDB/MySQL and create the database:
 
 ```bash
 # Login to MariaDB
 mysql -u root -p
+```
 
-# Create database
+```sql
+-- Create database with UTF-8 support
 CREATE DATABASE localine CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-# Exit MySQL
+-- Exit MySQL
 exit
 ```
 
-## Step 3: Environment Configuration
+## ⚙️ Environment Configuration
 
-Create a `.env` file in the project root:
+### Step 1: Create Environment File
+
+Copy the example environment file:
 
 ```bash
 cp .env.example .env
 ```
 
+### Step 2: Configure Variables
+
 Edit `.env` with your settings:
 
 ```env
-# Environment Variables Configuration
-
-# Database Configuration (Prisma)
+# Database Configuration
 DATABASE_HOST=localhost
 DATABASE_PORT=3306
 DATABASE_USER=root
 DATABASE_PASSWORD=your_password_here
 DATABASE_NAME=localine
 
-# JWT Secret (Change in production!)
+# JWT Secret (CHANGE IN PRODUCTION!)
 JWT_SECRET=your-secret-jwt-key-change-in-production-min-32-chars
 
 # Node Environment
 NODE_ENV=development
 ```
 
-**Security Note:** Never commit your `.env` file to version control!
+### Environment Variables Reference
 
-## Step 4: Start the Application
+| Variable | Description | Example | Required |
+|----------|-------------|---------|----------|
+| `DATABASE_HOST` | Database server hostname | `localhost` | ✅ |
+| `DATABASE_PORT` | Database server port | `3306` | ✅ |
+| `DATABASE_USER` | Database username | `root` | ✅ |
+| `DATABASE_PASSWORD` | Database password | `your_password` | ✅ |
+| `DATABASE_NAME` | Database name | `localine` | ✅ |
+| `JWT_SECRET` | Secret key for JWT tokens (min 32 chars) | `random-string` | ✅ |
+| `NODE_ENV` | Environment mode | `development` / `production` | ✅ |
+
+⚠️ **Security Note:** Never commit your `.env` file to version control!
+
+---
+
+## 🎯 Starting the Application
+
+### Run Migrations
+
+After configuring your environment variables (next step), run:
+
+```bash
+npx prisma migrate dev
+```
+
+This will create all necessary tables and relationships.
 
 ### Development Mode
+
+Start the development server with hot reload:
 
 ```bash
 npm run dev
 ```
 
-The application will be available at http://localhost:3000
+The application will be available at:
+```
+http://localhost:3000
+```
 
 ### Production Mode
+
+Build and start the production server:
 
 ```bash
 # Build the application
@@ -80,43 +162,103 @@ npm run build
 npm start
 ```
 
-## Step 5: Create Your First Account
+### Available Commands
 
-1. Open http://localhost:3000
-2. Click "Sign up"
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint |
+
+---
+
+## 👤 Create Your First Account
+
+### Sign Up Process
+
+1. Open [http://localhost:3000](http://localhost:3000)
+2. Click **"Sign up"**
 3. Fill in your details:
-   - Full Name
-   - Email
-   - Password (minimum 8 characters)
-4. Click "Create account"
+   - **Full Name** - Your display name
+   - **Email** - Valid email address
+   - **Password** - Minimum 8 characters
+4. Click **"Create account"**
 
 You'll be automatically logged in and redirected to the projects page.
 
-## API Keys (Optional)
+### Create Your First Project
 
-If you want to use the API programmatically:
+1. Click **"New Project"**
+2. Enter project details:
+   - **Name** - Your project name
+   - **Description** - Optional project description
+3. Click **"Create"**
 
-1. Go to Project Settings → API Keys
-2. Click "Generate New API Key"
-3. Choose a role:
-   - **read-only**: Can only fetch translations
-   - **editor**: Can add/edit translations and terms
-   - **admin**: Full project access
-4. Copy the API key (shown only once!)
-5. Use it in your API requests:
+---
+
+## 🔑 API Keys (Optional)
+
+Generate API keys for programmatic access to your translations.
+
+### Creating an API Key
+
+1. Navigate to **Project Settings → API Keys**
+2. Click **"Generate New API Key"**
+3. Select a role:
+
+| Role | Permissions | Use Case |
+|------|-------------|----------|
+| **read-only** | Fetch translations only | Production apps |
+| **editor** | Add/edit translations and terms | CI/CD pipelines |
+| **admin** | Full project access | Administrative tools |
+
+4. **Copy the API key** (shown only once!)
+
+### Using Your API Key
+
+Make authenticated requests with your API key:
 
 ```bash
 curl -H "Authorization: Bearer tk_your_api_key_here" \
   http://localhost:3000/api/v1/projects/:projectId/terms
 ```
 
-## Next Steps
+**Example - Fetch All Terms:**
 
-- Explore the API documentation in README.md
-- Import/export translations
-- Integrate with your application
-- Set up automated backups for your database
+```bash
+curl -H "Authorization: Bearer tk_abc123..." \
+  http://localhost:3000/api/v1/projects/my-project-id/terms
+```
 
-## Support
+---
 
-For issues or questions, please open an issue on GitHub.
+## 🎓 Next Steps
+
+Now that Localine is set up, here's what you can do:
+
+- 📖 **Read the Documentation** - Explore the [API documentation](http://localhost:3000/api)
+- 🌍 **Add Languages** - Set up locales for your project
+- 📝 **Create Terms** - Add translation keys
+- ✍️ **Add Translations** - Translate your terms
+- 👥 **Invite Team Members** - Collaborate with your team
+- 📥 **Import/Export** - Bulk manage translations
+- 🔗 **Integrate** - Connect with your application
+- 💾 **Set Up Backups** - Configure automated database backups
+
+---
+
+## 📞 Support
+
+Need help? We're here for you!
+
+- **Information**: [README.md](README.md)
+- **Issues**: [GitHub Issues](https://github.com/LocalineServices/web-app/issues)
+
+---
+
+<div align="center">
+  Made with ❤️ by ItzMxritz & LeonJS_
+  
+  [GitHub](https://github.com/LocalineServices) • [Documentation](README.md)
+</div>
