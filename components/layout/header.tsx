@@ -17,15 +17,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getGravatarUrl, getInitials } from "@/lib/gravatar";
 import { toast } from "sonner";
+import { User } from "@/lib/types";
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
-}
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
 }
 
 export function Header({ onToggleSidebar }: HeaderProps) {
@@ -75,7 +70,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
   };
 
   const gravatarUrl = user ? getGravatarUrl(user.email, 80) : "";
-  const initials = user ? getInitials(user.name) : "?";
+  const initials = user ? getInitials(user.name!) : "?";
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-4 lg:px-6">

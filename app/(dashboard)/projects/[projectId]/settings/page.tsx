@@ -30,12 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
-
-interface Project {
-  id: string;
-  name: string;
-  description: string | null;
-}
+import { Project } from "@/lib/types";
 
 export default function ProjectSettingsPage() {
   const params = useParams();

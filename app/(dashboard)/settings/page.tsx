@@ -36,12 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+import { User } from "@/lib/types";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -222,7 +217,7 @@ export default function SettingsPage() {
   }
 
   const gravatarUrl = user ? getGravatarUrl(user.email, 160) : "";
-  const initials = user ? getInitials(user.name) : "?";
+  const initials = user ? getInitials(user.name!) : "?";
 
   return (
     <div className="space-y-6">
@@ -294,7 +289,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-center">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={gravatarUrl} alt={user?.name} />
+                  <AvatarImage src={gravatarUrl} alt={user?.name || "U"} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-xl">
                     {initials}
                   </AvatarFallback>

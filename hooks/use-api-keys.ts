@@ -2,14 +2,8 @@
  * React Query hooks for API Keys
  */
 
+import { ApiKey } from '@/lib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-export interface ApiKey {
-  id: string;
-  name: string;
-  role: string;
-  createdAt: string;
-}
 
 export interface CreateApiKeyRequest {
   name: string;
