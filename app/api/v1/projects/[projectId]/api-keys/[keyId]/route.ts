@@ -6,18 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-
-// Helper to verify project ownership
-async function verifyProjectOwnership(projectId: string, userId: string): Promise<boolean> {
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      ownerId: userId,
-    },
-    select: { id: true },
-  });
-  return !!project;
-}
+import { checkProjectAccess } from '@/lib/middleware';
 
 // DELETE /api/v1/projects/:projectId/api-keys/:keyId
 export async function DELETE(
@@ -36,12 +25,21 @@ export async function DELETE(
 
     const { projectId, keyId } = await params;
 
-    // Verify project ownership
-    const hasAccess = await verifyProjectOwnership(projectId, currentUser.userId);
-    if (!hasAccess) {
+    // Verify project access - must be owner or admin
+    const access = await checkProjectAccess(currentUser.userId, projectId);
+    
+    if (!access.hasAccess) {
       return NextResponse.json(
         { error: 'Project not found' },
         { status: 404 }
+      );
+    }
+
+    // Only owners and admins can delete API keys
+    if (!access.isOwner && access.memberRole !== 'admin') {
+      return NextResponse.json(
+        { error: 'Only project owners and admins can delete API keys' },
+        { status: 403 }
       );
     }
 

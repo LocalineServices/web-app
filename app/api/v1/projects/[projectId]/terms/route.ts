@@ -147,6 +147,22 @@ export async function POST(
       );
     }
 
+    // Check if term with same value already exists in this project
+    const existingTerm = await prisma.term.findFirst({
+      where: {
+        projectId,
+        value: body.value.trim(),
+      },
+      select: { id: true },
+    });
+
+    if (existingTerm) {
+      return NextResponse.json(
+        { error: 'A term with this key already exists in this project' },
+        { status: 409 }
+      );
+    }
+
     // Create term
     const termId = uuidv4();
     const term = await prisma.term.create({
