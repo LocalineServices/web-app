@@ -800,7 +800,10 @@ export default function TeamPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRemove} disabled={removeMember.isPending}>
+            <AlertDialogAction onClick={(e) => {
+              e.preventDefault();
+              handleRemove();
+            }} disabled={removeMember.isPending}>
               {removeMember.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

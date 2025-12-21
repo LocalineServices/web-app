@@ -84,7 +84,6 @@ export default function SettingsPage() {
         if (response.ok) {
           const data = await response.json();
           // Count projects where the user is the owner (memberRole is null)
-          // Note: Projects returned with memberRole === null are owned by the user
           const ownedCount = data.data.filter((p: { memberRole: string | null }) => p.memberRole === null).length;
           setOwnedProjectsCount(ownedCount);
         }
@@ -443,11 +442,21 @@ export default function SettingsPage() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={handleDeleteAccount}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteAccount();
+                      }}
                       disabled={isDeleting || ownedProjectsCount > 0}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                      {isDeleting ? "Deleting..." : "Delete account"}
+                      {isDeleting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        "Delete account"
+                      )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

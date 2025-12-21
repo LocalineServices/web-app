@@ -422,7 +422,10 @@ export default function ApiKeysPage() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction 
-                                  onClick={() => handleRevokeApiKey(key.id)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleRevokeApiKey(key.id);
+                                  }}
                                   disabled={revokeApiKeyMutation.isPending && revokeDialogOpen === key.id}
                                 >
                                   {revokeApiKeyMutation.isPending && revokeDialogOpen === key.id ? (

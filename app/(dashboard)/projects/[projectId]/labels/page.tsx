@@ -428,7 +428,10 @@ export default function LabelsPage() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDeleteLabel(label.id)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleDeleteLabel(label.id);
+                                  }}
                                   disabled={deleteLabelMutation.isPending && deletingLabelId === label.id}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
