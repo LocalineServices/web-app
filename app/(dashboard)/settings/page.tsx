@@ -52,6 +52,7 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
+  const [ownedProjectsCount, setOwnedProjectsCount] = React.useState(0);
   const [user, setUser] = React.useState<User | null>(null);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -77,7 +78,22 @@ export default function SettingsPage() {
       }
     };
 
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/api/v1/projects');
+        if (response.ok) {
+          const data = await response.json();
+          // Count projects where the user is the owner (memberRole is null)
+          const ownedCount = data.data.filter((p: { memberRole: string | null }) => p.memberRole === null).length;
+          setOwnedProjectsCount(ownedCount);
+        }
+      } catch (err) {
+        console.log('Failed to fetch projects:', err);
+      }
+    };
+
     fetchUser();
+    fetchProjects();
   }, []);
 
   const handleSave = async () => {
@@ -166,10 +182,23 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
+    // Check if user owns any projects
+    if (ownedProjectsCount > 0) {
+      toast.error("You cannot delete your account while owning projects. Please delete or transfer ownership of all your projects first.");
+      setDeleteDialogOpen(false);
+      return;
+    }
+
     setIsDeleting(true);
     try {
-      // TODO: Implement delete account endpoint
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/users/me', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete account');
+      }
       
       toast.success("Your account has been permanently deleted.");
       
@@ -401,18 +430,23 @@ export default function SettingsPage() {
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently delete your
-                      account and remove all your data from our servers, including all
-                      projects, translations, and API keys.
+                      account and remove you from all projects where you are a team member.
+                      {ownedProjectsCount > 0 && (
+                        <span className="block mt-2 text-destructive font-semibold">
+                          Note: You currently own {ownedProjectsCount} project{ownedProjectsCount > 1 ? 's' : ''}. 
+                          You must delete or transfer ownership of all your projects before deleting your account.
+                        </span>
+                      )}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteAccount}
-                      disabled={isDeleting}
+                      disabled={isDeleting || ownedProjectsCount > 0}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                      Delete account
+                      {isDeleting ? "Deleting..." : "Delete account"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
