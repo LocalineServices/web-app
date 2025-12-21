@@ -407,10 +407,17 @@ export default function LabelsPage() {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDeleteLabel(label.id)}
-                                  loading={deleteLabelMutation.isPending && deletingLabelId === label.id}
+                                  disabled={deleteLabelMutation.isPending && deletingLabelId === label.id}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  Delete
+                                  {deleteLabelMutation.isPending && deletingLabelId === label.id ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Deleting...
+                                    </>
+                                  ) : (
+                                    "Delete"
+                                  )}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

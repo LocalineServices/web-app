@@ -9,6 +9,7 @@ export function useProjects() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: () => projectsApi.list(),
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
   });
 }
 
@@ -17,6 +18,7 @@ export function useProject(projectId: string) {
     queryKey: ['projects', projectId],
     queryFn: () => projectsApi.get(projectId),
     enabled: !!projectId,
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
   });
 }
 

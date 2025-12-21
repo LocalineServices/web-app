@@ -26,6 +26,7 @@ export function useLabels(projectId: string | undefined) {
       return data.labels as Label[];
     },
     enabled: !!projectId,
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
   });
 }
 

@@ -9,10 +9,7 @@ import { buttonVariants } from "@/components/ui/button"
 // Context to allow closing the dialog from the overlay
 const AlertDialogCloseContext = React.createContext<(() => void) | null>(null);
 
-const AlertDialog = React.forwardRef<
-  React.ElementRef<typeof AlertDialogPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>
->((props, ref) => {
+const AlertDialog: React.FC<React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>> = (props) => {
   const { onOpenChange, open: controlledOpen, ...rest } = props;
   const [internalOpen, setInternalOpen] = React.useState(props.defaultOpen ?? false);
   
@@ -36,11 +33,10 @@ const AlertDialog = React.forwardRef<
         {...rest} 
         open={open} 
         onOpenChange={handleOpenChange}
-        ref={ref}
       />
     </AlertDialogCloseContext.Provider>
   );
-})
+}
 AlertDialog.displayName = "AlertDialog"
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger

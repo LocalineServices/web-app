@@ -10,6 +10,7 @@ export function useTerms(projectId: string) {
     queryKey: ['projects', projectId, 'terms'],
     queryFn: () => termsApi.list(projectId),
     enabled: !!projectId,
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
   });
 }
 

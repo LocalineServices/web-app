@@ -593,10 +593,17 @@ export default function TranslationsPage() {
                               handleDeleteLocale(locale.locale.code);
                             }
                           }}
-                          loading={deleteLocaleMutation.isPending && deletingLocale !== null}
+                          disabled={deleteLocaleMutation.isPending && deletingLocale !== null}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                          Delete
+                          {deleteLocaleMutation.isPending && deletingLocale !== null ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            "Delete"
+                          )}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

@@ -10,6 +10,7 @@ export function useLocales(projectId: string) {
     queryKey: ['projects', projectId, 'locales'],
     queryFn: () => localesApi.list(projectId),
     enabled: !!projectId,
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
   });
 }
 
@@ -18,6 +19,7 @@ export function useTranslations(projectId: string, localeCode: string) {
     queryKey: ['projects', projectId, 'translations', localeCode],
     queryFn: () => translationsApi.get(projectId, localeCode),
     enabled: !!projectId && !!localeCode,
+    refetchInterval: 5000, // Refetch every 5 seconds for live updates
   });
 }
 

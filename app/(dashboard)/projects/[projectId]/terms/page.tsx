@@ -582,10 +582,17 @@ export default function TermsPage() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleDeleteTerm(term.id)}
-                                    loading={deleteTermMutation.isPending && deletingTermId === term.id}
+                                    disabled={deleteTermMutation.isPending && deletingTermId === term.id}
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                Delete
+                                {deleteTermMutation.isPending && deletingTermId === term.id ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  "Delete"
+                                )}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
