@@ -1383,6 +1383,202 @@ export const swaggerSpec = {
         },
       },
     },
+    '/v1/projects/{projectId}/terms/{termId}/labels': {
+      put: {
+        tags: ['Terms'],
+        summary: 'Set term labels',
+        description: 'Set labels for a term. Editors and admins can set labels. If term is locked, only admins can modify labels.',
+        parameters: [
+          {
+            name: 'projectId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+          {
+            name: 'termId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['labelIds'],
+                properties: {
+                  labelIds: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      format: 'uuid',
+                    },
+                    description: 'Array of label IDs to set for the term',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Labels updated',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      $ref: '#/components/schemas/Term',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid input',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Not authenticated',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          403: {
+            description: 'Access denied or term is locked',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          404: {
+            description: 'Term not found',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/v1/projects/{projectId}/terms/{termId}/lock': {
+      patch: {
+        tags: ['Terms'],
+        summary: 'Lock or unlock term',
+        description: 'Toggle lock status of a term. Only admins can lock/unlock terms.',
+        parameters: [
+          {
+            name: 'projectId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+          {
+            name: 'termId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['locked'],
+                properties: {
+                  locked: {
+                    type: 'boolean',
+                    description: 'Set to true to lock the term, false to unlock',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Term lock status updated',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      $ref: '#/components/schemas/Term',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Not authenticated',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          403: {
+            description: 'Access denied - Only admins can lock/unlock terms',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          404: {
+            description: 'Term not found',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     '/v1/projects/{projectId}/terms/lock-all': {
       post: {
         tags: ['Terms'],
