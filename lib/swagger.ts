@@ -1383,6 +1383,126 @@ export const swaggerSpec = {
         },
       },
     },
+    '/v1/projects/{projectId}/terms/lock-all': {
+      post: {
+        tags: ['Terms'],
+        summary: 'Lock all terms',
+        description: 'Lock all terms in the project. Only admins can lock terms.',
+        parameters: [
+          {
+            name: 'projectId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'All terms locked successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'All terms locked successfully',
+                    },
+                    count: {
+                      type: 'number',
+                      description: 'Number of terms locked',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Not authenticated',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          403: {
+            description: 'Access denied - Editors cannot lock terms',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/v1/projects/{projectId}/terms/unlock-all': {
+      post: {
+        tags: ['Terms'],
+        summary: 'Unlock all terms',
+        description: 'Unlock all terms in the project. Only admins can unlock terms.',
+        parameters: [
+          {
+            name: 'projectId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'All terms unlocked successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'All terms unlocked successfully',
+                    },
+                    count: {
+                      type: 'number',
+                      description: 'Number of terms unlocked',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Not authenticated',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          403: {
+            description: 'Access denied - Editors cannot unlock terms',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     '/v1/projects/{projectId}/translations': {
       get: {
         tags: ['Locales'],
