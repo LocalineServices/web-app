@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { redirect, usePathname } from "next/navigation";
-import { Globe, FolderOpen, Settings, LogOut, FileText, Tag, Users, Key, Zap, Lock, type LucideIcon, Languages } from "lucide-react";
+import { Globe, FolderOpen, Settings, LogOut, FileText, Tag, Users, Key, Zap, Lock, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -204,9 +205,15 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
       )}
     >
       {/* Logo */}
-      <div className={cn("flex h-16 items-center border-b px-4", isCollapsed && "justify-center")}>
+      <div className={cn("flex h-16 items-center justify-center border-b px-4")}>
         <Link href="/projects" className="flex items-center gap-2">
-          <Languages className="h-6 w-6 text-primary" />
+          <Image 
+            src="/logo.png" 
+            alt="Localine Logo" 
+            width={isCollapsed ? 32 : 40}
+            height={isCollapsed ? 32 : 40}
+            className="object-contain"
+          />
           {!isCollapsed && (
             <span className="text-lg font-semibold">Localine</span>
           )}

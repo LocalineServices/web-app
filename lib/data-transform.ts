@@ -40,7 +40,7 @@ export function transformTermsForUI(
 
     return {
       id: term.id,
-      key: term.value, // Term value is the key in Traduora
+      key: term.value,
       translations: termTranslations,
       labels: term.labels.map((l) => l.name),
     };

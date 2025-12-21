@@ -34,6 +34,7 @@ import {
   AlertCircle,
   Info,
   Loader2,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -75,6 +76,7 @@ export const Icons = {
   alertCircle: AlertCircle,
   info: Info,
   spinner: Loader2,
+  zap: Zap,
   logo: ({ className }: { className?: string }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

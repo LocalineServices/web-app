@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -69,8 +70,8 @@ export default function LoginPage() {
     <>
       <div className="flex flex-col space-y-2 text-center">
         <div className="flex items-center justify-center gap-2 lg:hidden mb-4">
-          <Icons.globe className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold">Traduora</span>
+          <Image src="/logo.png" alt="Localine Logo" width={32} height={32} className="object-contain" />
+          <span className="text-2xl font-bold">Localine</span>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
