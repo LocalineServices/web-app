@@ -236,15 +236,15 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
         {isCollapsed ? (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="w-10 h-10 hover:bg-accent hover:text-accent-foreground">
+              <Button variant="ghost" size="icon" className="w-10 h-10 hover:bg-accent hover:text-accent-foreground" onClick={logout}>
                 <LogOut className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">Sign out</TooltipContent>
           </Tooltip>
         ) : (
-          <Button variant="ghost" className="w-full justify-start gap-3 hover:bg-accent hover:text-accent-foreground">
-            <LogOut className="h-5 w-5" onClick={logout} />
+          <Button variant="ghost" className="w-full justify-start gap-3 hover:bg-accent hover:text-accent-foreground" onClick={logout}>
+            <LogOut className="h-5 w-5" />
             Sign out
           </Button>
         )}
