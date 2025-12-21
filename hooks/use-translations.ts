@@ -5,19 +5,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { localesApi, translationsApi, AddLocaleRequest, UpdateTranslationRequest } from '@/lib/api';
 
-export function useLocales(projectId: string) {
+export function useLocales(projectId: string, options?: { enableLiveUpdates?: boolean }) {
   return useQuery({
     queryKey: ['projects', projectId, 'locales'],
     queryFn: () => localesApi.list(projectId),
     enabled: !!projectId,
+    refetchInterval: options?.enableLiveUpdates !== false ? 5000 : false,
   });
 }
 
-export function useTranslations(projectId: string, localeCode: string) {
+export function useTranslations(projectId: string, localeCode: string, options?: { enableLiveUpdates?: boolean }) {
   return useQuery({
     queryKey: ['projects', projectId, 'translations', localeCode],
     queryFn: () => translationsApi.get(projectId, localeCode),
     enabled: !!projectId && !!localeCode,
+    refetchInterval: options?.enableLiveUpdates !== false ? 5000 : false,
   });
 }
 

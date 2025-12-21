@@ -260,7 +260,7 @@ export default function ProjectSettingsPage() {
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteProject}
-                    loading={isDeleting}
+                    disabled={isDeleting}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     Delete Project

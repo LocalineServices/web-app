@@ -5,11 +5,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { termsApi, AddTermRequest, UpdateTermRequest } from '@/lib/api';
 
-export function useTerms(projectId: string) {
+export function useTerms(projectId: string, options?: { enableLiveUpdates?: boolean }) {
   return useQuery({
     queryKey: ['projects', projectId, 'terms'],
     queryFn: () => termsApi.list(projectId),
     enabled: !!projectId,
+    refetchInterval: options?.enableLiveUpdates !== false ? 5000 : false,
   });
 }
 

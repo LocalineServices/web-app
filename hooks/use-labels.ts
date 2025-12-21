@@ -8,7 +8,7 @@ interface Label {
   created_at: string;
 }
 
-export function useLabels(projectId: string | undefined) {
+export function useLabels(projectId: string | undefined, options?: { enableLiveUpdates?: boolean }) {
   return useQuery({
     queryKey: ['labels', projectId],
     queryFn: async () => {
@@ -26,6 +26,7 @@ export function useLabels(projectId: string | undefined) {
       return data.labels as Label[];
     },
     enabled: !!projectId,
+    refetchInterval: options?.enableLiveUpdates !== false ? 5000 : false,
   });
 }
 

@@ -12,11 +12,12 @@ export function useProjects() {
   });
 }
 
-export function useProject(projectId: string) {
+export function useProject(projectId: string, options?: { enableLiveUpdates?: boolean }) {
   return useQuery({
     queryKey: ['projects', projectId],
     queryFn: () => projectsApi.get(projectId),
     enabled: !!projectId,
+    refetchInterval: options?.enableLiveUpdates !== false ? 5000 : false,
   });
 }
 

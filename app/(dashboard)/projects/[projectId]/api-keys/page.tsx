@@ -62,6 +62,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useProject } from "@/hooks/use-projects";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
+import { useApiKeys, useCreateApiKey, useRevokeApiKey } from "@/hooks/use-api-keys";
 import {
   Pagination,
   PaginationContent,
@@ -71,13 +72,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
-interface ApiKey {
-  id: string;
-  name: string;
-  role: string;
-  createdAt: string;
-}
 
 const ROLE_ORDER = { admin: 0, editor: 1, 'read-only': 2 } as const;
 const ITEMS_PER_PAGE = 5;
@@ -100,10 +94,11 @@ export default function ApiKeysPage() {
     }
   }, [permissions.isLoading, permissions.canManageApiKeys, router, projectId]);
 
-  const [apiKeys, setApiKeys] = React.useState<ApiKey[]>([]);
-  const [isLoadingApiKeys, setIsLoadingApiKeys] = React.useState(true);
-  const [isCreatingKey, setIsCreatingKey] = React.useState(false);
-  const [revokingKeyId, setRevokingKeyId] = React.useState<string | null>(null);
+  // Use React Query hooks for API keys with live updates
+  const { data: apiKeys = [], isLoading: isLoadingApiKeys } = useApiKeys(projectId);
+  const createApiKeyMutation = useCreateApiKey(projectId);
+  const revokeApiKeyMutation = useRevokeApiKey(projectId);
+
   const [revokeDialogOpen, setRevokeDialogOpen] = React.useState<string | null>(null);
 
   const [newKeyName, setNewKeyName] = React.useState("");
@@ -130,42 +125,6 @@ export default function ApiKeysPage() {
 
   const totalPages = Math.ceil(sortedApiKeys.length / ITEMS_PER_PAGE);
 
-  // Fetch API keys
-  React.useEffect(() => {
-    const fetchApiKeys = async () => {
-      // Don't fetch if user doesn't have permission
-      if (!permissions.canManageApiKeys) {
-        setIsLoadingApiKeys(false);
-        return;
-      }
-      
-      try {
-        const response = await fetch(`/api/v1/projects/${projectId}/api-keys`, {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch API keys');
-        }
-
-        const data = await response.json();
-        setApiKeys(data.data || data.apiKeys || []);
-      } catch {
-        toast({
-          title: "Error",
-          description: "Failed to load API keys",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingApiKeys(false);
-      }
-    };
-
-    if (projectId && !permissions.isLoading) {
-      fetchApiKeys();
-    }
-  }, [projectId, toast, permissions.canManageApiKeys, permissions.isLoading]);
-
   const handleCreateApiKey = async () => {
     if (!newKeyName.trim()) {
       toast({
@@ -176,33 +135,13 @@ export default function ApiKeysPage() {
       return;
     }
 
-    setIsCreatingKey(true);
     try {
-      const response = await fetch(`/api/v1/projects/${projectId}/api-keys`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          name: newKeyName.trim(),
-          role: newKeyRole,
-        }),
+      const result = await createApiKeyMutation.mutateAsync({
+        name: newKeyName.trim(),
+        role: newKeyRole,
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create API key');
-      }
-
-      const data = await response.json();
-      setGeneratedKey(data.data.key || data.key);
-      setApiKeys([...apiKeys, { 
-        id: data.data.id, 
-        name: data.data.name, 
-        role: data.data.role, 
-        createdAt: data.data.createdAt 
-      }]);
+      setGeneratedKey(result.key);
 
       toast({
         title: "Success",
@@ -217,25 +156,12 @@ export default function ApiKeysPage() {
         description: error instanceof Error ? error.message : "Failed to create API key",
         variant: "destructive",
       });
-    } finally {
-      setIsCreatingKey(false);
     }
   };
 
   const handleRevokeApiKey = async (keyId: string) => {
-    setRevokingKeyId(keyId);
     try {
-      const response = await fetch(`/api/v1/projects/${projectId}/api-keys/${keyId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to revoke API key');
-      }
-
-      setApiKeys(apiKeys.filter(k => k.id !== keyId));
+      await revokeApiKeyMutation.mutateAsync(keyId);
 
       toast({
         title: "Success",
@@ -250,8 +176,6 @@ export default function ApiKeysPage() {
         description: error instanceof Error ? error.message : "Failed to revoke API key",
         variant: "destructive",
       });
-    } finally {
-      setRevokingKeyId(null);
     }
   };
 
@@ -407,9 +331,9 @@ export default function ApiKeysPage() {
                   <Button
                     variant="outline"
                     onClick={handleCreateApiKey}
-                    disabled={isCreatingKey}
+                    disabled={createApiKeyMutation.isPending}
                   >
-                    {isCreatingKey ? (
+                    {createApiKeyMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating...
@@ -493,7 +417,7 @@ export default function ApiKeysPage() {
                             onOpenChange={(open) => {
                               if (open) {
                                 setRevokeDialogOpen(key.id);
-                              } else if (!revokingKeyId) {
+                              } else if (!revokeApiKeyMutation.isPending) {
                                 // Only allow closing if not currently revoking
                                 setRevokeDialogOpen(null);
                               }
@@ -515,7 +439,7 @@ export default function ApiKeysPage() {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction 
                                   onClick={() => handleRevokeApiKey(key.id)}
-                                  loading={revokingKeyId === key.id}
+                                  loading={revokeApiKeyMutation.isPending && revokeDialogOpen === key.id}
                                 >
                                   Revoke Key
                                 </AlertDialogAction>

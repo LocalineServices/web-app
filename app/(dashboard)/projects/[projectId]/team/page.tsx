@@ -62,6 +62,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useProject } from "@/hooks/use-projects";
 import { useLocales } from "@/hooks/use-translations";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
+import { useTeamMembers, useInviteMember, useUpdateMember, useRemoveMember, type TeamMember } from "@/hooks/use-team-members";
 import Image from "next/image";
 import {
   Pagination,
@@ -83,16 +84,6 @@ function getLocaleFlagUrl(localeCode: string): string {
   return `https://flagcdn.com/w320/${countryCode}.png`;
 }
 
-interface TeamMember {
-  id: string;
-  userId: string;
-  email: string;
-  name: string;
-  role: "editor" | "admin";
-  assignedLocales: string[] | null;
-  createdAt: string;
-}
-
 export default function TeamPage() {
   const params = useParams();
   const router = useRouter();
@@ -112,17 +103,17 @@ export default function TeamPage() {
     }
   }, [permissions.isLoading, permissions.isEditor, router, projectId]);
 
-  const [teamMembers, setTeamMembers] = React.useState<TeamMember[]>([]);
-  const [isLoadingMembers, setIsLoadingMembers] = React.useState(true);
+  // Use React Query hooks for team members with live updates
+  const { data: teamMembers = [], isLoading: isLoadingMembers, isError: isErrorMembers } = useTeamMembers(projectId);
+  const inviteMember = useInviteMember(projectId);
+  const updateMember = useUpdateMember(projectId);
+  const removeMember = useRemoveMember(projectId);
   const [currentUser, setCurrentUser] = React.useState<{ id: string; email: string; name?: string } | null>(null);
   const [ownerInfo, setOwnerInfo] = React.useState<{ name?: string; email?: string } | null>(null);
 
   const [isInviteDialogOpen, setIsInviteDialogOpen] = React.useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = React.useState(false);
-  const [isInviting, setIsInviting] = React.useState(false);
-  const [isUpdating, setIsUpdating] = React.useState(false);
-  const [isRemoving, setIsRemoving] = React.useState(false);
 
   const [inviteEmail, setInviteEmail] = React.useState("");
   const [inviteRole, setInviteRole] = React.useState<"editor" | "admin">("editor");
@@ -135,7 +126,7 @@ export default function TeamPage() {
   const [removingMember, setRemovingMember] = React.useState<TeamMember | null>(null);
 
   // Check if current user can manage team (owner or admin)
-  const [canManageTeam, setCanManageTeam] = React.useState(false);
+  const canManageTeam = !isErrorMembers && teamMembers.length >= 0;
 
   // Pagination state
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -183,45 +174,6 @@ export default function TeamPage() {
     }
   }, [project]);
 
-  // Fetch team members
-  const fetchTeamMembers = React.useCallback(async () => {
-    if (!projectId) return;
-
-    try {
-      setIsLoadingMembers(true);
-      const response = await fetch(`/api/v1/projects/${projectId}/members`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        if (response.status === 403) {
-          // User doesn't have permission to view team members
-          setCanManageTeam(false);
-          setIsLoadingMembers(false);
-          return;
-        }
-        throw new Error('Failed to fetch team members');
-      }
-
-      const data = await response.json();
-      setTeamMembers(data.data || []);
-      setCanManageTeam(true);
-    } catch (error) {
-      console.error('Failed to fetch team members:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load team members",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingMembers(false);
-    }
-  }, [projectId, toast]);
-
-  React.useEffect(() => {
-    fetchTeamMembers();
-  }, [fetchTeamMembers]);
-
   // Invite member
   const handleInvite = async () => {
     if (!inviteEmail.trim()) {
@@ -234,22 +186,11 @@ export default function TeamPage() {
     }
 
     try {
-      setIsInviting(true);
-      const response = await fetch(`/api/v1/projects/${projectId}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: inviteEmail,
-          role: inviteRole,
-          assignedLocales: inviteRole === 'editor' && inviteLocales.length > 0 ? inviteLocales : undefined,
-        }),
+      await inviteMember.mutateAsync({
+        email: inviteEmail,
+        role: inviteRole,
+        assignedLocales: inviteRole === 'editor' && inviteLocales.length > 0 ? inviteLocales : undefined,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to invite member');
-      }
 
       toast({
         title: "Success",
@@ -260,15 +201,12 @@ export default function TeamPage() {
       setInviteEmail("");
       setInviteRole("editor");
       setInviteLocales([]);
-      fetchTeamMembers();
     } catch (error) {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to invite member",
         variant: "destructive",
       });
-    } finally {
-      setIsInviting(false);
     }
   };
 
@@ -277,21 +215,13 @@ export default function TeamPage() {
     if (!editingMember) return;
 
     try {
-      setIsUpdating(true);
-      const response = await fetch(`/api/v1/projects/${projectId}/members/${editingMember.userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+      await updateMember.mutateAsync({
+        memberId: editingMember.userId,
+        data: {
           role: editRole,
           assignedLocales: editRole === 'editor' && editLocales.length > 0 ? editLocales : [],
-        }),
+        },
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update member');
-      }
 
       toast({
         title: "Success",
@@ -300,15 +230,12 @@ export default function TeamPage() {
 
       setIsEditDialogOpen(false);
       setEditingMember(null);
-      fetchTeamMembers();
     } catch (error) {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to update member",
         variant: "destructive",
       });
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -317,16 +244,7 @@ export default function TeamPage() {
     if (!removingMember) return;
 
     try {
-      setIsRemoving(true);
-      const response = await fetch(`/api/v1/projects/${projectId}/members/${removingMember.userId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to remove member');
-      }
+      await removeMember.mutateAsync(removingMember.userId);
 
       toast({
         title: "Success",
@@ -335,15 +253,12 @@ export default function TeamPage() {
 
       setIsRemoveDialogOpen(false);
       setRemovingMember(null);
-      fetchTeamMembers();
     } catch (error) {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to remove member",
         variant: "destructive",
       });
-    } finally {
-      setIsRemoving(false);
     }
   };
 
@@ -542,8 +457,8 @@ export default function TeamPage() {
                 <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button variant="outline" onClick={handleInvite} disabled={isInviting}>
-                  {isInviting ? (
+                <Button variant="outline" onClick={handleInvite} disabled={inviteMember.isPending}>
+                  {inviteMember.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Inviting...
@@ -874,8 +789,8 @@ export default function TeamPage() {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="outline" onClick={handleUpdate} disabled={isUpdating}>
-              {isUpdating ? (
+            <Button variant="outline" onClick={handleUpdate} disabled={updateMember.isPending}>
+              {updateMember.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Updating...
@@ -902,8 +817,8 @@ export default function TeamPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRemove} disabled={isRemoving}>
-              {isRemoving ? (
+            <AlertDialogAction onClick={handleRemove} disabled={removeMember.isPending}>
+              {removeMember.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Removing...
