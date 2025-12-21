@@ -52,6 +52,12 @@ import {
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useProject } from "@/hooks/use-projects";
@@ -499,18 +505,40 @@ export default function TermsPage() {
                       {term.context || "-"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        {term.labels?.length && term.labels.length > 0 ? (
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          term.labels.map((label: any) => (
-                            <Badge key={label.id} variant="outline" style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}>
-                              {label.name}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-xs text-muted-foreground">No labels</span>
-                        )}
-                      </div>
+                      <TooltipProvider delayDuration={0}>
+                        <div className="flex gap-1 flex-wrap">
+                          {term.labels?.length && term.labels.length > 0 ? (
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            term.labels.map((label: any) => (
+                              label.value ? (
+                                <Tooltip key={label.id}>
+                                  <TooltipTrigger>
+                                    <Badge 
+                                      variant="outline" 
+                                      style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
+                                    >
+                                      {label.name}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{label.value}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <Badge 
+                                  key={label.id} 
+                                  variant="outline" 
+                                  style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
+                                >
+                                  {label.name}
+                                </Badge>
+                              )
+                            ))
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No labels</span>
+                          )}
+                        </div>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">

@@ -71,6 +71,12 @@ import { useTerms } from "@/hooks/use-terms";
 import { useLabels } from "@/hooks/use-labels";
 import { SUPPORTED_LOCALES } from "@/lib/locales";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
 import {
   Pagination,
@@ -647,14 +653,36 @@ export default function TranslationsPage() {
                               )}
                             </div>
                             {term.labels && term.labels.length > 0 && (
-                              <div className="flex items-center gap-1 flex-wrap">
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                {term.labels.map((label: any) => (
-                                  <Badge key={label.id} variant="outline" style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}>
-                                    {label.name}
-                                  </Badge>
-                                ))}
-                              </div>
+                              <TooltipProvider delayDuration={0}>
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                  {term.labels.map((label: any) => (
+                                    label.value ? (
+                                      <Tooltip key={label.id}>
+                                        <TooltipTrigger>
+                                          <Badge 
+                                            variant="outline" 
+                                            style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
+                                          >
+                                            {label.name}
+                                          </Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>{label.value}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    ) : (
+                                      <Badge 
+                                        key={label.id} 
+                                        variant="outline" 
+                                        style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
+                                      >
+                                        {label.name}
+                                      </Badge>
+                                    )
+                                  ))}
+                                </div>
+                              </TooltipProvider>
                             )}
                           </div>
                         </TableCell>

@@ -20,7 +20,7 @@ export async function PATCH(
 
     const { projectId, labelId } = await params;
     const body = await request.json();
-    const { name, color } = body;
+    const { name, color, value } = body;
 
     // Verify project access
     if (auth.isApiKey) {
@@ -56,6 +56,7 @@ export async function PATCH(
         projectId: true,
         name: true,
         color: true,
+        value: true,
         createdAt: true,
       },
     });
@@ -84,7 +85,7 @@ export async function PATCH(
     }
 
     // Build update data
-    const updateData: { name?: string; color?: string } = {};
+    const updateData: { name?: string; color?: string; value?: string | null } = {};
 
     if (name !== undefined && name.trim()) {
       updateData.name = name.trim();
@@ -94,6 +95,10 @@ export async function PATCH(
       updateData.color = color;
     }
 
+    if (value !== undefined) {
+      updateData.value = value?.trim() || null;
+    }
+
     if (Object.keys(updateData).length === 0) {
       // Transform to match expected format
       const transformedLabel = {
@@ -101,6 +106,7 @@ export async function PATCH(
         project_id: label.projectId,
         name: label.name,
         color: label.color,
+        value: label.value,
         created_at: label.createdAt,
       };
       return NextResponse.json({ label: transformedLabel });
@@ -114,6 +120,7 @@ export async function PATCH(
         projectId: true,
         name: true,
         color: true,
+        value: true,
         createdAt: true,
       },
     });
@@ -124,6 +131,7 @@ export async function PATCH(
       project_id: updatedLabel.projectId,
       name: updatedLabel.name,
       color: updatedLabel.color,
+      value: updatedLabel.value,
       created_at: updatedLabel.createdAt,
     };
 

@@ -5,6 +5,7 @@ interface Label {
   project_id: string;
   name: string;
   color: string;
+  value?: string;
   created_at: string;
 }
 
@@ -34,7 +35,7 @@ export function useCreateLabel(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { name: string; color?: string }) => {
+    mutationFn: async (data: { name: string; color?: string; value?: string }) => {
       const response = await fetch(`/api/v1/projects/${projectId}/labels`, {
         method: 'POST',
         headers: {
@@ -61,7 +62,7 @@ export function useUpdateLabel(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ labelId, data }: { labelId: string; data: { name?: string; color?: string } }) => {
+    mutationFn: async ({ labelId, data }: { labelId: string; data: { name?: string; color?: string; value?: string } }) => {
       const response = await fetch(`/api/v1/projects/${projectId}/labels/${labelId}`, {
         method: 'PATCH',
         headers: {

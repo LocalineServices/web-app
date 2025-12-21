@@ -38,6 +38,7 @@ export async function GET(
         projectId: true,
         name: true,
         color: true,
+        value: true,
         createdAt: true,
       },
       orderBy: { name: 'asc' },
@@ -49,6 +50,7 @@ export async function GET(
       project_id: label.projectId,
       name: label.name,
       color: label.color,
+      value: label.value,
       created_at: label.createdAt,
     }));
 
@@ -79,7 +81,7 @@ export async function POST(
 
     const { projectId } = await params;
     const body = await request.json();
-    const { name, color } = body;
+    const { name, color, value } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Label name is required' }, { status: 400 });
@@ -133,12 +135,14 @@ export async function POST(
         projectId,
         name: name.trim(),
         color: labelColor,
+        value: value?.trim() || null,
       },
       select: {
         id: true,
         projectId: true,
         name: true,
         color: true,
+        value: true,
         createdAt: true,
       },
     });
@@ -149,6 +153,7 @@ export async function POST(
       project_id: label.projectId,
       name: label.name,
       color: label.color,
+      value: label.value,
       created_at: label.createdAt,
     };
 

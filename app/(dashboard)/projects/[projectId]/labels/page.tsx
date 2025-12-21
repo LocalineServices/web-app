@@ -87,12 +87,14 @@ export default function LabelsPage() {
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [newLabelName, setNewLabelName] = React.useState("");
   const [newLabelColor, setNewLabelColor] = React.useState("#808080");
+  const [newLabelValue, setNewLabelValue] = React.useState("");
   const [deletingLabelId, setDeletingLabelId] = React.useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [editingLabel, setEditingLabel] = React.useState<{
     id: string;
     name: string;
     color: string;
+    value?: string;
   } | null>(null);
 
   // Pagination state
@@ -121,6 +123,7 @@ export default function LabelsPage() {
       await createLabelMutation.mutateAsync({
         name: newLabelName.trim(),
         color: newLabelColor,
+        value: newLabelValue.trim() || undefined,
       });
 
       toast({
@@ -131,6 +134,7 @@ export default function LabelsPage() {
       setIsCreateOpen(false);
       setNewLabelName("");
       setNewLabelColor("#808080");
+      setNewLabelValue("");
     } catch (error) {
       toast({
         title: "Error",
@@ -182,6 +186,7 @@ export default function LabelsPage() {
         data: {
           name: editingLabel.name.trim(),
           color: editingLabel.color,
+          value: editingLabel.value?.trim() || undefined,
         },
       });
 
@@ -264,6 +269,15 @@ export default function LabelsPage() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="value">Value (Optional)</Label>
+                <Input
+                  id="value"
+                  placeholder="Additional information shown on hover"
+                  value={newLabelValue}
+                  onChange={(e) => setNewLabelValue(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Color</Label>
                 <div className="flex gap-2 flex-wrap">
                   {PRESET_COLORS.map((color) => (
@@ -287,6 +301,7 @@ export default function LabelsPage() {
                   setIsCreateOpen(false);
                   setNewLabelName("");
                   setNewLabelColor("#808080");
+                  setNewLabelValue("");
                 }}
               >
                 Cancel
@@ -336,6 +351,7 @@ export default function LabelsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Label</TableHead>
+                    <TableHead>Value</TableHead>
                     <TableHead>Preview</TableHead>
                     {permissions.canManageLabels && (
                       <TableHead className="w-20"></TableHead>
@@ -353,6 +369,11 @@ export default function LabelsPage() {
                         />
                         <span className="font-medium">{label.name}</span>
                       </div>
+                    </TableCell>
+                                        <TableCell>
+                      <span className="text-sm text-muted-foreground">
+                        {label.value || "-"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge 
@@ -496,6 +517,17 @@ export default function LabelsPage() {
                   value={editingLabel.name}
                   onChange={(e) =>
                     setEditingLabel({ ...editingLabel, name: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-value">Value (Optional)</Label>
+                <Input
+                  id="edit-value"
+                  placeholder="Additional information shown on hover"
+                  value={editingLabel.value || ""}
+                  onChange={(e) =>
+                    setEditingLabel({ ...editingLabel, value: e.target.value })
                   }
                 />
               </div>
