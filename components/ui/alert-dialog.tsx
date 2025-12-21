@@ -13,23 +13,22 @@ const AlertDialog = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root>
 >((props, ref) => {
-  const { onOpenChange, ...rest } = props;
-  const [open, setOpen] = React.useState(props.open ?? props.defaultOpen ?? false);
+  const { onOpenChange, open: controlledOpen, ...rest } = props;
+  const [internalOpen, setInternalOpen] = React.useState(props.defaultOpen ?? false);
+  
+  // Use controlled open if provided, otherwise use internal state
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   
   const handleOpenChange = React.useCallback((newOpen: boolean) => {
-    setOpen(newOpen);
+    if (controlledOpen === undefined) {
+      setInternalOpen(newOpen);
+    }
     onOpenChange?.(newOpen);
-  }, [onOpenChange]);
+  }, [onOpenChange, controlledOpen]);
   
   const closeDialog = React.useCallback(() => {
     handleOpenChange(false);
   }, [handleOpenChange]);
-  
-  React.useEffect(() => {
-    if (props.open !== undefined) {
-      setOpen(props.open);
-    }
-  }, [props.open]);
   
   return (
     <AlertDialogCloseContext.Provider value={closeDialog}>
@@ -69,15 +68,16 @@ const AlertDialogContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const closeDialog = React.useContext(AlertDialogCloseContext);
   
+  const handleOverlayClick = React.useCallback(() => {
+    // Close the dialog when clicking the overlay
+    closeDialog?.();
+  }, [closeDialog]);
+  
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay 
-        onClick={(e) => {
-          // Close the dialog when clicking the overlay
-          e.stopPropagation();
-          closeDialog?.();
-        }}
-        style={{ cursor: 'pointer' }}
+        onClick={handleOverlayClick}
+        className="cursor-pointer"
       />
       <AlertDialogPrimitive.Content
         ref={ref}
