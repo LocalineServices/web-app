@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
+import { toast } from "sonner";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -113,6 +114,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
       method: 'POST',
       credentials: 'include',
     }).then(() => {
+      toast.success("You have been signed out successfully.");
       redirect('/login');
     });
   }

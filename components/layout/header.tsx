@@ -17,7 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { getGravatarUrl, getInitials } from "@/lib/gravatar";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
@@ -31,7 +31,6 @@ interface User {
 
 export function Header({ onToggleSidebar }: HeaderProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const [user, setUser] = React.useState<User | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
@@ -66,18 +65,11 @@ export function Header({ onToggleSidebar }: HeaderProps) {
         throw new Error('Failed to sign out');
       }
 
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
+      toast.success("You have been signed out successfully.");
       router.push('/login');
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to sign out";
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      toast.error(message);
     } finally {
       setIsSigningOut(false);
     }
