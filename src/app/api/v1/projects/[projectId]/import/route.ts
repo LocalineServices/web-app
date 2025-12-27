@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
 import { authenticateRequest, isAuthorized } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';
 
@@ -134,9 +134,10 @@ export async function POST(
       const isNewTerm = !term;
       
       if (!term) {
+        const termId = uuidv4();
         term = await prisma.term.create({
           data: {
-            id: nanoid(),
+            id: termId,
             projectId,
             value: termValue
           }
@@ -161,9 +162,10 @@ export async function POST(
           skipped++;
         }
       } else {
+        const translationId = uuidv4();
         await prisma.translation.create({
           data: {
-            id: nanoid(),
+            id: translationId,
             termId: term.id,
             localeId: locale.id,
             value: translationValue
