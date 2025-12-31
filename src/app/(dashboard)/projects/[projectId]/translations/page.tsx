@@ -103,7 +103,7 @@ export default function TranslationsPage() {
   const addLocaleMutation = useAddLocale(projectId);
   const deleteLocaleMutation = useDeleteLocale(projectId);
   const updateTranslationMutation = useUpdateTranslation(projectId);
-
+  
   // Check permissions
   const permissions = useProjectPermissions(projectId);
 
@@ -124,7 +124,7 @@ export default function TranslationsPage() {
   } | null>(null);
   const [selectedLabelIds, setSelectedLabelIds] = React.useState<string[]>([]);
   const [isSavingLabels, setIsSavingLabels] = React.useState(false);
-
+  
   // Pagination state
   const [currentPage, setCurrentPage] = React.useState(1);
   const [labelsDialogPage, setLabelsDialogPage] = React.useState(1);
@@ -255,7 +255,7 @@ export default function TranslationsPage() {
       if (selectedLocale === localeCode) {
         setSelectedLocale("");
       }
-
+      
       // Close the dialog after successful deletion
       setDeletingLocale(null);
     } catch (error) {
@@ -337,7 +337,7 @@ export default function TranslationsPage() {
 
       // Refresh terms to show updated labels
       refetchTerms();
-
+      
       setIsLabelsOpen(false);
       setLabelingTerm(null);
       setSelectedLabelIds([]);
@@ -410,61 +410,61 @@ export default function TranslationsPage() {
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Locale</DialogTitle>
-                <DialogDescription>
-                  Add a new language to your project
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="locale-code">Locale</Label>
-                  <Select value={newLocaleCode} onValueChange={setNewLocaleCode}>
-                    <SelectTrigger id="locale-code">
-                      <SelectValue placeholder="Select a locale" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-75">
-                      {SUPPORTED_LOCALES.filter(
-                        (locale) => !locales.some((l) => l.locale.code === locale.code)
-                      ).map((locale) => (
-                        <SelectItem key={locale.code} value={locale.code}>
-                          {locale.displayName} ({locale.code})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-sm text-muted-foreground">
-                    Choose from predefined locale codes with language and region
-                  </p>
-                </div>
+            <DialogHeader>
+              <DialogTitle>Add Locale</DialogTitle>
+              <DialogDescription>
+                Add a new language to your project
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="locale-code">Locale</Label>
+                <Select value={newLocaleCode} onValueChange={setNewLocaleCode}>
+                  <SelectTrigger id="locale-code">
+                    <SelectValue placeholder="Select a locale" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-75">
+                    {SUPPORTED_LOCALES.filter(
+                      (locale) => !locales.some((l) => l.locale.code === locale.code)
+                    ).map((locale) => (
+                      <SelectItem key={locale.code} value={locale.code}>
+                        {locale.displayName} ({locale.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  Choose from predefined locale codes with language and region
+                </p>
               </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsAddLocaleOpen(false);
-                    setNewLocaleCode("");
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleAddLocale}
-                  disabled={addLocaleMutation.isPending}
-                >
-                  {addLocaleMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    "Add Locale"
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsAddLocaleOpen(false);
+                  setNewLocaleCode("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleAddLocale}
+                disabled={addLocaleMutation.isPending}
+              >
+                {addLocaleMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Add Locale"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         )}
       </div>
 
@@ -542,54 +542,54 @@ export default function TranslationsPage() {
                     </Select>
                   </div>
                   {permissions.canManageLocales && locales.length > 0 && (
-                    <AlertDialog
-                      open={deletingLocale !== null}
-                      onOpenChange={(open) => {
-                        if (open) {
-                          const locale = locales.find((l) => l.locale.code === selectedLocale);
-                          if (locale && 'id' in locale) setDeletingLocale((locale as { id: string }).id);
-                        } else if (!deleteLocaleMutation.isPending) {
-                          setDeletingLocale(null);
-                        }
-                      }}
-                    >
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Locale
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Locale</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this locale? All translations for this language will be permanently removed.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => {
-                              const locale = locales.find((l) => l.locale.code === selectedLocale);
-                              if (locale && 'locale' in locale && 'code' in locale.locale) {
-                                handleDeleteLocale(locale.locale.code);
-                              }
-                            }}
-                            disabled={deleteLocaleMutation.isPending && deletingLocale !== null}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            {deleteLocaleMutation.isPending && deletingLocale !== null ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Deleting...
-                              </>
-                            ) : (
-                              "Delete"
-                            )}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                  <AlertDialog
+                    open={deletingLocale !== null}
+                    onOpenChange={(open) => {
+                      if (open) {
+                        const locale = locales.find((l) => l.locale.code === selectedLocale);
+                        if (locale && 'id' in locale) setDeletingLocale((locale as { id: string }).id);
+                      } else if (!deleteLocaleMutation.isPending) {
+                        setDeletingLocale(null);
+                      }
+                    }}
+                  >
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Locale
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Locale</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this locale? All translations for this language will be permanently removed.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            const locale = locales.find((l) => l.locale.code === selectedLocale);
+                            if (locale && 'locale' in locale && 'code' in locale.locale) {
+                              handleDeleteLocale(locale.locale.code);
+                            }
+                          }}
+                          disabled={deleteLocaleMutation.isPending && deletingLocale !== null}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {deleteLocaleMutation.isPending && deletingLocale !== null ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            "Delete"
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   )}
                 </div>
               </div>
@@ -622,200 +622,200 @@ export default function TranslationsPage() {
                         const isTermLocked = term.isLocked || false;
                         const canEditLockedTerm = permissions.isOwner || permissions.isAdmin;
                         const isDisabled = isTermLocked && !canEditLockedTerm;
-
+                        
                         return (
-                          <TableRow key={term.id}>
-                            <TableCell className="font-mono text-sm align-top pt-4">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">{term.value}</span>
-                                  {isTermLocked && (
-                                    <span title="This term is locked">
-                                      <Lock className="h-3 w-3 text-muted-foreground" />
-                                    </span>
-                                  )}
-                                </div>
-                                {term.labels && term.labels.length > 0 && (
-                                  <TooltipProvider delayDuration={0}>
-                                    <div className="flex items-center gap-1 flex-wrap">
-                                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                      {term.labels.map((label: any) => (
-                                        label.value ? (
-                                          <Tooltip key={label.id}>
-                                            <TooltipTrigger>
-                                              <Badge
-                                                variant="outline"
-                                                style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
-                                              >
-                                                {label.name}
-                                              </Badge>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p>{label.value}</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        ) : (
-                                          <Badge
-                                            key={label.id}
-                                            variant="outline"
+                      <TableRow key={term.id}>
+                        <TableCell className="font-mono text-sm align-top pt-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{term.value}</span>
+                              {isTermLocked && (
+                                <span title="This term is locked">
+                                  <Lock className="h-3 w-3 text-muted-foreground" />
+                                </span>
+                              )}
+                            </div>
+                            {term.labels && term.labels.length > 0 && (
+                              <TooltipProvider delayDuration={0}>
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                  {term.labels.map((label: any) => (
+                                    label.value ? (
+                                      <Tooltip key={label.id}>
+                                        <TooltipTrigger>
+                                          <Badge 
+                                            variant="outline" 
                                             style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
                                           >
                                             {label.name}
                                           </Badge>
-                                        )
-                                      ))}
-                                    </div>
-                                  </TooltipProvider>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="space-y-2">
-                                <Textarea
-                                  value={getTranslationForTerm(term.id)}
-                                  onChange={(e) => handleTranslationChange(term.id, e.target.value)}
-                                  onFocus={() => handleFocus(term.id)}
-                                  onBlur={handleBlur}
-                                  placeholder="Enter translation..."
-                                  className="min-h-15"
-                                  rows={2}
-                                  disabled={!permissions.canAccessLocale(selectedLocale) || isDisabled}
-                                />
-                                {/* Reference Translation - shown only when focused and reference locale is selected */}
-                                {focusedTermId === term.id && referenceLocale && referenceLocale !== "none" && (
-                                  <div className="space-y-1">
-                                    {getReferenceTranslationForTerm(term.id) ? (
-                                      <div className="space-y-1">
-                                        <Label className="text-xs text-muted-foreground">
-                                          Reference ({referenceLocale.toUpperCase()}):
-                                        </Label>
-                                        <div className="flex gap-2">
-                                          <Textarea
-                                            value={getReferenceTranslationForTerm(term.id)}
-                                            readOnly
-                                            onMouseDown={(e) => e.preventDefault()}
-                                            className="min-h-15 bg-muted cursor-text flex-1"
-                                            rows={2}
-                                          />
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onMouseDown={(e) => e.preventDefault()}
-                                            className="h-auto"
-                                            onClick={() => {
-                                              navigator.clipboard.writeText(getReferenceTranslationForTerm(term.id));
-                                              toast.success("Reference translation copied to clipboard");
-                                            }}
-                                            title="Copy to clipboard"
-                                          >
-                                            <Copy className="h-4 w-4" />
-                                          </Button>
-                                        </div>
-                                      </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>{label.value}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
                                     ) : (
-                                      <div className="flex items-center gap-2">
-                                        <Info className="h-4 w-4 text-amber-600 dark:text-amber-500" />
-                                        <p className="text-xs text-amber-600 dark:text-amber-500 italic">
-                                          No reference translation available
-                                        </p>
-                                      </div>
-                                    )}
+                                      <Badge 
+                                        key={label.id} 
+                                        variant="outline" 
+                                        style={{ backgroundColor: `${label.color}20`, color: label.color, borderColor: label.color }}
+                                      >
+                                        {label.name}
+                                      </Badge>
+                                    )
+                                  ))}
+                                </div>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-2">
+                            <Textarea
+                              value={getTranslationForTerm(term.id)}
+                              onChange={(e) => handleTranslationChange(term.id, e.target.value)}
+                              onFocus={() => handleFocus(term.id)}
+                              onBlur={handleBlur}
+                              placeholder="Enter translation..."
+                              className="min-h-15"
+                              rows={2}
+                              disabled={!permissions.canAccessLocale(selectedLocale) || isDisabled}
+                            />
+                            {/* Reference Translation - shown only when focused and reference locale is selected */}
+                            {focusedTermId === term.id && referenceLocale && referenceLocale !== "none" && (
+                              <div className="space-y-1">
+                                {getReferenceTranslationForTerm(term.id) ? (
+                                  <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">
+                                      Reference ({referenceLocale.toUpperCase()}):
+                                    </Label>
+                                    <div className="flex gap-2">
+                                      <Textarea
+                                        value={getReferenceTranslationForTerm(term.id)}
+                                        readOnly
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        className="min-h-15 bg-muted cursor-text flex-1"
+                                        rows={2}
+                                      />
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        className="h-auto"
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(getReferenceTranslationForTerm(term.id));
+                                          toast.success("Reference translation copied to clipboard");
+                                        }}
+                                        title="Copy to clipboard"
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <Info className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+                                    <p className="text-xs text-amber-600 dark:text-amber-500 italic">
+                                      No reference translation available
+                                    </p>
                                   </div>
                                 )}
                               </div>
-                            </TableCell>
-                            <TableCell className="align-top pt-4">
-                              {!isDisabled && (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="w-5"
-                                    onClick={() => openLabelsDialog(term)}
-                                    title="Manage labels"
-                                  >
-                                    <Tag className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => handleUpdateTranslation(term.id)}
-                                    disabled={updateTranslationMutation.isPending || !isTranslationModified(term.id)}
-                                  >
-                                    {updateTranslationMutation.isPending ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <Save className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                </>
-                              )}
-                              {isDisabled && (
-                                <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                                  <Lock className="h-3 w-3" />
-                                  <span>Locked</span>
-                                </div>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="align-top pt-4">
+                          {!isDisabled && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="w-5"
+                                onClick={() => openLabelsDialog(term)}
+                                title="Manage labels"
+                              >
+                                <Tag className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleUpdateTranslation(term.id)}
+                                disabled={updateTranslationMutation.isPending || !isTranslationModified(term.id)}
+                              >
+                                {updateTranslationMutation.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Save className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </>
+                          )}
+                          {isDisabled && (
+                            <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                              <Lock className="h-3 w-3" />
+                              <span>Locked</span>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      );
                       })}
-                    </TableBody>
-                  </Table>
-
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="mt-4">
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious
-                              onClick={currentPage === 1 ? undefined : () => setCurrentPage(p => Math.max(1, p - 1))}
-                              aria-disabled={currentPage === 1}
-                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
-
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                            // Show first page, last page, current page, and pages around current page
-                            if (
-                              page === 1 ||
-                              page === totalPages ||
-                              (page >= currentPage - 1 && page <= currentPage + 1)
-                            ) {
-                              return (
-                                <PaginationItem key={page}>
-                                  <PaginationLink
-                                    onClick={() => setCurrentPage(page)}
-                                    isActive={currentPage === page}
-                                    className="cursor-pointer"
-                                  >
-                                    {page}
-                                  </PaginationLink>
-                                </PaginationItem>
-                              );
-                            } else if (page === currentPage - 2 || page === currentPage + 2) {
-                              return (
-                                <PaginationItem key={page}>
-                                  <PaginationEllipsis />
-                                </PaginationItem>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          <PaginationItem>
-                            <PaginationNext
-                              onClick={currentPage === totalPages ? undefined : () => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                              aria-disabled={currentPage === totalPages}
-                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
-                    </div>
-                  )}
-                </>
+                  </TableBody>
+                </Table>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-4">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={currentPage === 1 ? undefined : () => setCurrentPage(p => Math.max(1, p - 1))}
+                            aria-disabled={currentPage === 1}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                          // Show first page, last page, current page, and pages around current page
+                          if (
+                            page === 1 ||
+                            page === totalPages ||
+                            (page >= currentPage - 1 && page <= currentPage + 1)
+                          ) {
+                            return (
+                              <PaginationItem key={page}>
+                                <PaginationLink
+                                  onClick={() => setCurrentPage(page)}
+                                  isActive={currentPage === page}
+                                  className="cursor-pointer"
+                                >
+                                  {page}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          } else if (page === currentPage - 2 || page === currentPage + 2) {
+                            return (
+                              <PaginationItem key={page}>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            );
+                          }
+                          return null;
+                        })}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={currentPage === totalPages ? undefined : () => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            aria-disabled={currentPage === totalPages}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </>
               )}
             </CardContent>
           </Card>
@@ -881,20 +881,20 @@ export default function TranslationsPage() {
                         <span className="flex-1">{label.name}</span>
                       </div>
                     ))}
-
+                    
                     {/* Pagination for labels */}
                     {filteredLabels.length > DIALOG_ITEMS_PER_PAGE && (
                       <div className="mt-4">
                         <Pagination>
                           <PaginationContent>
                             <PaginationItem>
-                              <PaginationPrevious
+                              <PaginationPrevious 
                                 onClick={labelsDialogPage === 1 ? undefined : () => setLabelsDialogPage(p => Math.max(1, p - 1))}
                                 aria-disabled={labelsDialogPage === 1}
                                 className={labelsDialogPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                               />
                             </PaginationItem>
-
+                            
                             {(() => {
                               const totalPages = Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE);
                               return Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
@@ -925,9 +925,9 @@ export default function TranslationsPage() {
                                 return null;
                               });
                             })()}
-
+                            
                             <PaginationItem>
-                              <PaginationNext
+                              <PaginationNext 
                                 onClick={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE) ? undefined : () => setLabelsDialogPage(p => Math.min(Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE), p + 1))}
                                 aria-disabled={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE)}
                                 className={labelsDialogPage === Math.ceil(filteredLabels.length / DIALOG_ITEMS_PER_PAGE) ? "pointer-events-none opacity-50" : "cursor-pointer"}
