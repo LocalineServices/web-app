@@ -71,6 +71,7 @@ See `.env.example` for required environment variables:
 | `DATABASE_PASSWORD` | Database password | - | ✅ |
 | `DATABASE_NAME` | Database name | `localine` | ✅ |
 | `JWT_SECRET` | Secret key for JWT tokens (min 32 characters) | - | ✅ (Production) |
+| `SIGNUPS_ENABLED` | Allow new account creation through web interface and API | `true` | ❌ |
 
 ### Database Setup
 

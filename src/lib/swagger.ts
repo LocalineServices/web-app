@@ -302,6 +302,16 @@ export const swaggerSpec = {
               },
             },
           },
+          403: {
+            description: 'Signups are disabled',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
         },
       },
     },

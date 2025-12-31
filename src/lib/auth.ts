@@ -19,6 +19,16 @@ const SALT_ROUNDS = 10;
 const TOKEN_COOKIE_NAME = 'auth_token';
 const TOKEN_EXPIRY = '7d'; // 7 days
 
+/**
+ * Check if signups are enabled
+ * Defaults to true if not set
+ */
+export function areSignupsEnabled(): boolean {
+  const signupsEnabled = process.env.SIGNUPS_ENABLED;
+  // Default to true if not set, or if set to anything other than 'false'
+  return signupsEnabled !== 'false';
+}
+
 export interface JWTPayload {
   userId: string;
   email: string;
