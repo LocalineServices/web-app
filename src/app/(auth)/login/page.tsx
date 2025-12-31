@@ -203,7 +203,7 @@ export default function LoginPage() {
           </Link>
         ) : (
           <span className="text-muted-foreground">
-            Contact your administrator for access
+            Contact an administrator for access
           </span>
         )}
       </p>

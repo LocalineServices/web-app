@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Check if signups are enabled
     if (!areSignupsEnabled()) {
       return NextResponse.json(
-        { error: 'New account creation is currently disabled' },
+        { error: 'Account creation is currently disabled' },
         { status: 403 }
       );
     }

@@ -115,9 +115,9 @@ export default function SignupPage() {
             <Image src="/logo.png" alt="Localine Logo" width={32} height={32} className="object-contain" />
             <span className="text-2xl font-bold">Localine</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">New Account Creation Disabled</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Account Creation Disabled</h1>
           <p className="text-sm text-muted-foreground">
-            New account creation is currently disabled. Please contact your administrator for access.
+            Account creation is currently disabled. Please contact an administrator for access.
           </p>
           <div className="pt-4">
             <Link href="/login">
