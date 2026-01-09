@@ -105,6 +105,9 @@ DATABASE_NAME=localine
 # JWT Secret (CHANGE IN PRODUCTION!)
 JWT_SECRET=your-secret-jwt-key-change-in-production-min-32-chars
 
+# Signups Configuration
+SIGNUPS_ENABLED=true
+
 # Node Environment
 NODE_ENV=development
 ```
@@ -119,6 +122,7 @@ NODE_ENV=development
 | `DATABASE_PASSWORD` | Database password | `your_password` | ✅ |
 | `DATABASE_NAME` | Database name | `localine` | ✅ |
 | `JWT_SECRET` | Secret key for JWT tokens (min 32 chars) | `random-string` | ✅ |
+| `SIGNUPS_ENABLED` | Allow new account creation through web interface and API | `true` | ❌ |
 | `NODE_ENV` | Environment mode | `development` / `production` | ✅ |
 
 ⚠️ **Security Note:** Never commit your `.env` file to version control!
