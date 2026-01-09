@@ -149,6 +149,13 @@ export default function TranslationsPage() {
     }
   }, [locales, selectedLocale]);
 
+  // Reset reference locale to "none" if it matches the selected locale
+  React.useEffect(() => {
+    if (referenceLocale && referenceLocale !== "none" && referenceLocale === selectedLocale) {
+      setReferenceLocale("none");
+    }
+  }, [selectedLocale, referenceLocale]);
+
   const filteredTerms = React.useMemo(() => {
     if (!searchQuery.trim()) return terms;
     const query = searchQuery.toLowerCase();

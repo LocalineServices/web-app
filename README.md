@@ -9,7 +9,7 @@
   
   **An open translation management platform for teams**
   
-  [Features](#features) • [Tech Stack](#tech-stack) • [Configuration](#configuration) • [License](#license)
+  [Features](#features) • [Tech Stack](#tech-stack) • [Configuration](#configuration) • [User Management CLI](#user-management-cli) • [License](#license)
 </div>
 
 ---
@@ -20,6 +20,7 @@
 - [Tech Stack](#tech-stack)
 - [Configuration](#configuration)
 - [Environment Variables](#environment-variables)
+- [User Management CLI](#user-management-cli)
 - [Development](#development)
 - [License](#license)
 - [Support](#support)
@@ -71,10 +72,58 @@ See `.env.example` for required environment variables:
 | `DATABASE_PASSWORD` | Database password | - | ✅ |
 | `DATABASE_NAME` | Database name | `localine` | ✅ |
 | `JWT_SECRET` | Secret key for JWT tokens (min 32 characters) | - | ✅ (Production) |
+| `SIGNUPS_ENABLED` | Allow new account creation through web interface and API | `true` | ❌ |
 
 ### Database Setup
 
 Ensure your database is running and accessible with the credentials specified in your `.env` file.
+
+---
+
+## 📱 User Management CLI
+
+### Create User
+
+Create a new user account:
+
+```bash
+npx tsx scripts/user-cli.ts create-user --email user@example.com --password secretpass123 --name "John Doe"
+```
+
+**Options:**
+- `-e, --email <email>` - User email address (required)
+- `-p, --password <password>` - User password (required, minimum 8 characters)
+- `-n, --name <name>` - User full name (required)
+
+**Example:**
+```bash
+npx tsx scripts/user-cli.ts create-user --email admin@company.com --password admin123456 --name "Admin User"
+```
+
+### Delete User
+
+Delete a user account by email or ID:
+
+```bash
+# Delete by email
+npx tsx scripts/user-cli.ts delete-user --email user@example.com
+
+# Delete by ID
+npx tsx scripts/user-cli.ts delete-user --id 550e8400-e29b-41d4-a716-446655440000
+
+# Force delete without confirmation
+npx tsx scripts/user-cli.ts delete-user --email user@example.com --force
+```
+
+**Options:**
+- `-e, --email <email>` - User email address
+- `-i, --id <id>` - User ID (UUID)
+- `-f, --force` - Skip confirmation prompt
+
+**Notes:**
+- Either `--email` or `--id` must be provided (not both)
+- Deleting a user will also delete all their owned projects and remove them from project memberships
+- Use `--force` flag for automated scripts to skip confirmation
 
 ---
 

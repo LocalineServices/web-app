@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '@/lib/db';
-import { hashPassword, generateToken, setAuthCookie } from '@/lib/auth';
+import { hashPassword, generateToken, setAuthCookie, areSignupsEnabled } from '@/lib/auth';
 
 interface SignupRequest {
   name: string;
@@ -16,6 +16,14 @@ interface SignupRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if signups are enabled
+    if (!areSignupsEnabled()) {
+      return NextResponse.json(
+        { error: 'Account creation is currently disabled' },
+        { status: 403 }
+      );
+    }
+
     const body: SignupRequest = await request.json();
     const { name, email, password } = body;
 
