@@ -14,6 +14,25 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [signupsEnabled, setSignupsEnabled] = React.useState<boolean>(true);
+
+  // Check if signups are enabled
+  React.useEffect(() => {
+    async function checkConfig() {
+      try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+          const data = await response.json();
+          setSignupsEnabled(data.signupsEnabled);
+        }
+      } catch {
+        // Default to enabled if we can't fetch config
+        setSignupsEnabled(true);
+      }
+    }
+
+    checkConfig();
+  }, []);
 
   // Redirect if already logged in
   React.useEffect(() => {
@@ -178,9 +197,15 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-primary hover:underline">
-          Sign up
-        </Link>
+        {signupsEnabled ? (
+          <Link href="/signup" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        ) : (
+          <span className="text-muted-foreground">
+            Contact an administrator for access
+          </span>
+        )}
       </p>
     </>
   );

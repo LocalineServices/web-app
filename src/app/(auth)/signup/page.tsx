@@ -14,6 +14,28 @@ export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [signupsEnabled, setSignupsEnabled] = React.useState<boolean>(true);
+  const [configLoaded, setConfigLoaded] = React.useState<boolean>(false);
+
+  // Check if signups are enabled
+  React.useEffect(() => {
+    async function checkConfig() {
+      try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+          const data = await response.json();
+          setSignupsEnabled(data.signupsEnabled);
+        }
+      } catch {
+        // Default to enabled if we can't fetch config
+        setSignupsEnabled(true);
+      } finally {
+        setConfigLoaded(true);
+      }
+    }
+
+    checkConfig();
+  }, []);
 
   // Redirect if already logged in
   React.useEffect(() => {
@@ -65,6 +87,48 @@ export default function SignupPage() {
       toast.error(message);
       setIsLoading(false);
     }
+  }
+
+  // Show loading state while config is being fetched
+  if (!configLoaded) {
+    return (
+      <>
+        <div className="flex flex-col space-y-2 text-center">
+          <div className="flex items-center justify-center gap-2 lg:hidden mb-4">
+            <Image src="/logo.png" alt="Localine Logo" width={32} height={32} className="object-contain" />
+            <span className="text-2xl font-bold">Localine</span>
+          </div>
+          <div className="flex items-center justify-center py-8">
+            <Icons.spinner className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Show message if signups are disabled
+  if (!signupsEnabled) {
+    return (
+      <>
+        <div className="flex flex-col space-y-4 text-center">
+          <div className="flex items-center justify-center gap-2 lg:hidden mb-4">
+            <Image src="/logo.png" alt="Localine Logo" width={32} height={32} className="object-contain" />
+            <span className="text-2xl font-bold">Localine</span>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">Account Creation Disabled</h1>
+          <p className="text-sm text-muted-foreground">
+            Account creation is currently disabled. Please contact an administrator for access.
+          </p>
+          <div className="pt-4">
+            <Link href="/login">
+              <Button variant="outline" className="w-full">
+                Go to Login
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
