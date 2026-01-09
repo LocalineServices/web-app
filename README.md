@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/logo.png" alt="Localine Logo" width="200"/>
+  <img src=".github/branding/logo.png" alt="Localine Logo" width="200"/>
 
   # Localine
   
