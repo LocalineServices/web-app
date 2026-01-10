@@ -8,14 +8,13 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-jwt-key-change-in-production-min-32-chars';
 
-// Warn if JWT_SECRET is not set
-if (!JWT_SECRET) {
+// Warn if JWT_SECRET is not set properly
+if (!JWT_SECRET || JWT_SECRET === 'your-secret-jwt-key-change-in-production-min-32-chars') {
   console.warn('⚠️  WARNING: JWT_SECRET not set. Using default secret. Set JWT_SECRET environment variable for production!');
 }
 
-const ACTUAL_JWT_SECRET = JWT_SECRET || 'default-dev-secret-please-change-in-production-min-32-chars';
 const SALT_ROUNDS = 10;
 const TOKEN_COOKIE_NAME = 'auth_token';
 const TOKEN_EXPIRY = '7d'; // 7 days
@@ -56,7 +55,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  * Generate a JWT token
  */
 export function generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, ACTUAL_JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
 /**
@@ -73,7 +72,7 @@ export function createPasswordSignature(passwordHash: string): string {
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   let payload: JWTPayload;
   try {
-    payload = jwt.verify(token, ACTUAL_JWT_SECRET) as JWTPayload;
+    payload = jwt.verify(token, JWT_SECRET) as JWTPayload;
   } catch {
     return null;
   }
