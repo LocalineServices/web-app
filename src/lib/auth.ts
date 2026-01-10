@@ -6,6 +6,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { prisma } from '@/lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-jwt-key-change-in-production-min-32-chars';
 
@@ -31,6 +32,7 @@ export function areSignupsEnabled(): boolean {
 export interface JWTPayload {
   userId: string;
   email: string;
+  pwdSig?: string;
   iat?: number;
   exp?: number;
 }
@@ -57,14 +59,42 @@ export function generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string 
 }
 
 /**
- * Verify and decode a JWT token
+ * Create a signature from password hash (first 16 chars)
+ * This allows us to invalidate tokens when password changes
  */
-export function verifyToken(token: string): JWTPayload | null {
+export function createPasswordSignature(passwordHash: string): string {
+  return passwordHash.substring(0, 16);
+}
+
+/**
+ * Verify and decode a JWT token, checking if password has changed since token was issued
+ */
+export async function verifyToken(token: string): Promise<JWTPayload | null> {
+  let payload: JWTPayload;
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    payload = jwt.verify(token, JWT_SECRET) as JWTPayload;
   } catch {
     return null;
   }
+
+  // If token has no password signature, it's an old token - still valid for backwards compatibility
+  if (!payload.pwdSig) return payload;
+
+  // Check if password hash still matches the signature in the token
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { passwordHash: true },
+  });
+
+  if (!user) return null;
+
+  const currentSig = createPasswordSignature(user.passwordHash);
+  if (currentSig !== payload.pwdSig) {
+    // Password has changed - invalidate token
+    return null;
+  }
+
+  return payload;
 }
 
 /**

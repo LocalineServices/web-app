@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { verifyPassword, generateToken, setAuthCookie } from '@/lib/auth';
+import { verifyPassword, generateToken, setAuthCookie, createPasswordSignature } from '@/lib/auth';
 
 interface LoginRequest {
   email: string;
@@ -49,7 +49,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = generateToken({ userId: user.id, email: user.email });
+    // Include password signature in token for session invalidation on password change
+    const pwdSig = createPasswordSignature(user.passwordHash);
+    const token = generateToken({ userId: user.id, email: user.email, pwdSig });
     await setAuthCookie(token);
 
     return NextResponse.json({

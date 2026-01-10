@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '@/lib/db';
-import { hashPassword, generateToken, setAuthCookie, areSignupsEnabled } from '@/lib/auth';
+import { hashPassword, generateToken, setAuthCookie, areSignupsEnabled, createPasswordSignature } from '@/lib/auth';
 
 interface SignupRequest {
   name: string;
@@ -56,23 +56,31 @@ export async function POST(request: NextRequest) {
     const passwordHash = await hashPassword(password);
 
     const userId = uuidv4();
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         id: userId,
         email,
         passwordHash,
         name,
       },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        passwordHash: true,
+      },
     });
 
-    const token = generateToken({ userId, email });
+    // Include password signature in token for session invalidation on password change
+    const pwdSig = createPasswordSignature(user.passwordHash);
+    const token = generateToken({ userId: user.id, email: user.email, pwdSig });
     await setAuthCookie(token);
 
     return NextResponse.json({
       user: {
-        id: userId,
-        email,
-        name,
+        id: user.id,
+        email: user.email,
+        name: user.name,
       },
     }, { status: 201 });
   } catch {
