@@ -34,26 +34,6 @@ export default function LoginPage() {
     checkConfig();
   }, []);
 
-  // Redirect if already logged in
-  React.useEffect(() => {
-    async function checkAuth() {
-      try {
-        const response = await fetch('/api/users/me', {
-          credentials: 'include',
-        });
-        
-        if (response.ok) {
-          // User is already authenticated, redirect to projects
-          router.push('/projects');
-        }
-      } catch {
-        // User is not authenticated, stay on login page
-      }
-    }
-
-    checkAuth();
-  }, [router]);
-
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);

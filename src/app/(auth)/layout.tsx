@@ -1,12 +1,38 @@
+"use client";
+
 import { Icons } from "@/components/icons";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/users/me', {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          // User is already authenticated, redirect to projects
+          router.push('/projects');
+        }
+      } catch {
+        // User is not authenticated, stay on auth page
+      }
+    }
+
+    checkAuth();
+  }, [router]);
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left side - Branding */}
