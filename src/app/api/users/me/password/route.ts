@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, hashPassword, verifyPassword } from '@/lib/auth';
+import { getCurrentUser, hashPassword, verifyPassword, generateToken, setAuthCookie, createPasswordSignature } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 interface ChangePasswordRequest {
@@ -69,7 +69,19 @@ export async function POST(request: NextRequest) {
       data: { passwordHash: newPasswordHash },
     });
 
-    return NextResponse.json({ success: true });
+    // Generate new token with updated password signature to keep current session active
+    const pwdSig = createPasswordSignature(newPasswordHash);
+    const newToken = generateToken({ 
+      userId: currentUser.userId, 
+      email: currentUser.email, 
+      pwdSig 
+    });
+    await setAuthCookie(newToken);
+
+    return NextResponse.json({ 
+      success: true,
+      message: 'Password changed successfully. All other sessions have been invalidated.',
+    });
   } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
