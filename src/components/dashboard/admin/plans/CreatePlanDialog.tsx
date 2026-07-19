@@ -53,12 +53,22 @@ export default function CreatePlanDialog() {
       displayName,
       description: description || undefined,
     })
-      .then(() => {
-        toast.success(t("toast.creationSuccess", { displayName }))
+      .then((plan) => {
+        toast.success(
+          t("toast.creationSuccess", {
+            planDisplayName: displayName,
+            planId: plan.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.creationFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.creationFailed", {
+              planDisplayName: displayName,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)

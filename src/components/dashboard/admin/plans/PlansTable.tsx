@@ -134,8 +134,8 @@ export default function AdminPlansTable({
     if (plan.default) {
       toast.error(
         t("toast.alreadyDefault", {
-          displayName: plan.displayName,
-          id: plan.id.slice(0, 8),
+          planDisplayName: plan.displayName,
+          planId: plan.id.slice(0, 8),
         })
       )
       return
@@ -147,14 +147,20 @@ export default function AdminPlansTable({
       .then(() => {
         toast.success(
           t("toast.setDefaultSuccess", {
-            displayName: plan.displayName,
-            id: plan.id.slice(0, 8),
+            planDisplayName: plan.displayName,
+            planId: plan.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.setDefaultFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.setDefaultFailed", {
+              planDisplayName: plan.displayName,
+              planId: plan.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -401,14 +407,20 @@ function EditPlanSheet({
       .then(() => {
         toast.success(
           t("toast.updateSuccess", {
-            displayName,
-            id: editingPlan.id.slice(0, 8),
+            planDisplayName: editingPlan.displayName,
+            planId: editingPlan.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.updateFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.updateFailed", {
+              planDisplayName: editingPlan.displayName,
+              planId: editingPlan.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -457,12 +469,15 @@ function EditPlanSheet({
           <SheetHeader className="shrink-0">
             <SheetTitle>
               {t("sheet.editPlan.title", {
-                displayName: editingPlan?.displayName ?? "",
-                id: editingPlan?.id.slice(0, 8) ?? "",
+                planDisplayName: editingPlan?.displayName ?? "",
+                planId: editingPlan?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editPlan.description")}
+              {t("sheet.editPlan.description", {
+                planDisplayName: editingPlan?.displayName ?? "",
+                planId: editingPlan?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
@@ -633,14 +648,20 @@ function DeletePlanDialog({
       .then(() => {
         toast.success(
           t("toast.deleteSuccess", {
-            displayName: plan.displayName,
-            id: plan.id.slice(0, 8),
+            planDisplayName: plan.displayName,
+            planId: plan.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.deleteFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.deleteFailed", {
+              planDisplayName: plan.displayName,
+              planId: plan.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -683,11 +704,16 @@ function DeletePlanDialog({
         <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("dialog.deletePlan.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deletePlan.title", {
+                planDisplayName: deletingPlan?.displayName ?? "",
+                planId: deletingPlan?.id.slice(0, 8) ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deletePlan.description", {
-                displayName: deletingPlan?.displayName ?? "",
-                id: deletingPlan?.id.slice(0, 8) ?? "",
+                planDisplayName: deletingPlan?.displayName ?? "",
+                planId: deletingPlan?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -478,15 +478,20 @@ function EditUserSheet({
 
       toast.success(
         t("toast.updateSuccess", {
-          name: currentName,
-          id: editingUser.id.slice(0, 8),
+          userName: currentName,
+          userId: editingUser.id.slice(0, 8),
         })
       )
       closeEditor()
       router.refresh()
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("toast.updateGenericFailed")
+        error instanceof Error
+          ? error.message
+          : t("toast.updateGenericFailed", {
+              userName: editingUser?.name ?? "",
+              userId: editingUser?.id.slice(0, 8) ?? "",
+            })
       )
     } finally {
       setLoading(false)
@@ -522,12 +527,15 @@ function EditUserSheet({
           <SheetHeader className="shrink-0">
             <SheetTitle>
               {t("sheet.editUser.title", {
-                name: editingUser?.name ?? "",
-                id: editingUser?.id.slice(0, 8) ?? "",
+                userName: editingUser?.name ?? "",
+                userId: editingUser?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editUser.description")}
+              {t("sheet.editUser.description", {
+                userName: editingUser?.name ?? "",
+                userId: editingUser?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
             {editingUser?.id === currentUser?.id && (
               <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
@@ -773,15 +781,21 @@ function ImpersonateUserButton({
         onSuccess: () => {
           toast.success(
             t("toast.impersonationSuccess", {
-              name: user.name,
-              id: user.id.slice(0, 8),
+              userName: user.name,
+              userId: user.id.slice(0, 8),
             })
           )
           router.push("/")
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(error?.message || t("toast.impersonationError"))
+          toast.error(
+            error?.message ||
+              t("toast.impersonationError", {
+                userName: user.name,
+                userId: user.id.slice(0, 8),
+              })
+          )
           setLoading(false)
         },
       },
@@ -843,8 +857,8 @@ function DeleteUserDialog({
         onSuccess: () => {
           toast.success(
             t("toast.deleteSuccess", {
-              name: user.name,
-              id: user.id.slice(0, 8),
+              userName: user.name,
+              userId: user.id.slice(0, 8),
             })
           )
           setLoading(false)
@@ -852,7 +866,13 @@ function DeleteUserDialog({
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(error?.message || t("toast.deleteFailed"))
+          toast.error(
+            error?.message ||
+              t("toast.deleteFailed", {
+                userName: user.name,
+                userId: user.id.slice(0, 8),
+              })
+          )
           setLoading(false)
           setDeletingUser(null)
         },
@@ -896,11 +916,16 @@ function DeleteUserDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("dialog.deleteUser.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteUser.title", {
+                userName: deletingUser?.name ?? "",
+                userId: deletingUser?.id.slice(0, 8) ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deleteUser.description", {
-                name: deletingUser?.name ?? "",
-                id: deletingUser?.id.slice(0, 8) ?? "",
+                userName: deletingUser?.name ?? "",
+                userId: deletingUser?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>

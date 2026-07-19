@@ -64,12 +64,21 @@ export default function DeleteProjectCard() {
     await deleteProject(project)
       .then(() => {
         toast.success(
-          t("toast.deleteSuccess", { name: project.name, id: project.id })
+          t("toast.deleteSuccess", {
+            projectName: project.name,
+            projectId: project.id,
+          })
         )
         router.push("/projects")
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.deleteFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.deleteFailed", {
+              projectName: project.name,
+              projectId: project.id,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -116,12 +125,15 @@ export default function DeleteProjectCard() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
-                  {t("dialog.deleteProject.title")}
+                  {t("dialog.deleteProject.title", {
+                    projectName: project.name,
+                    projectId: project.id,
+                  })}
                 </AlertDialogTitle>
                 <AlertDialogDescription>
                   {t("dialog.deleteProject.description", {
-                    name: project.name,
-                    id: project.id,
+                    projectName: project.name,
+                    projectId: project.id,
                   })}
                 </AlertDialogDescription>
               </AlertDialogHeader>

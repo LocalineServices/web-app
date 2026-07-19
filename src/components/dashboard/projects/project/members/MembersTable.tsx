@@ -325,15 +325,22 @@ function EditMemberRoleDialog({
       .then(() => {
         toast.success(
           t("toast.roleUpdateSuccess", {
-            name: projectMember.user.name,
-            id: projectMember.id,
-            role: role.name,
+            userName: projectMember.user.name,
+            memberId: projectMember.id,
+            roleName: role.name,
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.roleUpdateFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.roleUpdateFailed", {
+              userName: projectMember.user.name,
+              memberId: projectMember.id,
+              roleName: role.name,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -384,12 +391,15 @@ function EditMemberRoleDialog({
         <DialogHeader>
           <DialogTitle>
             {t("dialog.updateRole.title", {
-              name: editingMember?.user.name ?? "",
-              id: editingMember?.id ?? "",
+              userName: editingMember?.user.name ?? "",
+              memberId: projectMember.id ?? "",
             })}
           </DialogTitle>
           <DialogDescription>
-            {t("dialog.updateRole.description")}
+            {t("dialog.updateRole.description", {
+              userName: editingMember?.user.name ?? "",
+              memberId: editingMember?.id ?? "",
+            })}
           </DialogDescription>
 
           {editingMember?.user.id === user?.id && (
@@ -524,15 +534,21 @@ function EditMemberLocalesDialog({
     })
       .then(() => {
         toast.success(
-          t("toast.localesUpdateSuccess", {
-            name: projectMember.user.name,
-            id: projectMember.id,
+          t("toast.localeAssignmentUpdateSuccess", {
+            userName: projectMember.user.name,
+            memberId: projectMember.id,
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.localesUpdateFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.localeAssignmentUpdateFailed", {
+              userName: projectMember.user.name,
+              memberId: projectMember.id,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -585,12 +601,15 @@ function EditMemberLocalesDialog({
         <DialogHeader>
           <DialogTitle>
             {t("dialog.updateLocales.title", {
-              name: editingMember?.user.name ?? "",
-              id: editingMember?.id ?? "",
+              userName: editingMember?.user.name ?? "",
+              memberId: editingMember?.id ?? "",
             })}
           </DialogTitle>
           <DialogDescription>
-            {t("dialog.updateLocales.description")}
+            {t("dialog.updateLocales.description", {
+              userName: editingMember?.user.name ?? "",
+              memberId: editingMember?.id ?? "",
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -675,24 +694,30 @@ function RemoveMemberDialog({
       },
     })
 
-  async function handleRemoveMember(currentMember: ProjectMember) {
+  async function handleRemoveMember(removingMember: ProjectMember) {
     setLoading(true)
 
     await removeProjectMember({
-      projectId: currentMember.projectId,
-      memberId: currentMember.id,
+      projectId: removingMember.projectId,
+      memberId: removingMember.id,
     })
       .then((projectMember) => {
         toast.success(
           t("toast.removeMemberSuccess", {
-            name: projectMember.user.name,
-            id: projectMember.id,
+            userName: projectMember.user.name,
+            memberId: projectMember.id,
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.removeMemberFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.removeMemberFailed", {
+              userId: removingMember.userId,
+              memberId: removingMember.id,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -744,12 +769,15 @@ function RemoveMemberDialog({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("dialog.removeMember.title")}
+              {t("dialog.removeMember.title", {
+                userName: removingMember?.user.name ?? "",
+                memberId: removingMember?.id ?? "",
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.removeMember.description", {
-                name: removingMember?.user.name ?? "",
-                id: removingMember?.id ?? "",
+                userName: removingMember?.user.name ?? "",
+                memberId: removingMember?.id ?? "",
               })}
             </AlertDialogDescription>
 

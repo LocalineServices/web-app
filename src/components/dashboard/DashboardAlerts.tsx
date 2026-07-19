@@ -34,7 +34,12 @@ export default function DashboardAlerts({
         <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
           <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
 
-          <AlertTitle>{t("updateAvailable.title")}</AlertTitle>
+          <AlertTitle>
+            {t("updateAvailable.title", {
+              latestRelease: latestRelease ?? "",
+              currentVersion,
+            })}
+          </AlertTitle>
           <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
             {t("updateAvailable.description", {
               latestRelease: latestRelease ?? "",

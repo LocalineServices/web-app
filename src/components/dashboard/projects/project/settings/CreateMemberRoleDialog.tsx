@@ -64,11 +64,18 @@ export default function CreateMemberRoleDialog() {
       name: name.trim(),
     })
       .then((role) => {
-        toast.success(t("toast.createSuccess", { roleName: role.name }))
+        toast.success(
+          t("toast.createSuccess", {
+            roleName: role.name,
+            roleId: role.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.createFailed"))
+        toast.error(
+          error?.message || t("toast.createFailed", { roleName: name })
+        )
       })
       .finally(() => {
         setLoading(false)

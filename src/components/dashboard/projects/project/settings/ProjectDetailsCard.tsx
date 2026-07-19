@@ -70,13 +70,22 @@ export default function ProjectDetailsCard() {
     })
       .then((project) => {
         toast.success(
-          t("toast.updateNameSuccess", { name: project?.name ?? "" })
+          t("toast.updateNameSuccess", {
+            projectName: project?.name ?? "",
+            projectId: project?.id ?? "",
+          })
         )
         setName(project?.name ?? "")
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.updateNameFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.updateNameFailed", {
+              projectName: project.name,
+              projectId: project.id,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -97,14 +106,22 @@ export default function ProjectDetailsCard() {
       .then((project) => {
         toast.success(
           t("toast.updateDescriptionSuccess", {
-            description: project?.description ?? "",
+            description: description.trim() || t("noDescription"),
+            projectName: project?.name ?? "",
+            projectId: project?.id ?? "",
           })
         )
         setDescription(project?.description ?? "")
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.updateDescriptionFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.updateDescriptionFailed", {
+              projectName: project.name,
+              projectId: project.id,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)

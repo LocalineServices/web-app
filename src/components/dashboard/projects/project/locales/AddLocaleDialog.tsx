@@ -73,11 +73,22 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
       localeId: locale.id,
     })
       .then(() => {
-        toast.success(t("toast.addSuccess", { locale: locale.displayName }))
+        toast.success(
+          t("toast.addSuccess", {
+            localeDisplayName: locale.displayName,
+            localeId: locale.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.addFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.addFailed", {
+              localeDisplayName: locale.displayName,
+              localeId: locale.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)

@@ -94,7 +94,12 @@ export default function CreateApiKeyDialog({
         : undefined,
       fetchOptions: {
         onSuccess: ({ data: { key } }) => {
-          toast.success(t("toast.creationSuccess"))
+          toast.success(
+            t("toast.creationSuccess", {
+              apiKeyName: name,
+              apiKeyId: key.slice(0, 8),
+            })
+          )
           setLoading(false)
           setName("")
           setExpiryDate(undefined)
@@ -102,7 +107,9 @@ export default function CreateApiKeyDialog({
           setApiKey(key)
         },
         onError: ({ error }) => {
-          toast.error(error?.message || t("toast.creationFailed"))
+          toast.error(
+            error?.message || t("toast.creationFailed", { apiKeyName: name })
+          )
           setLoading(false)
           setDialogOpen(false)
           setName("")
@@ -144,9 +151,11 @@ export default function CreateApiKeyDialog({
         {apiKey ? (
           <>
             <DialogHeader>
-              <DialogTitle>{t("dialog.successTitle")}</DialogTitle>
+              <DialogTitle>
+                {t("dialog.successTitle", { apiKeyName: name })}
+              </DialogTitle>
               <DialogDescription>
-                {t("dialog.successDescription")}
+                {t("dialog.successDescription", { apiKeyName: name })}
               </DialogDescription>
             </DialogHeader>
 

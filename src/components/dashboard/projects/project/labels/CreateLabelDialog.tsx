@@ -69,11 +69,18 @@ export default function CreateLabelDialog() {
       description: description?.trim() || null,
     })
       .then((label) => {
-        toast.success(t("toast.createSuccess", { labelName: label.name }))
+        toast.success(
+          t("toast.createSuccess", {
+            labelName: label.name,
+            labelId: label.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.createFailed"))
+        toast.error(
+          error?.message || t("toast.createFailed", { labelName: name })
+        )
       })
       .finally(() => {
         setLoading(false)

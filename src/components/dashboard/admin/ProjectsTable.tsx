@@ -292,7 +292,14 @@ function ChangePlanDialog({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.updatePlanFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.updatePlanFailed", {
+              projectName: project.name,
+              projectId: project.id,
+              planName: plan.displayName,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -346,7 +353,10 @@ function ChangePlanDialog({
             })}
           </DialogTitle>
           <DialogDescription>
-            {t("dialog.updatePlan.description")}
+            {t("dialog.updatePlan.description", {
+              projectName: project.name,
+              projectId: project.id.slice(0, 8),
+            })}
           </DialogDescription>
         </DialogHeader>
 

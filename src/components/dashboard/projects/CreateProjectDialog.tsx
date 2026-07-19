@@ -58,11 +58,18 @@ export default function CreateProjectDialog({
       planId: defaultPlan?.id || "",
     })
       .then((project) => {
-        toast.success(t("toast.creationSuccess", { projectName: project.name }))
+        toast.success(
+          t("toast.creationSuccess", {
+            projectName: project.name,
+            projectId: project.id,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.creationFailed"))
+        toast.error(
+          error?.message || t("toast.creationFailed", { projectName: name })
+        )
       })
       .finally(() => {
         setLoading(false)

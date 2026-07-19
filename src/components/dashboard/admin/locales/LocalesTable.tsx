@@ -341,14 +341,20 @@ function EditLocaleSheet({
       .then(() => {
         toast.success(
           t("toast.updateSuccess", {
-            displayName,
-            id: editingLocale.id.slice(0, 8),
+            localeDisplayName: displayName,
+            localeId: editingLocale.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.updateFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.updateFailed", {
+              localeDisplayName: displayName,
+              localeId: editingLocale.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -397,12 +403,15 @@ function EditLocaleSheet({
           <SheetHeader className="shrink-0">
             <SheetTitle>
               {t("sheet.editLocale.title", {
-                displayName: editingLocale?.displayName ?? "",
-                id: editingLocale?.id.slice(0, 8) ?? "",
+                localeDisplayName: editingLocale?.displayName ?? "",
+                localeId: editingLocale?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editLocale.description")}
+              {t("sheet.editLocale.description", {
+                localeDisplayName: editingLocale?.displayName ?? "",
+                localeId: editingLocale?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
@@ -573,14 +582,20 @@ function DeleteLocaleDialog({
       .then(() => {
         toast.success(
           t("toast.deleteSuccess", {
-            displayName: locale.displayName,
-            id: locale.id.slice(0, 8),
+            localeDisplayName: locale.displayName,
+            localeId: locale.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.deleteFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.deleteFailed", {
+              localeDisplayName: locale.displayName,
+              localeId: locale.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -625,12 +640,15 @@ function DeleteLocaleDialog({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("dialog.deleteLocale.title")}
+              {t("dialog.deleteLocale.title", {
+                localeDisplayName: deletingLocale?.displayName ?? "",
+                localeId: deletingLocale?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deleteLocale.description", {
-                displayName: deletingLocale?.displayName ?? "",
-                id: deletingLocale?.id.slice(0, 8) ?? "",
+                localeDisplayName: deletingLocale?.displayName ?? "",
+                localeId: deletingLocale?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>

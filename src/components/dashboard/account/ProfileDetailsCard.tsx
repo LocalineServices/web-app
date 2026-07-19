@@ -135,7 +135,7 @@ export default function ProfileDetailsCard({
       name: name.trim(),
       fetchOptions: {
         onSuccess: () => {
-          toast.success(t("toast.nameUpdated"))
+          toast.success(t("toast.nameUpdated", { name: name.trim() }))
           setNameDialogOpen(false)
           setNameLoading(false)
           router.refresh()

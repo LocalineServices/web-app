@@ -172,7 +172,10 @@ function AcceptInvitationButton({
     await acceptProjectInvitation({ token: invitation.token })
       .then(([invitation]) => {
         toast.success(
-          t("toast.acceptSuccess", { projectName: invitation.project.name })
+          t("toast.acceptSuccess", {
+            projectName: invitation.project.name,
+            projectId: invitation.project.id.slice(0, 8),
+          })
         )
 
         router.refresh()
@@ -220,7 +223,10 @@ function DeclineInvitationButton({
     await declineProjectInvitation({ token: invitation.token })
       .then((invitation) => {
         toast.success(
-          t("toast.declineSuccess", { projectName: invitation.project.name })
+          t("toast.declineSuccess", {
+            projectName: invitation.project.name,
+            projectId: invitation.project.id.slice(0, 8),
+          })
         )
 
         router.push("/projects/invitations")

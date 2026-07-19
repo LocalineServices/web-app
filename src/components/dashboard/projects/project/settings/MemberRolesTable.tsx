@@ -460,7 +460,10 @@ function EditMemberRoleSheet({
     })
       .then((updatedRole) => {
         toast.success(
-          t("toast.updateRoleSuccess", { roleName: updatedRole.name })
+          t("toast.updateRoleSuccess", {
+            roleName: updatedRole.name,
+            roleId: updatedRole.id.slice(0, 8),
+          })
         )
         closeEditor()
         router.refresh()
@@ -468,7 +471,10 @@ function EditMemberRoleSheet({
       .catch((error) => {
         toast.error(
           error?.message ||
-            t("toast.updateRoleFailed", { roleName: editingRole.name })
+            t("toast.updateRoleFailed", {
+              roleName: editingRole.name,
+              roleId: editingRole.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -522,7 +528,10 @@ function EditMemberRoleSheet({
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editRole.description")}
+              {t("sheet.editRole.description", {
+                roleName: editingRole?.name || "",
+                roleId: editingRole?.id.slice(0, 8) || "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
@@ -663,7 +672,10 @@ function EditMemberRolePermissionsSheet({
     })
       .then((updatedRole) => {
         toast.success(
-          t("toast.updatePermissionsSuccess", { roleName: updatedRole.name })
+          t("toast.updatePermissionsSuccess", {
+            roleName: updatedRole.name,
+            roleId: updatedRole.id.slice(0, 8),
+          })
         )
         setEditingRole(null)
         router.refresh()
@@ -671,7 +683,10 @@ function EditMemberRolePermissionsSheet({
       .catch((error) => {
         toast.error(
           error?.message ||
-            t("toast.updatePermissionsFailed", { roleName: editingRole.name })
+            t("toast.updatePermissionsFailed", {
+              roleName: editingRole.name,
+              roleId: editingRole.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -732,7 +747,10 @@ function EditMemberRolePermissionsSheet({
             })}
           </SheetTitle>
           <SheetDescription>
-            {t("sheet.editPermissions.description")}
+            {t("sheet.editPermissions.description", {
+              roleName: editingRole?.name || "",
+              roleId: editingRole?.id.slice(0, 8) || "",
+            })}
           </SheetDescription>
         </SheetHeader>
 
@@ -829,13 +847,22 @@ function DeleteMemberRoleDialog({
     })
       .then((deletedRole) => {
         toast.success(
-          t("toast.deleteRoleSuccess", { roleName: deletedRole.name })
+          t("toast.deleteRoleSuccess", {
+            roleName: deletedRole.name,
+            roleId: deletedRole.id.slice(0, 8),
+          })
         )
         setDeletingRole(null)
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.deleteRoleFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.deleteRoleFailed", {
+              roleName: currentRole.name,
+              roleId: currentRole.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -882,7 +909,12 @@ function DeleteMemberRoleDialog({
         <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("dialog.deleteRole.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteRole.title", {
+                roleName: deletingRole?.name || "",
+                roleId: deletingRole?.id.slice(0, 8) || "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deleteRole.description", {
                 roleName: deletingRole?.name || "",

@@ -90,12 +90,23 @@ export default function InvitationsDialog() {
       roleId,
     })
       .then(() => {
-        toast.success(t("toast.updateSuccess", { email: invitation.email }))
+        toast.success(
+          t("toast.updateSuccess", {
+            email: invitation.email,
+            roleName: invitation.role.name,
+            invitationId: invitation.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || t("toast.updateError", { email: invitation.email })
+          error?.message ||
+            t("toast.updateError", {
+              email: invitation.email,
+              roleName: invitation.role.name,
+              invitationId: invitation.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -251,12 +262,21 @@ function ResendInvitationDialog({
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
       .then(() => {
-        toast.success(t("toast.resendSuccess", { email: invitation.email }))
+        toast.success(
+          t("toast.resendSuccess", {
+            email: invitation.email,
+            invitationId: invitation.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || t("toast.resendFailed", { email: invitation.email })
+          error?.message ||
+            t("toast.resendFailed", {
+              email: invitation.email,
+              invitationId: invitation.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -319,12 +339,21 @@ function RevokeInvitationDialog({
       invitationId: invitation.id,
     })
       .then(() => {
-        toast.success(t("toast.revokeSuccess", { email: invitation.email }))
+        toast.success(
+          t("toast.revokeSuccess", {
+            email: invitation.email,
+            invitationId: invitation.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || t("toast.revokeFailed", { email: invitation.email })
+          error?.message ||
+            t("toast.revokeFailed", {
+              email: invitation.email,
+              invitationId: invitation.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -370,11 +399,15 @@ function RevokeInvitationDialog({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("dialog.revokeInvitation.title")}
+              {t("dialog.revokeInvitation.title", {
+                email: invitation.email,
+                invitationId: invitation.id.slice(0, 8),
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.revokeInvitation.description", {
                 email: invitation.email,
+                invitationId: invitation.id.slice(0, 8),
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>

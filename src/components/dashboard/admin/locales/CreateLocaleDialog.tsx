@@ -59,17 +59,23 @@ export default function CreateLocaleDialog() {
       code,
       enabled: true,
     })
-      .then(() => {
+      .then((locale) => {
         toast.success(
           t("toast.creationSuccess", {
-            displayName,
-            code,
+            localeDisplayName: displayName,
+            localeCode: code,
+            localeId: locale.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.creationFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.creationFailed", {
+              localeDisplayName: displayName,
+            })
+        )
       })
       .finally(() => {
         setLoading(false)

@@ -241,13 +241,20 @@ function RemoveLocaleDialog({
       .then(() => {
         toast.success(
           t("toast.removeSuccess", {
-            localeName: projectLocale.locale.displayName,
+            localeDisplayName: projectLocale.locale.displayName,
+            localeId: projectLocale.locale.id.slice(0, 8),
           })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.removeFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.removeFailed", {
+              localeDisplayName: projectLocale.locale.displayName ?? "",
+              localeId: projectLocale.locale.id.slice(0, 8) ?? "",
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -292,7 +299,10 @@ function RemoveLocaleDialog({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("dialog.removeLocale.title")}
+              {t("dialog.removeLocale.title", {
+                localeName: removingLocale?.locale.displayName ?? "",
+                localeId: removingLocale?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.removeLocale.description", {

@@ -99,13 +99,22 @@ export default function ApiKeysTable({
       fetchOptions: {
         onSuccess: () => {
           toast.success(
-            t(apiKey.enabled ? "toast.apiKeyDisabled" : "toast.apiKeyEnabled")
+            t(apiKey.enabled ? "toast.apiKeyDisabled" : "toast.apiKeyEnabled", {
+              apiKeyName: apiKey.name ?? "",
+              apiKeyId: apiKey.id.slice(0, 8),
+            })
           )
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(error?.message || t("toast.apiKeyToggleFailed"))
+          toast.error(
+            error?.message ||
+              t("toast.apiKeyToggleFailed", {
+                apiKeyName: apiKey.name ?? "",
+                apiKeyId: apiKey.id.slice(0, 8),
+              })
+          )
           setLoading(false)
         },
       },
@@ -319,13 +328,24 @@ function DeleteApiKeyDialog({
       keyId: apiKey.id,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(t("toast.apiKeyDeleted"))
+          toast.success(
+            t("toast.apiKeyDeleted", {
+              apiKeyName: apiKey.name ?? "",
+              apiKeyId: apiKey.id.slice(0, 8),
+            })
+          )
           setDeletingApiKey(null)
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(error?.message || t("toast.apiKeyDeleteFailed"))
+          toast.error(
+            error?.message ||
+              t("toast.apiKeyDeleteFailed", {
+                apiKeyName: apiKey.name ?? "",
+                apiKeyId: apiKey.id.slice(0, 8),
+              })
+          )
           setLoading(false)
         },
       },
@@ -359,12 +379,15 @@ function DeleteApiKeyDialog({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("dialog.deleteApiKey.title")}
+              {t("dialog.deleteApiKey.title", {
+                apiKeyName: deletingApiKey?.name ?? "",
+                apiKeyId: deletingApiKey?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deleteApiKey.description", {
-                name: deletingApiKey?.name ?? "",
-                id: deletingApiKey?.id.slice(0, 8) ?? "",
+                apiKeyName: deletingApiKey?.name ?? "",
+                apiKeyId: deletingApiKey?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>

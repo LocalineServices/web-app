@@ -322,7 +322,13 @@ function EditLabelSheet({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.updateFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.updateFailed", {
+              labelName: editingLabel.name,
+              labelId: editingLabel.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -366,12 +372,15 @@ function EditLabelSheet({
           <SheetHeader className="shrink-0">
             <SheetTitle>
               {t("sheet.editLabel.title", {
-                labelName: label.name,
-                labelId: label.id.slice(0, 8),
+                labelName: editingLabel?.name ?? "",
+                labelId: editingLabel?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editLabel.description")}
+              {t("sheet.editLabel.description", {
+                labelName: editingLabel?.name ?? "",
+                labelId: editingLabel?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
@@ -482,12 +491,12 @@ function DeleteLabelDialog({
 
   const [deletingLabel, setDeletingLabel] = useState<ProjectLabel | null>(null)
 
-  async function handleDeleteLabel(currentLabel: ProjectLabel) {
+  async function handleDeleteLabel(deletingLabel: ProjectLabel) {
     setLoading(true)
 
     await deleteProjectLabel({
       projectId,
-      labelId: currentLabel.id,
+      labelId: deletingLabel.id,
     })
       .then((deletedLabel) => {
         toast.success(
@@ -499,7 +508,13 @@ function DeleteLabelDialog({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || t("toast.deleteFailed"))
+        toast.error(
+          error?.message ||
+            t("toast.deleteFailed", {
+              labelName: deletingLabel.name,
+              labelId: deletingLabel.id.slice(0, 8),
+            })
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -545,14 +560,14 @@ function DeleteLabelDialog({
           <AlertDialogHeader>
             <AlertDialogTitle>
               {t("dialog.deleteLabel.title", {
-                labelName: label.name,
-                labelId: label.id.slice(0, 8),
+                labelName: deletingLabel?.name ?? "",
+                labelId: deletingLabel?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deleteLabel.description", {
-                labelName: label.name,
-                labelId: label.id.slice(0, 8),
+                labelName: deletingLabel?.name ?? "",
+                labelId: deletingLabel?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
