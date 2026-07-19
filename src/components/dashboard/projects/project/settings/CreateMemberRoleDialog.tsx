@@ -24,12 +24,15 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateMemberRoleDialog() {
   const router = useRouter()
+  const t = useTranslations("CreateMemberRoleDialog")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -61,13 +64,11 @@ export default function CreateMemberRoleDialog() {
       name: name.trim(),
     })
       .then((role) => {
-        toast.success(`Created role ${role.name}.`)
+        toast.success(t("toast.createSuccess", { roleName: role.name }))
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to create role. Please try again."
-        )
+        toast.error(error?.message || t("toast.createFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -97,20 +98,20 @@ export default function CreateMemberRoleDialog() {
                 disabled={!canManageRoles || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                Create Role
+                {t("button.createMemberRole")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canManageRoles ? (
-          <TooltipContent>
-            You don&rsquo;t have permission to manage roles in this project.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         ) : (
           isLimitReached && (
             <TooltipContent>
-              You can&rsquo;t create more than 100 roles for a project. Please
-              delete unused roles before creating new ones.
+              {t("tooltip.limitReached", {
+                current: project.memberRoles.length,
+                limit: 100,
+              })}
             </TooltipContent>
           )
         )}
@@ -118,18 +119,16 @@ export default function CreateMemberRoleDialog() {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new role</DialogTitle>
-          <DialogDescription>
-            Create a new member role for this project.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="roleName">Name</Label>
+          <Label htmlFor="roleName">{t("dialog.nameLabel")}</Label>
           <Input
             id="roleName"
             type="text"
-            placeholder="Enter role name"
+            placeholder={t("dialog.namePlaceholder")}
             value={name}
             onChange={({ target: { value } }) => setName(value)}
           />
@@ -144,7 +143,7 @@ export default function CreateMemberRoleDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
           <Button
             variant="outline"
@@ -154,12 +153,12 @@ export default function CreateMemberRoleDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Creating...
+                {t("dialog.creatingMemberRole")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Create Role
+                {t("dialog.createMemberRole")}
               </>
             )}
           </Button>
