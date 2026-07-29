@@ -190,7 +190,7 @@ export default function AdminUsersTable({ users }: { users: UserWithRole[] }) {
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
-                        <EditUserSheet
+                        <UpdateUserSheet
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
@@ -238,7 +238,7 @@ export default function AdminUsersTable({ users }: { users: UserWithRole[] }) {
   )
 }
 
-function EditUserSheet({
+function UpdateUserSheet({
   user,
   loading,
   setLoading,
@@ -251,7 +251,7 @@ function EditUserSheet({
   const t = useTranslations("AdminUsersTable")
   const { user: currentUser } = useSession()
 
-  const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
+  const [updatingUser, setUpdatingUser] = useState<UserWithRole | null>(null)
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -294,11 +294,11 @@ function EditUserSheet({
     setBanReason(user.banReason ?? "")
     setBanExpires(toDateTimeLocalValue(user.banExpires))
     setProjectsLimit(getProjectsLimit(user))
-    setEditingUser(user)
+    setUpdatingUser(user)
   }
 
   function closeEditor() {
-    setEditingUser(null)
+    setUpdatingUser(null)
     setName("")
     setEmail("")
     setPassword("")
@@ -313,16 +313,16 @@ function EditUserSheet({
   async function handleUpdateUser(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingUser) return
+    if (!updatingUser) return
 
-    const initialName = editingUser.name?.trim() ?? ""
-    const initialEmail = editingUser.email?.trim() ?? ""
-    const initialEmailVerified = Boolean(editingUser.emailVerified)
-    const initialRole = editingUser.role === "admin" ? "admin" : "user"
-    const initialBanned = Boolean(editingUser.banned)
-    const initialBanReason = (editingUser.banReason ?? "").trim()
-    const initialBanExpires = toDateTimeLocalValue(editingUser.banExpires)
-    const initialProjectsLimit = getProjectsLimit(editingUser)
+    const initialName = updatingUser.name?.trim() ?? ""
+    const initialEmail = updatingUser.email?.trim() ?? ""
+    const initialEmailVerified = Boolean(updatingUser.emailVerified)
+    const initialRole = updatingUser.role === "admin" ? "admin" : "user"
+    const initialBanned = Boolean(updatingUser.banned)
+    const initialBanReason = (updatingUser.banReason ?? "").trim()
+    const initialBanExpires = toDateTimeLocalValue(updatingUser.banExpires)
+    const initialProjectsLimit = getProjectsLimit(updatingUser)
 
     const currentName = name.trim()
     const currentEmail = email.trim()
@@ -401,7 +401,7 @@ function EditUserSheet({
 
       if (Object.keys(updateData).length > 0) {
         const updateResult = await authClient.admin.updateUser({
-          userId: editingUser.id,
+          userId: updatingUser.id,
           data: updateData,
         })
 
@@ -414,7 +414,7 @@ function EditUserSheet({
 
       if (role !== initialRole) {
         const roleResult = await authClient.admin.setRole({
-          userId: editingUser.id,
+          userId: updatingUser.id,
           role,
         })
 
@@ -427,7 +427,7 @@ function EditUserSheet({
 
       if (currentPassword !== "") {
         const passwordResult = await authClient.admin.setUserPassword({
-          userId: editingUser.id,
+          userId: updatingUser.id,
           newPassword: currentPassword,
         })
 
@@ -453,7 +453,7 @@ function EditUserSheet({
                 )
 
           const banResult = await authClient.admin.banUser({
-            userId: editingUser.id,
+            userId: updatingUser.id,
             banReason: currentBanReason || undefined,
             banExpiresIn,
           })
@@ -465,7 +465,7 @@ function EditUserSheet({
           }
         } else {
           const unbanResult = await authClient.admin.unbanUser({
-            userId: editingUser.id,
+            userId: updatingUser.id,
           })
 
           if (unbanResult.error) {
@@ -479,9 +479,10 @@ function EditUserSheet({
       toast.success(
         t("toast.updateSuccess", {
           userName: currentName,
-          userId: editingUser.id.slice(0, 8),
+          userId: updatingUser.id.slice(0, 8),
         })
       )
+
       closeEditor()
       router.refresh()
     } catch (error) {
@@ -489,8 +490,8 @@ function EditUserSheet({
         error instanceof Error
           ? error.message
           : t("toast.updateGenericFailed", {
-              userName: editingUser?.name ?? "",
-              userId: editingUser?.id.slice(0, 8) ?? "",
+              userName: updatingUser?.name ?? "",
+              userId: updatingUser?.id.slice(0, 8) ?? "",
             })
       )
     } finally {
@@ -500,12 +501,8 @@ function EditUserSheet({
 
   return (
     <Sheet
-      open={editingUser?.id === user.id}
-      onOpenChange={(open) => {
-        if (!open) {
-          closeEditor()
-        }
-      }}
+      open={updatingUser?.id === user.id}
+      onOpenChange={(open) => !open && closeEditor()}
     >
       <SheetTrigger asChild>
         <Button
@@ -526,23 +523,23 @@ function EditUserSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.editUser.title", {
-                userName: editingUser?.name ?? "",
-                userId: editingUser?.id.slice(0, 8) ?? "",
+              {t("sheet.updateUser.title", {
+                userName: updatingUser?.name ?? "",
+                userId: updatingUser?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editUser.description", {
-                userName: editingUser?.name ?? "",
-                userId: editingUser?.id.slice(0, 8) ?? "",
+              {t("sheet.updateUser.description", {
+                userName: updatingUser?.name ?? "",
+                userId: updatingUser?.id.slice(0, 8) ?? "",
               })}
             </SheetDescription>
-            {editingUser?.id === currentUser?.id && (
+            {updatingUser?.id === currentUser?.id && (
               <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                 <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                <AlertTitle>{t("alert.editingSelfTitle")}</AlertTitle>
+                <AlertTitle>{t("alert.updatingSelfTitle")}</AlertTitle>
                 <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                  {t("alert.editingSelfDescription")}
+                  {t("alert.updatingSelfDescription")}
                 </AlertDescription>
               </Alert>
             )}
@@ -551,11 +548,11 @@ function EditUserSheet({
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="name">{t("sheet.editUser.nameLabel")}</Label>
+                <Label htmlFor="name">{t("sheet.updateUser.nameLabel")}</Label>
                 <Input
                   id="name"
                   value={name}
-                  placeholder={t("sheet.editUser.namePlaceholder")}
+                  placeholder={t("sheet.updateUser.namePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setName(event.target.value)}
@@ -563,11 +560,11 @@ function EditUserSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="email">{t("sheet.editUser.emailLabel")}</Label>
+                <Label htmlFor="email">{t("sheet.updateUser.emailLabel")}</Label>
                 <Input
                   id="email"
                   value={email}
-                  placeholder={t("sheet.editUser.emailPlaceholder")}
+                  placeholder={t("sheet.updateUser.emailPlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setEmail(event.target.value)}
@@ -576,13 +573,13 @@ function EditUserSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="password">
-                  {t("sheet.editUser.passwordLabel")}
+                  {t("sheet.updateUser.passwordLabel")}
                 </Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
-                  placeholder={t("sheet.editUser.passwordPlaceholder")}
+                  placeholder={t("sheet.updateUser.passwordPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setPassword(event.target.value)}
                 />
@@ -590,7 +587,7 @@ function EditUserSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="emailVerified">
-                  {t("sheet.editUser.emailVerifiedLabel")}
+                  {t("sheet.updateUser.emailVerifiedLabel")}
                 </Label>
                 <ToggleGroup
                   type="single"
@@ -607,19 +604,19 @@ function EditUserSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.editUser.emailVerifiedYes")}
+                    {t("sheet.updateUser.emailVerifiedYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.editUser.emailVerifiedNo")}
+                    {t("sheet.updateUser.emailVerifiedNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="role">{t("sheet.editUser.roleLabel")}</Label>
+                <Label htmlFor="role">{t("sheet.updateUser.roleLabel")}</Label>
                 <NativeSelect
                   id="role"
                   value={role}
@@ -630,17 +627,17 @@ function EditUserSheet({
                   }
                 >
                   <NativeSelectOption value="user">
-                    {t("sheet.editUser.roleUser")}
+                    {t("sheet.updateUser.roleUser")}
                   </NativeSelectOption>
                   <NativeSelectOption value="admin">
-                    {t("sheet.editUser.roleAdmin")}
+                    {t("sheet.updateUser.roleAdmin")}
                   </NativeSelectOption>
                 </NativeSelect>
               </div>
 
               <div className="grid gap-3">
                 <Label htmlFor="banned">
-                  {t("sheet.editUser.bannedLabel")}
+                  {t("sheet.updateUser.bannedLabel")}
                 </Label>
                 <ToggleGroup
                   type="single"
@@ -657,13 +654,13 @@ function EditUserSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.editUser.bannedYes")}
+                    {t("sheet.updateUser.bannedYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.editUser.bannedNo")}
+                    {t("sheet.updateUser.bannedNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -672,12 +669,12 @@ function EditUserSheet({
                 <>
                   <div className="grid gap-3">
                     <Label htmlFor="banReason">
-                      {t("sheet.editUser.banReasonLabel")}
+                      {t("sheet.updateUser.banReasonLabel")}
                     </Label>
                     <Input
                       id="banReason"
                       value={banReason}
-                      placeholder={t("sheet.editUser.banReasonPlaceholder")}
+                      placeholder={t("sheet.updateUser.banReasonPlaceholder")}
                       disabled={loading}
                       onChange={(event) => setBanReason(event.target.value)}
                     />
@@ -685,13 +682,13 @@ function EditUserSheet({
 
                   <div className="grid gap-3">
                     <Label htmlFor="banExpires">
-                      {t("sheet.editUser.banExpiresLabel")}
+                      {t("sheet.updateUser.banExpiresLabel")}
                     </Label>
                     <Input
                       id="banExpires"
                       type="datetime-local"
                       value={banExpires}
-                      placeholder={t("sheet.editUser.banExpiresPlaceholder")}
+                      placeholder={t("sheet.updateUser.banExpiresPlaceholder")}
                       disabled={loading}
                       onChange={(event) => setBanExpires(event.target.value)}
                     />
@@ -701,13 +698,13 @@ function EditUserSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="projectsLimit">
-                  {t("sheet.editUser.projectsLimitLabel")}
+                  {t("sheet.updateUser.projectsLimitLabel")}
                 </Label>
                 <Input
                   id="projectsLimit"
                   type="number"
                   value={projectsLimit ?? ""}
-                  placeholder={t("sheet.editUser.projectsLimitPlaceholder")}
+                  placeholder={t("sheet.updateUser.projectsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setProjectsLimit(
@@ -725,18 +722,18 @@ function EditUserSheet({
             <Button
               type="submit"
               disabled={
-                loading || !editingUser || !name.trim() || !email.trim()
+                loading || !updatingUser || !name.trim() || !email.trim()
               }
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("sheet.editUser.updatingUser")}
+                  {t("sheet.updateUser.updatingUser")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="mr-1 size-4" />
-                  {t("sheet.editUser.updateUser")}
+                  {t("sheet.updateUser.updateUser")}
                 </>
               )}
             </Button>
@@ -745,7 +742,7 @@ function EditUserSheet({
               <Button
                 variant="outline"
                 disabled={loading}
-                onClick={() => setEditingUser(null)}
+                onClick={() => setUpdatingUser(null)}
               >
                 {t("sheet.close")}
               </Button>

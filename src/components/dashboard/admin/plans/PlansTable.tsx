@@ -314,7 +314,7 @@ export default function AdminPlansTable({
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditPlanSheet
+                      <UpdatePlanSheet
                         plan={plan}
                         canUpdatePlans={canUpdatePlans}
                         loading={loading}
@@ -357,7 +357,7 @@ export default function AdminPlansTable({
   )
 }
 
-function EditPlanSheet({
+function UpdatePlanSheet({
   plan,
   canUpdatePlans,
   loading,
@@ -371,7 +371,7 @@ function EditPlanSheet({
   const router = useRouter()
   const t = useTranslations("AdminPlansTable")
 
-  const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
+  const [updatingPlan, setUpdatingPlan] = useState<Plan | null>(null)
 
   const [displayName, setDisplayName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
@@ -387,16 +387,26 @@ function EditPlanSheet({
     setTermsLimit(plan.termsLimit)
     setLabelsLimit(plan.labelsLimit)
     setMembersLimit(plan.membersLimit)
-    setEditingPlan(plan)
+    setUpdatingPlan(plan)
+  }
+
+  function closeEditor() {
+    setUpdatingPlan(null)
+    setDisplayName("")
+    setDescription(null)
+    setLocalesLimit(null)
+    setTermsLimit(null)
+    setLabelsLimit(null)
+    setMembersLimit(null)
   }
 
   async function handleUpdatePlan(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingPlan) return
+    if (!updatingPlan) return
 
     setLoading(true)
-    await updatePlan(editingPlan.id, {
+    await updatePlan(updatingPlan.id, {
       displayName,
       description: description || null,
       localesLimit: localesLimit || null,
@@ -404,38 +414,36 @@ function EditPlanSheet({
       labelsLimit: labelsLimit || null,
       membersLimit: membersLimit || null,
     })
-      .then(() => {
+      .then((updatedPlan) => {
         toast.success(
           t("toast.updateSuccess", {
-            planDisplayName: editingPlan.displayName,
-            planId: editingPlan.id.slice(0, 8),
+            planDisplayName: updatedPlan.displayName,
+            planId: updatedPlan.id.slice(0, 8),
           })
         )
+
+        closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
             t("toast.updateFailed", {
-              planDisplayName: editingPlan.displayName,
-              planId: editingPlan.id.slice(0, 8),
+              planDisplayName: updatingPlan.displayName,
+              planId: updatingPlan.id.slice(0, 8),
             })
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingPlan(null)
+        setUpdatingPlan(null)
       })
   }
 
   return (
     <Sheet
-      open={editingPlan !== null}
-      onOpenChange={(open) => {
-        if (!open) {
-          setEditingPlan(null)
-        }
-      }}
+      open={updatingPlan !== null}
+      onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
         <TooltipTrigger
@@ -468,15 +476,15 @@ function EditPlanSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.editPlan.title", {
-                planDisplayName: editingPlan?.displayName ?? "",
-                planId: editingPlan?.id.slice(0, 8) ?? "",
+              {t("sheet.updatePlan.title", {
+                planDisplayName: updatingPlan?.displayName ?? "",
+                planId: updatingPlan?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editPlan.description", {
-                planDisplayName: editingPlan?.displayName ?? "",
-                planId: editingPlan?.id.slice(0, 8) ?? "",
+              {t("sheet.updatePlan.description", {
+                planDisplayName: updatingPlan?.displayName ?? "",
+                planId: updatingPlan?.id.slice(0, 8) ?? "",
               })}
             </SheetDescription>
           </SheetHeader>
@@ -485,12 +493,12 @@ function EditPlanSheet({
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
                 <Label htmlFor="planName">
-                  {t("sheet.editPlan.displayNameLabel")}
+                  {t("sheet.updatePlan.displayNameLabel")}
                 </Label>
                 <Input
                   id="planName"
                   value={displayName}
-                  placeholder={t("sheet.editPlan.displayNamePlaceholder")}
+                  placeholder={t("sheet.updatePlan.displayNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -499,12 +507,12 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planDescription">
-                  {t("sheet.editPlan.descriptionLabel")}
+                  {t("sheet.updatePlan.descriptionLabel")}
                 </Label>
                 <Input
                   id="planDescription"
                   value={description || ""}
-                  placeholder={t("sheet.editPlan.descriptionPlaceholder")}
+                  placeholder={t("sheet.updatePlan.descriptionPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setDescription(event.target.value)}
                 />
@@ -512,13 +520,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planLocalesLimit">
-                  {t("sheet.editPlan.localesLimitLabel")}
+                  {t("sheet.updatePlan.localesLimitLabel")}
                 </Label>
                 <Input
                   id="planLocalesLimit"
                   type="number"
                   value={localesLimit ?? ""}
-                  placeholder={t("sheet.editPlan.localesLimitPlaceholder")}
+                  placeholder={t("sheet.updatePlan.localesLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setLocalesLimit(
@@ -530,13 +538,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planTermsLimit">
-                  {t("sheet.editPlan.termsLimitLabel")}
+                  {t("sheet.updatePlan.termsLimitLabel")}
                 </Label>
                 <Input
                   id="planTermsLimit"
                   type="number"
                   value={termsLimit ?? ""}
-                  placeholder={t("sheet.editPlan.termsLimitPlaceholder")}
+                  placeholder={t("sheet.updatePlan.termsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setTermsLimit(
@@ -548,13 +556,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planLabelsLimit">
-                  {t("sheet.editPlan.labelsLimitLabel")}
+                  {t("sheet.updatePlan.labelsLimitLabel")}
                 </Label>
                 <Input
                   id="planLabelsLimit"
                   type="number"
                   value={labelsLimit ?? ""}
-                  placeholder={t("sheet.editPlan.labelsLimitPlaceholder")}
+                  placeholder={t("sheet.updatePlan.labelsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setLabelsLimit(
@@ -566,13 +574,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planMembersLimit">
-                  {t("sheet.editPlan.membersLimitLabel")}
+                  {t("sheet.updatePlan.membersLimitLabel")}
                 </Label>
                 <Input
                   id="planMembersLimit"
                   type="number"
                   value={membersLimit ?? ""}
-                  placeholder={t("sheet.editPlan.membersLimitPlaceholder")}
+                  placeholder={t("sheet.updatePlan.membersLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setMembersLimit(
@@ -587,17 +595,17 @@ function EditPlanSheet({
           <SheetFooter className="shrink-0">
             <Button
               type="submit"
-              disabled={loading || !editingPlan || !displayName}
+              disabled={loading || !updatingPlan || !displayName}
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("sheet.editPlan.updatingPlan")}
+                  {t("sheet.updatePlan.updatingPlan")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="h-4 w-4" />
-                  {t("sheet.editPlan.updatePlan")}
+                  {t("sheet.updatePlan.updatePlan")}
                 </>
               )}
             </Button>
@@ -606,7 +614,7 @@ function EditPlanSheet({
               <Button
                 variant="outline"
                 disabled={loading}
-                onClick={() => setEditingPlan(null)}
+                onClick={closeEditor}
               >
                 {t("sheet.close")}
               </Button>

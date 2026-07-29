@@ -64,7 +64,7 @@ import {
   TrashIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
@@ -218,13 +218,13 @@ export default function ProjectMembersTable({
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
-                        <EditMemberRoleDialog
+                        <UpdateMemberRoleDialog
                           projectMember={projectMember}
                           isOwner={isOwner}
                           loading={loading}
                           setLoading={setLoading}
                         />
-                        <EditMemberLocalesDialog
+                        <UpdateMemberLocalesDialog
                           projectMember={projectMember}
                           isOwner={isOwner}
                           loading={loading}
@@ -269,7 +269,7 @@ export default function ProjectMembersTable({
   )
 }
 
-function EditMemberRoleDialog({
+function UpdateMemberRoleDialog({
   projectMember,
   isOwner,
   loading,
@@ -286,7 +286,7 @@ function EditMemberRoleDialog({
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [editingMember, setEditingMember] = useState<FullProjectMember | null>()
+  const [updatingMember, setUpdatingMember] = useState<FullProjectMember | null>()
 
   const [role, setRole] = useState<ProjectMemberRole | null>(projectMember.role)
 
@@ -304,29 +304,31 @@ function EditMemberRoleDialog({
     })
 
   function openDialog(projectMember: FullProjectMember) {
-    setEditingMember(projectMember)
     setRole(projectMember.role)
+    setUpdatingMember(projectMember)
   }
 
   function closeEditor() {
-    setEditingMember(null)
+    setUpdatingMember(null)
     setRole(null)
   }
 
-  async function handleUpdateRole(projectMember: FullProjectMember) {
-    if (!role) return
+  async function handleUpdateRole(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+
+    if (!updatingMember || !role) return
 
     setLoading(true)
     await updateProjectMember({
-      projectId: projectMember.projectId,
-      memberId: projectMember.id,
+      projectId: updatingMember.projectId,
+      memberId: updatingMember.id,
       roleId: role.id,
     })
-      .then(() => {
+      .then((updatedMember) => {
         toast.success(
           t("toast.roleUpdateSuccess", {
-            userName: projectMember.user.name,
-            memberId: projectMember.id,
+            userName: updatingMember.user.name, // TODO
+            memberId: updatedMember.id,
             roleName: role.name,
           })
         )
@@ -336,22 +338,22 @@ function EditMemberRoleDialog({
         toast.error(
           error?.message ||
             t("toast.roleUpdateFailed", {
-              userName: projectMember.user.name,
-              memberId: projectMember.id,
+              userName: updatingMember.user.name,
+              memberId: updatingMember.id,
               roleName: role.name,
             })
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingMember(null)
+        setUpdatingMember(null)
         setRole(null)
       })
   }
 
   return (
     <Dialog
-      open={editingMember?.id === projectMember.id}
+      open={updatingMember?.id === projectMember.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -386,23 +388,23 @@ function EditMemberRoleDialog({
       </Tooltip>
 
       <DialogContent
-        className={cn(editingMember?.user.id === user?.id && "sm:max-w-130")}
+        className={cn(updatingMember?.user.id === user?.id && "sm:max-w-130")}
       >
         <DialogHeader>
           <DialogTitle>
             {t("dialog.updateRole.title", {
-              userName: editingMember?.user.name ?? "",
-              memberId: projectMember.id ?? "",
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
             })}
           </DialogTitle>
           <DialogDescription>
             {t("dialog.updateRole.description", {
-              userName: editingMember?.user.name ?? "",
-              memberId: editingMember?.id ?? "",
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
             })}
           </DialogDescription>
 
-          {editingMember?.user.id === user?.id && (
+          {updatingMember?.user.id === user?.id && (
             <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
               <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
               <AlertTitle>{t("alert.updateOwnRole.title")}</AlertTitle>
@@ -416,7 +418,7 @@ function EditMemberRoleDialog({
         <div className="space-y-2 py-2">
           <Label htmlFor="role">{t("dialog.updateRole.roleLabel")}</Label>
           <RolePickerField
-            id={`role-${editingMember?.id}`}
+            id={`role-${updatingMember?.id}`}
             roles={project.memberRoles
               .filter((role) => role.id !== project.id)
               .sort((a, b) => {
@@ -440,7 +442,7 @@ function EditMemberRoleDialog({
         <DialogFooter>
           <Button
             variant="outline"
-            onClick={() => setEditingMember(null)}
+            onClick={closeEditor}
             disabled={loading}
           >
             {t("dialog.close")}
@@ -449,15 +451,11 @@ function EditMemberRoleDialog({
           <Button
             disabled={
               loading ||
-              !editingMember ||
+              !updatingMember ||
               !role ||
-              role.id === editingMember.roleId
+              role.id === updatingMember.roleId
             }
-            onClick={(event) => {
-              event.preventDefault()
-              if (!editingMember) return
-              void handleUpdateRole(editingMember)
-            }}
+            onClick={handleUpdateRole}
           >
             {loading ? (
               <>
@@ -477,7 +475,7 @@ function EditMemberRoleDialog({
   )
 }
 
-function EditMemberLocalesDialog({
+function UpdateMemberLocalesDialog({
   projectMember,
   isOwner,
   loading,
@@ -494,7 +492,7 @@ function EditMemberLocalesDialog({
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [editingMember, setEditingMember] = useState<FullProjectMember | null>()
+  const [updatingMember, setUpdatingMember] = useState<FullProjectMember | null>()
 
   const [locales, setLocales] = useState<ProjectLocaleWithLocale[]>(
     projectMember.locales
@@ -514,29 +512,31 @@ function EditMemberLocalesDialog({
     })
 
   function openDialog(projectMember: FullProjectMember) {
-    setEditingMember(projectMember)
+    setUpdatingMember(projectMember)
     setLocales(projectMember.locales)
   }
 
   function closeEditor() {
-    setEditingMember(null)
     setLocales([])
+    setUpdatingMember(null)
   }
 
-  async function handleUpdateLocales(projectMember: FullProjectMember) {
-    setLoading(true)
-    if (!locales) return
+  async function handleUpdateLocales(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    
+    if (!updatingMember || !locales) return
 
+    setLoading(true)
     await updateProjectMember({
-      projectId: projectMember.projectId,
-      memberId: projectMember.id,
+      projectId: updatingMember.projectId,
+      memberId: updatingMember.id,
       locales,
     })
-      .then(() => {
+      .then((updatedMember) => {
         toast.success(
           t("toast.localeAssignmentUpdateSuccess", {
-            userName: projectMember.user.name,
-            memberId: projectMember.id,
+            userName: updatingMember.user.name, // TODO
+            memberId: updatedMember.id,
           })
         )
         router.refresh()
@@ -545,21 +545,21 @@ function EditMemberLocalesDialog({
         toast.error(
           error?.message ||
             t("toast.localeAssignmentUpdateFailed", {
-              userName: projectMember.user.name,
-              memberId: projectMember.id,
+              userName: updatingMember.user.name,
+              memberId: updatingMember.id,
             })
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingMember(null)
+        setUpdatingMember(null)
         setLocales([])
       })
   }
 
   return (
     <Dialog
-      open={editingMember?.id === projectMember.id}
+      open={updatingMember?.id === projectMember.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -601,14 +601,14 @@ function EditMemberLocalesDialog({
         <DialogHeader>
           <DialogTitle>
             {t("dialog.updateLocales.title", {
-              userName: editingMember?.user.name ?? "",
-              memberId: editingMember?.id ?? "",
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
             })}
           </DialogTitle>
           <DialogDescription>
             {t("dialog.updateLocales.description", {
-              userName: editingMember?.user.name ?? "",
-              memberId: editingMember?.id ?? "",
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
             })}
           </DialogDescription>
         </DialogHeader>
@@ -618,7 +618,7 @@ function EditMemberLocalesDialog({
             {t("dialog.updateLocales.localesLabel")}
           </Label>
           <ProjectLocalesPicker
-            id={`locales-${editingMember?.id}`}
+            id={`locales-${updatingMember?.id}`}
             locales={project.locales}
             value={locales}
             onChange={setLocales}
@@ -629,19 +629,15 @@ function EditMemberLocalesDialog({
         <DialogFooter>
           <Button
             variant="outline"
-            onClick={() => setEditingMember(null)}
+            onClick={closeEditor}
             disabled={loading}
           >
             {t("dialog.close")}
           </Button>
 
           <Button
-            disabled={loading || editingMember === null}
-            onClick={(event) => {
-              event.preventDefault()
-              if (!editingMember) return
-              void handleUpdateLocales(editingMember)
-            }}
+            disabled={loading || updatingMember === null}
+            onClick={handleUpdateLocales}
           >
             {loading ? (
               <>

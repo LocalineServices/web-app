@@ -69,7 +69,7 @@ import {
   TrashIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { SubmitEvent, useState } from "react"
+import { MouseEvent, SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 import {
   deleteProjectMemberRole,
@@ -354,14 +354,14 @@ export default function ProjectMemberRolesTable() {
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditMemberRoleSheet
+                      <UpdateMemberRoleSheet
                         projectId={project.id}
                         role={role}
                         canUpdateRoles={canManageRoles}
                         loading={loading}
                         setLoading={setLoading}
                       />
-                      <EditMemberRolePermissionsSheet
+                      <UpdateMemberRolePermissionsSheet
                         project={project}
                         role={role}
                         canUpdateRoles={canManageRoles}
@@ -408,7 +408,7 @@ export default function ProjectMemberRolesTable() {
   )
 }
 
-function EditMemberRoleSheet({
+function UpdateMemberRoleSheet({
   projectId,
   role,
   canUpdateRoles,
@@ -424,7 +424,7 @@ function EditMemberRoleSheet({
   const router = useRouter()
   const t = useTranslations("ProjectMemberRolesTable")
 
-  const [editingRole, setEditingRole] = useState<ProjectMemberRole | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(null)
 
   const [name, setName] = useState("")
   const [color, setColor] = useState("")
@@ -434,11 +434,11 @@ function EditMemberRoleSheet({
     setName(currentRole.name ?? "")
     setColor(currentRole.color ?? "")
     setIcon(currentRole.icon ?? "")
-    setEditingRole(currentRole)
+    setUpdatingRole(currentRole)
   }
 
   function closeEditor() {
-    setEditingRole(null)
+    setUpdatingRole(null)
     setName("")
     setColor("")
     setIcon("")
@@ -447,13 +447,12 @@ function EditMemberRoleSheet({
   async function handleUpdateRole(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingRole) return
+    if (!updatingRole) return
 
     setLoading(true)
-
     await updateProjectMemberRole({
       projectId,
-      roleId: editingRole.id,
+      roleId: updatingRole.id,
       name: name.trim(),
       color,
       icon,
@@ -472,8 +471,8 @@ function EditMemberRoleSheet({
         toast.error(
           error?.message ||
             t("toast.updateRoleFailed", {
-              roleName: editingRole.name,
-              roleId: editingRole.id.slice(0, 8),
+              roleName: updatingRole.name,
+              roleId: updatingRole.id.slice(0, 8),
             })
         )
       })
@@ -484,7 +483,7 @@ function EditMemberRoleSheet({
 
   return (
     <Sheet
-      open={editingRole?.id === role.id}
+      open={updatingRole?.id === role.id}
       onOpenChange={(open) => {
         if (!open) {
           closeEditor()
@@ -522,15 +521,15 @@ function EditMemberRoleSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.editRole.title", {
-                roleName: editingRole?.name || "",
-                roleId: editingRole?.id.slice(0, 8) || "",
+              {t("sheet.updateRole.title", {
+                roleName: updatingRole?.name || "",
+                roleId: updatingRole?.id.slice(0, 8) || "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editRole.description", {
-                roleName: editingRole?.name || "",
-                roleId: editingRole?.id.slice(0, 8) || "",
+              {t("sheet.updateRole.description", {
+                roleName: updatingRole?.name || "",
+                roleId: updatingRole?.id.slice(0, 8) || "",
               })}
             </SheetDescription>
           </SheetHeader>
@@ -539,7 +538,7 @@ function EditMemberRoleSheet({
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
                 <Label htmlFor="roleName">
-                  {t("sheet.editRole.nameLabel")}
+                  {t("sheet.updateRole.nameLabel")}
                 </Label>
                 <Input
                   id="roleName"
@@ -552,7 +551,7 @@ function EditMemberRoleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="roleColor">
-                  {t("sheet.editRole.colorLabel")}
+                  {t("sheet.updateRole.colorLabel")}
                 </Label>
                 <ColorPickerField
                   id="roleColor"
@@ -564,7 +563,7 @@ function EditMemberRoleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="roleIcon">
-                  {t("sheet.editRole.iconLabel")}
+                  {t("sheet.updateRole.iconLabel")}
                 </Label>
                 <IconPickerField
                   id="roleIcon"
@@ -579,17 +578,17 @@ function EditMemberRoleSheet({
           <SheetFooter className="shrink-0">
             <Button
               type="submit"
-              disabled={loading || !editingRole || !name.trim()}
+              disabled={loading || !updatingRole || !name.trim()}
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("sheet.editRole.updatingRole")}
+                  {t("sheet.updateRole.updatingRole")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="h-4 w-4" />
-                  {t("sheet.editRole.updateRole")}
+                  {t("sheet.updateRole.updateRole")}
                 </>
               )}
             </Button>
@@ -610,7 +609,7 @@ function EditMemberRoleSheet({
   )
 }
 
-function EditMemberRolePermissionsSheet({
+function UpdateMemberRolePermissionsSheet({
   project,
   role,
   canUpdateRoles,
@@ -627,7 +626,7 @@ function EditMemberRolePermissionsSheet({
   const t = useTranslations("ProjectMemberRolesTable")
 
   const isOwnerRole = role.id === project.id
-  const [editingRole, setEditingRole] = useState<ProjectMemberRole | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(null)
   const [selectedPermissions, setSelectedPermissions] = useState<Set<bigint>>(
     new Set()
   )
@@ -640,7 +639,12 @@ function EditMemberRolePermissionsSheet({
         ).map((permission) => permission.value)
       )
     )
-    setEditingRole(currentRole)
+    setUpdatingRole(currentRole)
+  }
+
+  function closeEditor() {
+    setUpdatingRole(null)
+    setSelectedPermissions(new Set())
   }
 
   function togglePermission(permission: bigint) {
@@ -655,8 +659,10 @@ function EditMemberRolePermissionsSheet({
     })
   }
 
-  async function handleSavePermissions() {
-    if (!editingRole || isOwnerRole) return
+  async function handleSavePermissions(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+
+    if (!updatingRole || isOwnerRole) return
 
     const permissions = Array.from(selectedPermissions).reduce(
       (combined, permission) => combined | permission,
@@ -664,10 +670,9 @@ function EditMemberRolePermissionsSheet({
     )
 
     setLoading(true)
-
     await updateProjectMemberRole({
       projectId: project.id,
-      roleId: editingRole.id,
+      roleId: updatingRole.id,
       permissions,
     })
       .then((updatedRole) => {
@@ -677,15 +682,16 @@ function EditMemberRolePermissionsSheet({
             roleId: updatedRole.id.slice(0, 8),
           })
         )
-        setEditingRole(null)
+
+        closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
             t("toast.updatePermissionsFailed", {
-              roleName: editingRole.name,
-              roleId: editingRole.id.slice(0, 8),
+              roleName: updatingRole.name,
+              roleId: updatingRole.id.slice(0, 8),
             })
         )
       })
@@ -696,12 +702,8 @@ function EditMemberRolePermissionsSheet({
 
   return (
     <Sheet
-      open={editingRole?.id === role.id}
-      onOpenChange={(open) => {
-        if (!open) {
-          setEditingRole(null)
-        }
-      }}
+      open={updatingRole?.id === role.id}
+      onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
         <TooltipTrigger
@@ -728,12 +730,12 @@ function EditMemberRolePermissionsSheet({
         </TooltipTrigger>
         {!canUpdateRoles && (
           <TooltipContent>
-            {t("tooltip.noPermissionEditPermissions")}
+            {t("tooltip.noPermissionUpdatePermissions")}
           </TooltipContent>
         )}
         {isOwnerRole && (
           <TooltipContent>
-            {t("tooltip.ownerRoleEditPermissions")}
+            {t("tooltip.ownerRoleUpdatePermissions")}
           </TooltipContent>
         )}
       </Tooltip>
@@ -741,15 +743,15 @@ function EditMemberRolePermissionsSheet({
       <SheetContent className="flex flex-col overflow-hidden">
         <SheetHeader className="shrink-0">
           <SheetTitle>
-            {t("sheet.editPermissions.title", {
-              roleName: editingRole?.name || "",
-              roleId: editingRole?.id.slice(0, 8) || "",
+            {t("sheet.updatePermissions.title", {
+              roleName: updatingRole?.name || "",
+              roleId: updatingRole?.id.slice(0, 8) || "",
             })}
           </SheetTitle>
           <SheetDescription>
-            {t("sheet.editPermissions.description", {
-              roleName: editingRole?.name || "",
-              roleId: editingRole?.id.slice(0, 8) || "",
+            {t("sheet.updatePermissions.description", {
+              roleName: updatingRole?.name || "",
+              roleId: updatingRole?.id.slice(0, 8) || "",
             })}
           </SheetDescription>
         </SheetHeader>
@@ -785,18 +787,18 @@ function EditMemberRolePermissionsSheet({
 
         <SheetFooter className="shrink-0">
           <Button
-            onClick={() => void handleSavePermissions()}
-            disabled={loading || !editingRole || isOwnerRole}
+            onClick={handleSavePermissions}
+            disabled={loading || !updatingRole || isOwnerRole}
           >
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                {t("sheet.editPermissions.updatingPermissions")}
+                {t("sheet.updatePermissions.updatingPermissions")}
               </>
             ) : (
               <>
                 <ShieldIcon className="h-4 w-4" />
-                {t("sheet.editPermissions.updatePermissions")}
+                {t("sheet.updatePermissions.updatePermissions")}
               </>
             )}
           </Button>
@@ -805,7 +807,7 @@ function EditMemberRolePermissionsSheet({
             <Button
               variant="outline"
               disabled={loading}
-              onClick={() => setEditingRole(null)}
+              onClick={closeEditor}
             >
               {t("sheet.close")}
             </Button>

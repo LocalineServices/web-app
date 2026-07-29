@@ -227,7 +227,7 @@ export default function ProjectTermsTable() {
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditTermSheet
+                      <UpdateTermSheet
                         term={term}
                         loading={loading}
                         setLoading={setLoading}
@@ -269,7 +269,7 @@ export default function ProjectTermsTable() {
   )
 }
 
-function EditTermSheet({
+function UpdateTermSheet({
   term,
   loading,
   setLoading,
@@ -284,7 +284,7 @@ function EditTermSheet({
   const { user } = useSession()
   const { member } = useProject()
 
-  const [editingTerm, setEditingTerm] = useState<ProjectTerm | null>(null)
+  const [updatingTerm, setUpdatingTerm] = useState<ProjectTerm | null>(null)
 
   const [key, setKey] = useState("")
   const [context, setContext] = useState<string | null>(null)
@@ -307,11 +307,11 @@ function EditTermSheet({
     setKey(currentTerm.key)
     setContext(currentTerm.context ?? null)
     setLocked(currentTerm.locked)
-    setEditingTerm(currentTerm)
+    setUpdatingTerm(currentTerm)
   }
 
   function closeEditor() {
-    setEditingTerm(null)
+    setUpdatingTerm(null)
     setKey("")
     setContext(null)
     setLocked(false)
@@ -320,12 +320,12 @@ function EditTermSheet({
   async function handleUpdateTerm(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingTerm) return
-    setLoading(true)
+    if (!updatingTerm) return
 
+    setLoading(true)
     await updateProjectTerm({
-      projectId: editingTerm.projectId,
-      termId: editingTerm.id,
+      projectId: updatingTerm.projectId,
+      termId: updatingTerm.id,
       key: key.trim(),
       context: context?.trim() || null,
       locked,
@@ -337,7 +337,7 @@ function EditTermSheet({
       })
       .catch((error) => {
         toast.error(
-          error?.message || t("toast.updateFailed", { termKey: editingTerm.key, termId: editingTerm.id.slice(0, 8) })
+          error?.message || t("toast.updateFailed", { termKey: updatingTerm.key, termId: updatingTerm.id.slice(0, 8) })
         )
       })
       .finally(() => {
@@ -347,7 +347,7 @@ function EditTermSheet({
 
   return (
     <Sheet
-      open={editingTerm?.id === term.id}
+      open={updatingTerm?.id === term.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -383,10 +383,10 @@ function EditTermSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.updateTerm.title", { termKey: editingTerm?.key ?? "", termId: editingTerm?.id.slice(0, 8) ?? "" })}
+              {t("sheet.updateTerm.title", { termKey: updatingTerm?.key ?? "", termId: updatingTerm?.id.slice(0, 8) ?? "" })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.updateTerm.description", { termKey: editingTerm?.key ?? "", termId: editingTerm?.id.slice(0, 8) ?? "" })}
+              {t("sheet.updateTerm.description", { termKey: updatingTerm?.key ?? "", termId: updatingTerm?.id.slice(0, 8) ?? "" })}
             </SheetDescription>
           </SheetHeader>
 
@@ -446,7 +446,7 @@ function EditTermSheet({
           <SheetFooter className="shrink-0">
             <Button
               type="submit"
-              disabled={loading || !editingTerm || !key.trim()}
+              disabled={loading || !updatingTerm || !key.trim()}
             >
               {loading ? (
                 <>

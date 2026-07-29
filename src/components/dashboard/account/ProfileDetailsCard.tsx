@@ -191,18 +191,18 @@ export default function ProfileDetailsCard({
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t("dialog.editName.title")}</DialogTitle>
+                <DialogTitle>{t("dialog.updateName.title")}</DialogTitle>
                 <DialogDescription>
-                  {t("dialog.editName.description")}
+                  {t("dialog.updateName.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="name">{t("dialog.editName.inputLabel")}</Label>
+                <Label htmlFor="name">{t("dialog.updateName.inputLabel")}</Label>
                 <Input
                   id="name"
                   value={name}
-                  placeholder={t("dialog.editName.inputPlaceholder")}
+                  placeholder={t("dialog.updateName.inputPlaceholder")}
                   disabled={nameLoading}
                   onChange={(event) => setName(event.target.value)}
                 />
@@ -229,12 +229,12 @@ export default function ProfileDetailsCard({
                   {nameLoading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.editName.updatingName")}
+                      {t("dialog.updateName.updatingName")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.editName.updateName")}
+                      {t("dialog.updateName.updateName")}
                     </>
                   )}
                 </Button>
@@ -315,9 +315,9 @@ export default function ProfileDetailsCard({
 
             <DialogContent className="sm:max-w-xl">
               <DialogHeader>
-                <DialogTitle>{t("dialog.editAvatar.title")}</DialogTitle>
+                <DialogTitle>{t("dialog.updateAvatar.title")}</DialogTitle>
                 <DialogDescription>
-                  {t("dialog.editAvatar.description")}
+                  {t("dialog.updateAvatar.description")}
                 </DialogDescription>
               </DialogHeader>
 
@@ -326,10 +326,10 @@ export default function ProfileDetailsCard({
                   <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                     <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
                     <AlertTitle>
-                      {t("dialog.editAvatar.customUrl.title")}
+                      {t("dialog.updateAvatar.customUrl.title")}
                     </AlertTitle>
                     <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                      {t("dialog.editAvatar.customUrl.description")}
+                      {t("dialog.updateAvatar.customUrl.description")}
                     </AlertDescription>
                   </Alert>
                 ) : null}
@@ -343,7 +343,7 @@ export default function ProfileDetailsCard({
                   </Avatar>
 
                   <p className="font-medium">
-                    {t("dialog.editAvatar.preview")}
+                    {t("dialog.updateAvatar.preview")}
                   </p>
                 </div>
 
@@ -368,10 +368,10 @@ export default function ProfileDetailsCard({
                     />
                     <div className="space-y-1">
                       <span className="text-sm font-medium">
-                        {t("dialog.editAvatar.avatar.none.label")}
+                        {t("dialog.updateAvatar.avatar.none.label")}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {t("dialog.editAvatar.avatar.none.description")}
+                        {t("dialog.updateAvatar.avatar.none.description")}
                       </p>
                     </div>
                   </Label>
@@ -391,10 +391,10 @@ export default function ProfileDetailsCard({
                     />
                     <div className="space-y-1">
                       <span className="text-sm font-medium">
-                        {t("dialog.editAvatar.avatar.gravatar.label")}
+                        {t("dialog.updateAvatar.avatar.gravatar.label")}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {t("dialog.editAvatar.avatar.gravatar.description")}
+                        {t("dialog.updateAvatar.avatar.gravatar.description")}
                       </p>
                     </div>
                   </Label>
@@ -417,15 +417,15 @@ export default function ProfileDetailsCard({
                     <div className="space-y-1">
                       <span className="flex items-center gap-2 text-sm font-medium">
                         <GitHubIcon className="size-4" />
-                        {t("dialog.editAvatar.avatar.github.label")}
+                        {t("dialog.updateAvatar.avatar.github.label")}
                         {!githubAvatarUrl && (
                           <Badge variant="outline">
-                            {t("dialog.editAvatar.avatar.github.notLinked")}
+                            {t("dialog.updateAvatar.avatar.github.notLinked")}
                           </Badge>
                         )}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {t("dialog.editAvatar.avatar.github.description")}
+                        {t("dialog.updateAvatar.avatar.github.description")}
                       </p>
                     </div>
                   </Label>
@@ -453,12 +453,12 @@ export default function ProfileDetailsCard({
                   {avatarLoading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.editAvatar.updatingAvatar")}
+                      {t("dialog.updateAvatar.updatingAvatar")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.editAvatar.updateAvatar")}
+                      {t("dialog.updateAvatar.updateAvatar")}
                     </>
                   )}
                 </Button>

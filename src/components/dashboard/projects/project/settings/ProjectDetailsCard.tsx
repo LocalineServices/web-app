@@ -171,20 +171,20 @@ export default function ProjectDetailsCard() {
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t("dialog.editName.title")}</DialogTitle>
+                <DialogTitle>{t("dialog.updateName.title")}</DialogTitle>
                 <DialogDescription>
-                  {t("dialog.editName.description")}
+                  {t("dialog.updateName.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
                 <Label htmlFor="projectName">
-                  {t("dialog.editName.nameLabel")}
+                  {t("dialog.updateName.nameLabel")}
                 </Label>
                 <Input
                   id="projectName"
                   value={name}
-                  placeholder={t("dialog.editName.namePlaceholder")}
+                  placeholder={t("dialog.updateName.namePlaceholder")}
                   disabled={loading}
                   minLength={1}
                   maxLength={32}
@@ -214,12 +214,12 @@ export default function ProjectDetailsCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.editName.updatingName")}
+                      {t("dialog.updateName.updatingName")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.editName.updateName")}
+                      {t("dialog.updateName.updateName")}
                     </>
                   )}
                 </Button>
@@ -279,22 +279,22 @@ export default function ProjectDetailsCard() {
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t("dialog.editDescription.title")}</DialogTitle>
+                <DialogTitle>{t("dialog.updateDescription.title")}</DialogTitle>
                 <DialogDescription>
-                  {t("dialog.editDescription.description")}
+                  {t("dialog.updateDescription.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
                 <Label htmlFor="projectDescription">
-                  {t("dialog.editDescription.descriptionLabel")}
+                  {t("dialog.updateDescription.descriptionLabel")}
                 </Label>
                 <Textarea
                   id="projectDescription"
                   className="min-h-24 resize-none"
                   value={description}
                   placeholder={t(
-                    "dialog.editDescription.descriptionPlaceholder"
+                    "dialog.updateDescription.descriptionPlaceholder"
                   )}
                   disabled={loading}
                   minLength={1}
@@ -323,12 +323,12 @@ export default function ProjectDetailsCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.editDescription.updatingDescription")}
+                      {t("dialog.updateDescription.updatingDescription")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.editDescription.updateDescription")}
+                      {t("dialog.updateDescription.updateDescription")}
                     </>
                   )}
                 </Button>

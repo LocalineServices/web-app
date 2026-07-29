@@ -176,21 +176,21 @@ export default function SecurityDetailsCard({
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t("dialog.editEmail.title")}</DialogTitle>
+                <DialogTitle>{t("dialog.updateEmail.title")}</DialogTitle>
                 <DialogDescription>
-                  {t("dialog.editEmail.description")}
+                  {t("dialog.updateEmail.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
                 <Label htmlFor="email">
-                  {t("dialog.editEmail.inputLabel")}
+                  {t("dialog.updateEmail.inputLabel")}
                 </Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
-                  placeholder={t("dialog.editEmail.inputPlaceholder")}
+                  placeholder={t("dialog.updateEmail.inputPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setEmail(event.target.value)}
                 />
@@ -220,12 +220,12 @@ export default function SecurityDetailsCard({
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.editEmail.updatingEmail")}
+                      {t("dialog.updateEmail.updatingEmail")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.editEmail.updateEmail")}
+                      {t("dialog.updateEmail.updateEmail")}
                     </>
                   )}
                 </Button>

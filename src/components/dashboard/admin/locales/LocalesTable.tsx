@@ -242,7 +242,7 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditLocaleSheet
+                      <UpdateLocaleSheet
                         locale={locale}
                         loading={loading}
                         setLoading={setLoading}
@@ -284,7 +284,7 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
   )
 }
 
-function EditLocaleSheet({
+function UpdateLocaleSheet({
   locale,
   loading,
   setLoading,
@@ -297,7 +297,7 @@ function EditLocaleSheet({
   const t = useTranslations("AdminLocalesTable")
   const { user } = useSession()
 
-  const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
+  const [updatingLocale, setUpdatingLocale] = useState<Locale | null>(null)
 
   const [displayName, setDisplayName] = useState("")
   const [language, setLanguage] = useState("")
@@ -321,16 +321,26 @@ function EditLocaleSheet({
     setCode(locale.code ?? "")
     setFlag(locale.flag)
     setEnabled(locale.enabled)
-    setEditingLocale(locale)
+    setUpdatingLocale(locale)
+  }
+
+  function closeEditor() {
+    setUpdatingLocale(null)
+    setDisplayName("")
+    setLanguage("")
+    setRegion(null)
+    setCode("")
+    setFlag(null)
+    setEnabled(false)
   }
 
   async function handleUpdateLocale(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingLocale) return
+    if (!updatingLocale) return
 
     setLoading(true)
-    await updateLocale(editingLocale.id, {
+    await updateLocale(updatingLocale.id, {
       displayName,
       language,
       region: region || null,
@@ -338,38 +348,36 @@ function EditLocaleSheet({
       flag: flag || null,
       enabled,
     })
-      .then(() => {
+      .then((updatedLocale) => {
         toast.success(
           t("toast.updateSuccess", {
-            localeDisplayName: displayName,
-            localeId: editingLocale.id.slice(0, 8),
+            localeDisplayName: updatedLocale.displayName,
+            localeId: updatedLocale.id.slice(0, 8),
           })
         )
+
+        closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
             t("toast.updateFailed", {
-              localeDisplayName: displayName,
-              localeId: editingLocale.id.slice(0, 8),
+              localeDisplayName: updatingLocale.displayName,
+              localeId: updatingLocale.id.slice(0, 8),
             })
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingLocale(null)
+        setUpdatingLocale(null)
       })
   }
 
   return (
     <Sheet
-      open={editingLocale !== null}
-      onOpenChange={(open) => {
-        if (!open) {
-          setEditingLocale(null)
-        }
-      }}
+      open={updatingLocale !== null}
+      onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
         <TooltipTrigger
@@ -402,15 +410,15 @@ function EditLocaleSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.editLocale.title", {
-                localeDisplayName: editingLocale?.displayName ?? "",
-                localeId: editingLocale?.id.slice(0, 8) ?? "",
+              {t("sheet.updateLocale.title", {
+                localeDisplayName: updatingLocale?.displayName ?? "",
+                localeId: updatingLocale?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editLocale.description", {
-                localeDisplayName: editingLocale?.displayName ?? "",
-                localeId: editingLocale?.id.slice(0, 8) ?? "",
+              {t("sheet.updateLocale.description", {
+                localeDisplayName: updatingLocale?.displayName ?? "",
+                localeId: updatingLocale?.id.slice(0, 8) ?? "",
               })}
             </SheetDescription>
           </SheetHeader>
@@ -419,12 +427,12 @@ function EditLocaleSheet({
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
                 <Label htmlFor="localeName">
-                  {t("sheet.editLocale.displayNameLabel")}
+                  {t("sheet.updateLocale.displayNameLabel")}
                 </Label>
                 <Input
                   id="localeName"
                   value={displayName}
-                  placeholder={t("sheet.editLocale.displayNamePlaceholder")}
+                  placeholder={t("sheet.updateLocale.displayNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -433,12 +441,12 @@ function EditLocaleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="localeLanguage">
-                  {t("sheet.editLocale.languageLabel")}
+                  {t("sheet.updateLocale.languageLabel")}
                 </Label>
                 <Input
                   id="localeLanguage"
                   value={language}
-                  placeholder={t("sheet.editLocale.languagePlaceholder")}
+                  placeholder={t("sheet.updateLocale.languagePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setLanguage(event.target.value)}
@@ -447,12 +455,12 @@ function EditLocaleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="localeRegion">
-                  {t("sheet.editLocale.regionLabel")}
+                  {t("sheet.updateLocale.regionLabel")}
                 </Label>
                 <Input
                   id="localeRegion"
                   value={region || ""}
-                  placeholder={t("sheet.editLocale.regionPlaceholder")}
+                  placeholder={t("sheet.updateLocale.regionPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setRegion(event.target.value)}
                 />
@@ -460,12 +468,12 @@ function EditLocaleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="localeCode">
-                  {t("sheet.editLocale.codeLabel")}
+                  {t("sheet.updateLocale.codeLabel")}
                 </Label>
                 <Input
                   id="localeCode"
                   value={code}
-                  placeholder={t("sheet.editLocale.codePlaceholder")}
+                  placeholder={t("sheet.updateLocale.codePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setCode(event.target.value)}
@@ -474,7 +482,7 @@ function EditLocaleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="localeFlag">
-                  {t("sheet.editLocale.flagLabel")}
+                  {t("sheet.updateLocale.flagLabel")}
                 </Label>
                 <FlagPickerField
                   id="localeFlag"
@@ -486,7 +494,7 @@ function EditLocaleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="enabled">
-                  {t("sheet.editLocale.enabledLabel")}
+                  {t("sheet.updateLocale.enabledLabel")}
                 </Label>
                 <ToggleGroup
                   type="single"
@@ -503,13 +511,13 @@ function EditLocaleSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.editLocale.enabledYes")}
+                    {t("sheet.updateLocale.enabledYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.editLocale.enabledNo")}
+                    {t("sheet.updateLocale.enabledNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -520,18 +528,18 @@ function EditLocaleSheet({
             <Button
               type="submit"
               disabled={
-                loading || !editingLocale || !displayName || !language || !code
+                loading || !updatingLocale || !displayName || !language || !code
               }
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("sheet.editLocale.updatingLocale")}
+                  {t("sheet.updateLocale.updatingLocale")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="h-4 w-4" />
-                  {t("sheet.editLocale.updateLocale")}
+                  {t("sheet.updateLocale.updateLocale")}
                 </>
               )}
             </Button>
@@ -540,7 +548,7 @@ function EditLocaleSheet({
               <Button
                 variant="outline"
                 disabled={loading}
-                onClick={() => setEditingLocale(null)}
+                onClick={closeEditor}
               >
                 {t("sheet.close")}
               </Button>

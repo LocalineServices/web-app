@@ -212,7 +212,7 @@ export default function ProjectLabelsTable() {
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditLabelSheet
+                      <UpdateLabelSheet
                         projectId={project.id}
                         label={label}
                         canUpdateLabels={canManageLabels}
@@ -258,7 +258,7 @@ export default function ProjectLabelsTable() {
   )
 }
 
-function EditLabelSheet({
+function UpdateLabelSheet({
   projectId,
   label,
   canUpdateLabels,
@@ -274,7 +274,7 @@ function EditLabelSheet({
   const router = useRouter()
   const t = useTranslations("ProjectLabelsTable")
 
-  const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null)
+  const [updatingLabel, setUpdatingLabel] = useState<ProjectLabel | null>(null)
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
@@ -286,11 +286,11 @@ function EditLabelSheet({
     setDescription(currentLabel.description ?? null)
     setColor(currentLabel.color ?? "")
     setIcon(currentLabel.icon ?? "")
-    setEditingLabel(currentLabel)
+    setUpdatingLabel(currentLabel)
   }
 
   function closeEditor() {
-    setEditingLabel(null)
+    setUpdatingLabel(null)
     setName("")
     setDescription(null)
     setColor("")
@@ -300,12 +300,12 @@ function EditLabelSheet({
   async function handleUpdateLabel(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingLabel) return
-    setLoading(true)
+    if (!updatingLabel) return
 
+    setLoading(true)
     await updateProjectLabel({
       projectId,
-      labelId: editingLabel.id,
+      labelId: updatingLabel.id,
       name: name.trim(),
       description: description?.trim() || null,
       color,
@@ -318,6 +318,7 @@ function EditLabelSheet({
             labelId: updatedLabel.id.slice(0, 8),
           })
         )
+
         closeEditor()
         router.refresh()
       })
@@ -325,8 +326,8 @@ function EditLabelSheet({
         toast.error(
           error?.message ||
             t("toast.updateFailed", {
-              labelName: editingLabel.name,
-              labelId: editingLabel.id.slice(0, 8),
+              labelName: updatingLabel.name,
+              labelId: updatingLabel.id.slice(0, 8),
             })
         )
       })
@@ -337,7 +338,7 @@ function EditLabelSheet({
 
   return (
     <Sheet
-      open={editingLabel?.id === label.id}
+      open={updatingLabel?.id === label.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -371,15 +372,15 @@ function EditLabelSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.editLabel.title", {
-                labelName: editingLabel?.name ?? "",
-                labelId: editingLabel?.id.slice(0, 8) ?? "",
+              {t("sheet.updateLabel.title", {
+                labelName: updatingLabel?.name ?? "",
+                labelId: updatingLabel?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.editLabel.description", {
-                labelName: editingLabel?.name ?? "",
-                labelId: editingLabel?.id.slice(0, 8) ?? "",
+              {t("sheet.updateLabel.description", {
+                labelName: updatingLabel?.name ?? "",
+                labelId: updatingLabel?.id.slice(0, 8) ?? "",
               })}
             </SheetDescription>
           </SheetHeader>
@@ -388,12 +389,12 @@ function EditLabelSheet({
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
                 <Label htmlFor="labelName">
-                  {t("sheet.editLabel.labelNameLabel")}
+                  {t("sheet.updateLabel.labelNameLabel")}
                 </Label>
                 <Input
                   id="labelName"
                   value={name}
-                  placeholder={t("sheet.editLabel.labelNamePlaceholder")}
+                  placeholder={t("sheet.updateLabel.labelNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={({ target: { value } }) => setName(value)}
@@ -402,12 +403,12 @@ function EditLabelSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="labelDescription">
-                  {t("sheet.editLabel.descriptionLabel")}
+                  {t("sheet.updateLabel.descriptionLabel")}
                 </Label>
                 <Input
                   id="labelDescription"
                   value={description || ""}
-                  placeholder={t("sheet.editLabel.descriptionPlaceholder")}
+                  placeholder={t("sheet.updateLabel.descriptionPlaceholder")}
                   disabled={loading}
                   onChange={({ target: { value } }) => setDescription(value)}
                 />
@@ -415,7 +416,7 @@ function EditLabelSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="labelColor">
-                  {t("sheet.editLabel.colorLabel")}
+                  {t("sheet.updateLabel.colorLabel")}
                 </Label>
                 <ColorPickerField
                   id="labelColor"
@@ -427,7 +428,7 @@ function EditLabelSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="labelIcon">
-                  {t("sheet.editLabel.iconLabel")}
+                  {t("sheet.updateLabel.iconLabel")}
                 </Label>
                 <IconPickerField
                   id="labelIcon"
@@ -452,17 +453,17 @@ function EditLabelSheet({
 
             <Button
               type="submit"
-              disabled={loading || !editingLabel || !name.trim()}
+              disabled={loading || !updatingLabel || !name.trim()}
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("sheet.editLabel.updatingLabel")}
+                  {t("sheet.updateLabel.updatingLabel")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="h-4 w-4" />
-                  {t("sheet.editLabel.updateLabel")}
+                  {t("sheet.updateLabel.updateLabel")}
                 </>
               )}
             </Button>
