@@ -24,12 +24,16 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateTermDialog() {
   const router = useRouter()
+  const t = useTranslations("CreateTermDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -65,12 +69,15 @@ export default function CreateTermDialog() {
       context: context?.trim() || null,
     })
       .then((term) => {
-        toast.success(`Created term ${term.key}.`)
+        toast.success(t("toast.createSuccess", { 
+          termKey: term.key, 
+          termId: term.id.slice(0, 8)
+        }))
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to create term. Please try again."
+          error?.message || t("toast.createFailed")
         )
       })
       .finally(() => {
@@ -102,21 +109,24 @@ export default function CreateTermDialog() {
                 disabled={!canCreateTerms || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                New Term
+                {t("button.createTerm")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canCreateTerms ? (
           <TooltipContent>
-            You don&rsquo;t have permission to create terms in this project.
+            {t("tooltip.noPermission")}
           </TooltipContent>
         ) : (
           isLimitReached && (
             <TooltipContent>
               {project.plan.termsLimit === 0
-                ? "Your current plan does not allow adding terms."
-                : `This project has reached the maximum number of terms allowed by your plan (${project.terms.length}/${project.plan.termsLimit}).`}
+                ? t("tooltip.limitZero")
+                : t("tooltip.limitReached", {
+                    current: format.number(project.terms.length),
+                    limit: format.number(project.plan.termsLimit ?? 0),
+                  })}
             </TooltipContent>
           )
         )}
@@ -124,26 +134,26 @@ export default function CreateTermDialog() {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new term</DialogTitle>
-          <DialogDescription>Add a new term to your project.</DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="termKey">Term key</Label>
+            <Label htmlFor="termKey">{t("dialog.keyLabel")}</Label>
             <Input
               id="termKey"
-              placeholder="message.welcome"
+              placeholder={t("dialog.keyPlaceholder")}
               value={key}
               onChange={({ target: { value } }) => setKey(value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="termContext">Context (optional)</Label>
+            <Label htmlFor="termContext">{t("dialog.contextLabel")}</Label>
             <Input
               id="termContext"
-              placeholder="A brief context for your term"
+              placeholder={t("dialog.contextPlaceholder")}
               value={context ?? ""}
               onChange={({ target: { value } }) => setContext(value)}
             />
@@ -160,7 +170,7 @@ export default function CreateTermDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -171,12 +181,12 @@ export default function CreateTermDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Creating...
+                {t("dialog.creatingTerm")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Create Term
+                {t("dialog.createTerm")}
               </>
             )}
           </Button>
