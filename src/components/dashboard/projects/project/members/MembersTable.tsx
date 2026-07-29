@@ -286,7 +286,8 @@ function UpdateMemberRoleDialog({
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [updatingMember, setUpdatingMember] = useState<FullProjectMember | null>()
+  const [updatingMember, setUpdatingMember] =
+    useState<FullProjectMember | null>()
 
   const [role, setRole] = useState<ProjectMemberRole | null>(projectMember.role)
 
@@ -440,11 +441,7 @@ function UpdateMemberRoleDialog({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={closeEditor}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={closeEditor} disabled={loading}>
             {t("dialog.close")}
           </Button>
 
@@ -492,7 +489,8 @@ function UpdateMemberLocalesDialog({
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [updatingMember, setUpdatingMember] = useState<FullProjectMember | null>()
+  const [updatingMember, setUpdatingMember] =
+    useState<FullProjectMember | null>()
 
   const [locales, setLocales] = useState<ProjectLocaleWithLocale[]>(
     projectMember.locales
@@ -523,7 +521,7 @@ function UpdateMemberLocalesDialog({
 
   async function handleUpdateLocales(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
-    
+
     if (!updatingMember || !locales) return
 
     setLoading(true)
@@ -627,11 +625,7 @@ function UpdateMemberLocalesDialog({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={closeEditor}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={closeEditor} disabled={loading}>
             {t("dialog.close")}
           </Button>
 

@@ -198,7 +198,9 @@ export default function ProfileDetailsCard({
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="name">{t("dialog.updateName.inputLabel")}</Label>
+                <Label htmlFor="name">
+                  {t("dialog.updateName.inputLabel")}
+                </Label>
                 <Input
                   id="name"
                   value={name}

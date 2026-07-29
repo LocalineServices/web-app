@@ -424,7 +424,9 @@ function UpdateMemberRoleSheet({
   const router = useRouter()
   const t = useTranslations("ProjectMemberRolesTable")
 
-  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(
+    null
+  )
 
   const [name, setName] = useState("")
   const [color, setColor] = useState("")
@@ -626,7 +628,9 @@ function UpdateMemberRolePermissionsSheet({
   const t = useTranslations("ProjectMemberRolesTable")
 
   const isOwnerRole = role.id === project.id
-  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(
+    null
+  )
   const [selectedPermissions, setSelectedPermissions] = useState<Set<bigint>>(
     new Set()
   )
@@ -804,11 +808,7 @@ function UpdateMemberRolePermissionsSheet({
           </Button>
 
           <SheetClose asChild>
-            <Button
-              variant="outline"
-              disabled={loading}
-              onClick={closeEditor}
-            >
+            <Button variant="outline" disabled={loading} onClick={closeEditor}>
               {t("sheet.close")}
             </Button>
           </SheetClose>

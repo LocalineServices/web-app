@@ -560,7 +560,9 @@ function UpdateUserSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="email">{t("sheet.updateUser.emailLabel")}</Label>
+                <Label htmlFor="email">
+                  {t("sheet.updateUser.emailLabel")}
+                </Label>
                 <Input
                   id="email"
                   value={email}

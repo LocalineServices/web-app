@@ -87,11 +87,11 @@ export default function ProjectTermsTable() {
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredTerms = normalizedSearchQuery
     ? project.terms.filter(
-      (term) =>
-        (term.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (term.key ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (term.context ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (term) =>
+          (term.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (term.key ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (term.context ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : project.terms
 
   const total = filteredTerms.length
@@ -124,16 +124,26 @@ export default function ProjectTermsTable() {
       locked: !term.locked,
     })
       .then((updatedTerm) => {
-        toast.success(updatedTerm.locked ?
-          t("toast.lockSuccess", { termKey: updatedTerm.key, termId: updatedTerm.id.slice(0, 8) }) :
-          t("toast.unlockSuccess", { termKey: updatedTerm.key, termId: updatedTerm.id.slice(0, 8) })
+        toast.success(
+          updatedTerm.locked
+            ? t("toast.lockSuccess", {
+                termKey: updatedTerm.key,
+                termId: updatedTerm.id.slice(0, 8),
+              })
+            : t("toast.unlockSuccess", {
+                termKey: updatedTerm.key,
+                termId: updatedTerm.id.slice(0, 8),
+              })
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
-          t("toast.updateLockedFailed", { termKey: term.key, termId: term.id.slice(0, 8) })
+            t("toast.updateLockedFailed", {
+              termKey: term.key,
+              termId: term.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -177,7 +187,9 @@ export default function ProjectTermsTable() {
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
-              <TableHead className="max-w-24 text-center">{t("tableHeader.actions")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -193,7 +205,9 @@ export default function ProjectTermsTable() {
 
                   <TableCell className="min-w-80">
                     {term.context || (
-                      <span className="text-muted-foreground italic">{t("noContext")}</span>
+                      <span className="text-muted-foreground italic">
+                        {t("noContext")}
+                      </span>
                     )}
                   </TableCell>
 
@@ -331,13 +345,22 @@ function UpdateTermSheet({
       locked,
     })
       .then((updatedTerm) => {
-        toast.success(t("toast.updateSuccess", { termKey: updatedTerm.key, termId: updatedTerm.id.slice(0, 8) }))
+        toast.success(
+          t("toast.updateSuccess", {
+            termKey: updatedTerm.key,
+            termId: updatedTerm.id.slice(0, 8),
+          })
+        )
         closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || t("toast.updateFailed", { termKey: updatingTerm.key, termId: updatingTerm.id.slice(0, 8) })
+          error?.message ||
+            t("toast.updateFailed", {
+              termKey: updatingTerm.key,
+              termId: updatingTerm.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -370,9 +393,7 @@ function UpdateTermSheet({
           </SheetTrigger>
         </TooltipTrigger>
         {!canUpdateTerms && (
-          <TooltipContent>
-            {t("tooltip.noPermissionUpdate")}
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdate")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -383,17 +404,25 @@ function UpdateTermSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.updateTerm.title", { termKey: updatingTerm?.key ?? "", termId: updatingTerm?.id.slice(0, 8) ?? "" })}
+              {t("sheet.updateTerm.title", {
+                termKey: updatingTerm?.key ?? "",
+                termId: updatingTerm?.id.slice(0, 8) ?? "",
+              })}
             </SheetTitle>
             <SheetDescription>
-              {t("sheet.updateTerm.description", { termKey: updatingTerm?.key ?? "", termId: updatingTerm?.id.slice(0, 8) ?? "" })}
+              {t("sheet.updateTerm.description", {
+                termKey: updatingTerm?.key ?? "",
+                termId: updatingTerm?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="termKey">{t("sheet.updateTerm.keyLabel")}</Label>
+                <Label htmlFor="termKey">
+                  {t("sheet.updateTerm.keyLabel")}
+                </Label>
                 <Input
                   id="termKey"
                   value={key}
@@ -404,7 +433,9 @@ function UpdateTermSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="termContext">{t("sheet.updateTerm.contextLabel")}</Label>
+                <Label htmlFor="termContext">
+                  {t("sheet.updateTerm.contextLabel")}
+                </Label>
                 <Input
                   id="termContext"
                   value={context || ""}
@@ -414,7 +445,9 @@ function UpdateTermSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="termLocked">{t("sheet.updateTerm.lockedLabel")}</Label>
+                <Label htmlFor="termLocked">
+                  {t("sheet.updateTerm.lockedLabel")}
+                </Label>
                 <ToggleGroup
                   type="single"
                   className="grid w-full grid-cols-2 border-2"
@@ -515,12 +548,21 @@ function DeleteTermDialog({
       termId: term.id,
     })
       .then(() => {
-        toast.success(t("toast.deleteSuccess", { termKey: term.key, termId: term.id.slice(0, 8) }))
+        toast.success(
+          t("toast.deleteSuccess", {
+            termKey: term.key,
+            termId: term.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || t("toast.deleteFailed", { termKey: term.key, termId: term.id.slice(0, 8) })
+          error?.message ||
+            t("toast.deleteFailed", {
+              termKey: term.key,
+              termId: term.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -556,9 +598,7 @@ function DeleteTermDialog({
           </span>
         </TooltipTrigger>
         {!canDeleteTerms && (
-          <TooltipContent>
-            {t("tooltip.noPermissionDelete")}
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionDelete")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -567,14 +607,16 @@ function DeleteTermDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("dialog.deleteTerm.title", {
-              termKey: deletingTerm?.key ?? "",
-              termId: deletingTerm?.id.slice(0, 8) ?? ""
-            })}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteTerm.title", {
+                termKey: deletingTerm?.key ?? "",
+                termId: deletingTerm?.id.slice(0, 8) ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("dialog.deleteTerm.description", {
                 termKey: deletingTerm?.key ?? "",
-                termId: deletingTerm?.id.slice(0, 8) ?? ""
+                termId: deletingTerm?.id.slice(0, 8) ?? "",
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>

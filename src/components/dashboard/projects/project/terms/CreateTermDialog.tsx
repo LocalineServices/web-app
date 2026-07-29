@@ -69,16 +69,16 @@ export default function CreateTermDialog() {
       context: context?.trim() || null,
     })
       .then((term) => {
-        toast.success(t("toast.createSuccess", { 
-          termKey: term.key, 
-          termId: term.id.slice(0, 8)
-        }))
+        toast.success(
+          t("toast.createSuccess", {
+            termKey: term.key,
+            termId: term.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || t("toast.createFailed")
-        )
+        toast.error(error?.message || t("toast.createFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -115,9 +115,7 @@ export default function CreateTermDialog() {
           </span>
         </TooltipTrigger>
         {!canCreateTerms ? (
-          <TooltipContent>
-            {t("tooltip.noPermission")}
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         ) : (
           isLimitReached && (
             <TooltipContent>
