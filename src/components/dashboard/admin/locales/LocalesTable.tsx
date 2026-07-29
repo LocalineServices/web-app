@@ -170,7 +170,7 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    {t("tableHeader.enabledHover")}
+                    {t("tableHeader.enabledHoverContent")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
