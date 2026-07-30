@@ -139,13 +139,13 @@ function JoinedAtCard({
       </CardHeader>
 
       <CardContent>
-        {!isMember ? (
+        {!isMember || !joinedAt ? (
           <p className="text-muted-foreground italic">
             {t("joinedAt.noMember")}
           </p>
         ) : (
           <div className="text-2xl font-medium">
-            {format.dateTime(joinedAt ?? new Date(), {
+            {format.dateTime(joinedAt ?? new Date(0), {
               dateStyle: "medium",
               timeStyle: "short",
             })}

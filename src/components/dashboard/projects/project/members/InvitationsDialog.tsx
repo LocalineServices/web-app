@@ -89,11 +89,15 @@ export default function InvitationsDialog() {
       invitationId: invitation.id,
       roleId,
     })
-      .then(() => {
+      .then((updatedInvitation) => {
+        const role = project.memberRoles.find(
+          (r) => r.id === updatedInvitation.roleId
+        )
         toast.success(
           t("toast.updateSuccess", {
             email: invitation.email,
-            roleName: invitation.role.name,
+            roleName: role?.name ?? invitation.role.name,
+            roleId: role?.id ?? updatedInvitation.roleId,
             invitationId: invitation.id.slice(0, 8),
           })
         )
@@ -105,6 +109,7 @@ export default function InvitationsDialog() {
             t("toast.updateError", {
               email: invitation.email,
               roleName: invitation.role.name,
+              roleId: invitation.role.id,
               invitationId: invitation.id.slice(0, 8),
             })
         )

@@ -88,7 +88,7 @@ export default function InvitationsTable({
 
           <TableBody>
             {filteredInvitations.length > 0 ? (
-              currentInvitations.map(async (invitation) => (
+              currentInvitations.map((invitation) => (
                 <TableRow key={invitation.id}>
                   <TableCell className="text-center">
                     {invitation.id.slice(0, 8)}

@@ -62,6 +62,7 @@ export default function InviteMemberDialog() {
 
   const handleInviteMember = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+
     if (!roleId) return
 
     setLoading(true)
@@ -70,8 +71,17 @@ export default function InviteMemberDialog() {
       email: email.trim(),
       roleId,
     })
-      .then(() => {
-        toast.success(t("toast.inviteSuccess", { email }))
+      .then((invitation) => {
+        toast.success(
+          t("toast.inviteSuccess", {
+            email: invitation.email,
+            invitationId: invitation.id.slice(0, 8),
+            roleName:
+              project.memberRoles.find((r) => r.id === invitation.roleId)
+                ?.name ?? "",
+            roleId: invitation.roleId,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
