@@ -128,7 +128,7 @@ export default async function InvitationsPage({
         <div className="w-full space-y-6">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
-              {t("title", { 
+              {t("title", {
                 projectName: invitation.project.name,
                 projectId: invitation.project.id,
                 roleName: invitation.role.name,

@@ -26,7 +26,7 @@ export default function ApiPage() {
           >
             <span>{t("button.v1")}</span>
             <span className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-              {t("button.deprecated")}
+              {t("button.v1_deprecated")}
             </span>
           </Link>
         </Button>
