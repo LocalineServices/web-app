@@ -200,7 +200,7 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
                       !locale.region && "text-muted-foreground italic"
                     )}
                   >
-                    {locale.region ?? t("table.row.none")}
+                    {locale.region ?? t("table.row.noRegion")}
                   </TableCell>
 
                   <TableCell className="min-w-32">
@@ -226,7 +226,7 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
                         )
                       })()
                     ) : (
-                      <p>{t("table.row.none")}</p>
+                      <p>{t("table.row.noFlag")}</p>
                     )}
                   </TableCell>
 
