@@ -12,6 +12,7 @@ import { getFlag } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { Locale } from "@prisma/client"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { createElement, useMemo, useState } from "react"
 
 export default function LocalePickerField({
@@ -29,6 +30,9 @@ export default function LocalePickerField({
   disabled?: boolean
   allowNone?: boolean
 }) {
+  const t = useTranslations("LocalePickerField")
+  const format = useFormatter()
+
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -100,7 +104,7 @@ export default function LocalePickerField({
           <span className="flex min-w-0 items-center gap-3">
             {selectedLocalePreview}
             <span className="truncate">
-              {value ? value.displayName : "Select a locale"}
+              {value ? value.displayName : t("placeholder")}
             </span>
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -119,7 +123,7 @@ export default function LocalePickerField({
               onChange={({ target: { value: nextValue } }) =>
                 setSearchQuery(nextValue)
               }
-              placeholder="Search locales by name, code, or region..."
+              placeholder={t("input.searchPlaceholder")}
               className="pr-9 pl-9"
               autoComplete="off"
             />
@@ -138,7 +142,11 @@ export default function LocalePickerField({
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filteredLocales.length.toLocaleString()} locales</span>
+            <span>
+              {t("searchAmount", {
+                count: format.number(filteredLocales.length),
+              })}
+            </span>
             {allowNone && value ? (
               <Button
                 type="button"
@@ -147,7 +155,7 @@ export default function LocalePickerField({
                 className="h-7 px-2 text-xs"
                 onClick={() => selectLocale(null)}
               >
-                Clear selection
+                {t("button.clearSelection")}
               </Button>
             ) : null}
           </div>
@@ -167,7 +175,10 @@ export default function LocalePickerField({
                     <XIcon className="h-4 w-4" aria-hidden="true" />
                   </span>
 
-                  <span className="min-w-0 flex-1 truncate">None</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    {t("button.none")}
+                  </span>
+
                   {!value ? (
                     <CheckIcon
                       className="h-4 w-4 shrink-0 text-foreground"
@@ -222,7 +233,7 @@ export default function LocalePickerField({
                 })
               ) : (
                 <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  No locales found.
+                  {t("noLocalesFound", { query: searchQuery })}
                 </div>
               )}
             </div>

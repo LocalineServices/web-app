@@ -12,6 +12,7 @@ import { getFlag } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { ProjectLocaleWithLocale } from "@/types/project"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { createElement, useMemo, useState } from "react"
 
 export default function ProjectLocalesPicker({
@@ -29,6 +30,9 @@ export default function ProjectLocalesPicker({
   disabled?: boolean
   allowNone?: boolean
 }) {
+  const t = useTranslations("ProjectLocalesPicker")
+  const format = useFormatter()
+
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -124,7 +128,9 @@ export default function ProjectLocalesPicker({
           <span className="flex min-w-0 items-center gap-3">
             {selectedPreview}
             <span className="truncate">
-              {value.length > 0 ? `${value.length} selected` : "Select locales"}
+              {value.length > 0
+                ? t("selectedLocales", { count: format.number(value.length) })
+                : t("placeholder")}
             </span>
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -143,7 +149,7 @@ export default function ProjectLocalesPicker({
               onChange={({ target: { value: nextValue } }) =>
                 setSearchQuery(nextValue)
               }
-              placeholder="Search locales by name, code, or region..."
+              placeholder={t("input.searchPlaceholder")}
               className="pr-9 pl-9"
               autoComplete="off"
             />
@@ -162,7 +168,11 @@ export default function ProjectLocalesPicker({
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filteredLocales.length.toLocaleString()} locales</span>
+            <span>
+              {t("searchAmount", {
+                count: format.number(filteredLocales.length),
+              })}
+            </span>
             {allowNone && value.length > 0 ? (
               <Button
                 type="button"
@@ -171,7 +181,7 @@ export default function ProjectLocalesPicker({
                 className="h-7 px-2 text-xs"
                 onClick={clearSelection}
               >
-                Clear selection
+                {t("button.clearSelection")}
               </Button>
             ) : null}
           </div>
@@ -226,7 +236,7 @@ export default function ProjectLocalesPicker({
                 })
               ) : (
                 <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  No locales found.
+                  {t("noLocalesFound", { query: searchQuery })}
                 </div>
               )}
             </div>

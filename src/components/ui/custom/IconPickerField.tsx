@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { getAllLucideIconNames, getIcon } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 import { createElement, useMemo, useState } from "react"
 
 const allIconNames = getAllLucideIconNames()
@@ -30,6 +30,7 @@ export default function IconPickerField({
   allowNone?: boolean
 }) {
   const t = useTranslations("IconPickerField")
+  const format = useFormatter()
 
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -121,7 +122,9 @@ export default function IconPickerField({
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              {t("searchAmount", { count: filteredIconNames.length })}
+              {t("searchAmount", {
+                count: format.number(filteredIconNames.length),
+              })}
             </span>
             {allowNone && value ? (
               <Button
@@ -150,9 +153,11 @@ export default function IconPickerField({
                   <span className="flex h-8 w-8 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
                     <XIcon className="h-4 w-4" aria-hidden="true" />
                   </span>
+
                   <span className="min-w-0 flex-1 truncate">
                     {t("button.none")}
                   </span>
+
                   {!value ? (
                     <CheckIcon
                       className="h-4 w-4 shrink-0 text-foreground"
@@ -182,9 +187,11 @@ export default function IconPickerField({
                           <Icon className="h-4 w-4" aria-hidden="true" />
                         ) : null}
                       </span>
+
                       <span className="min-w-0 flex-1 truncate">
                         {iconName}
                       </span>
+
                       {selected ? (
                         <CheckIcon
                           className="h-4 w-4 shrink-0 text-foreground"

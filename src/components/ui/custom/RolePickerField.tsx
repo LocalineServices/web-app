@@ -12,6 +12,7 @@ import { getIcon } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { ProjectMemberRole } from "@prisma/client"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { useMemo, useState } from "react"
 
 export default function RolePickerField({
@@ -29,6 +30,9 @@ export default function RolePickerField({
   disabled?: boolean
   allowNone?: boolean
 }) {
+  const t = useTranslations("RolePickerField")
+  const format = useFormatter()
+
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -106,7 +110,7 @@ export default function RolePickerField({
           <span className="flex min-w-0 items-center gap-3">
             {selectedRolePreview}
             <span className="truncate">
-              {selectedRole ? selectedRole.name : "Select a role"}
+              {selectedRole ? selectedRole.name : t("placeholder")}
             </span>
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -125,7 +129,7 @@ export default function RolePickerField({
               onChange={({ target: { value: nextValue } }) =>
                 setSearchQuery(nextValue)
               }
-              placeholder="Search roles by name or ID..."
+              placeholder={t("input.searchPlaceholder")}
               className="pr-9 pl-9"
               autoComplete="off"
             />
@@ -144,7 +148,11 @@ export default function RolePickerField({
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filteredRoles.length.toLocaleString()} roles</span>
+            <span>
+              {t("searchAmount", {
+                count: format.number(filteredRoles.length),
+              })}
+            </span>
             {allowNone && value ? (
               <Button
                 type="button"
@@ -153,7 +161,7 @@ export default function RolePickerField({
                 className="h-7 px-2 text-xs"
                 onClick={() => selectRole("")}
               >
-                Clear selection
+                {t("button.clearSelection")}
               </Button>
             ) : null}
           </div>
@@ -172,7 +180,11 @@ export default function RolePickerField({
                   <span className="flex h-8 w-8 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
                     <XIcon className="h-4 w-4" aria-hidden="true" />
                   </span>
-                  <span className="min-w-0 flex-1 truncate">None</span>
+
+                  <span className="min-w-0 flex-1 truncate">
+                    {t("button.none")}
+                  </span>
+
                   {!value ? (
                     <CheckIcon
                       className="h-4 w-4 shrink-0 text-foreground"
@@ -210,9 +222,11 @@ export default function RolePickerField({
                           <span className="h-2.5 w-2.5 rounded-full bg-current opacity-70" />
                         )}
                       </span>
+
                       <span className="min-w-0 flex-1 truncate">
                         {role.name}
                       </span>
+
                       {selected ? (
                         <CheckIcon
                           className="h-4 w-4 shrink-0 text-foreground"
@@ -224,7 +238,9 @@ export default function RolePickerField({
                 })
               ) : (
                 <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  No roles found.
+                  {t("noRolesFound", {
+                    query: searchQuery,
+                  })}
                 </div>
               )}
             </div>

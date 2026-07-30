@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
 import { createElement, useMemo, useState } from "react"
 import { getAllFlagCodes, getFlag } from "@/lib/project-utils"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 
 const allFlagCodes = getAllFlagCodes()
 
@@ -45,6 +45,7 @@ export default function FlagPickerField({
   disabled?: boolean
 }) {
   const t = useTranslations("FlagPickerField")
+  const format = useFormatter()
 
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -135,7 +136,9 @@ export default function FlagPickerField({
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              {t("searchAmount", { count: filteredFlagCodes.length })}
+              {t("searchAmount", {
+                count: format.number(filteredFlagCodes.length),
+              })}
             </span>
             {value ? (
               <Button
@@ -163,9 +166,11 @@ export default function FlagPickerField({
                 <span className="flex h-8 w-12 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
                   <XIcon className="h-4 w-4" aria-hidden="true" />
                 </span>
+
                 <span className="min-w-0 flex-1 truncate">
                   {t("button.none")}
                 </span>
+
                 {!value ? (
                   <CheckIcon
                     className="h-4 w-4 shrink-0 text-foreground"
@@ -195,9 +200,11 @@ export default function FlagPickerField({
                           <span className="text-sm">{code}</span>
                         )}
                       </span>
+
                       <span className="min-w-0 flex-1 truncate">
                         {getFlagLabel(code)}
                       </span>
+
                       {selectedFlag ? (
                         <CheckIcon
                           className="h-4 w-4 shrink-0 text-foreground"
