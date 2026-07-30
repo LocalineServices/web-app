@@ -134,16 +134,16 @@ export default function ProjectMembersTable({
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.role")}
+                {t("table.header.role")}
               </TableHead>
-              <TableHead>{t("tableHeader.assignedLocales")}</TableHead>
-              <TableHead>{t("tableHeader.joinedAt")}</TableHead>
+              <TableHead>{t("table.header.assignedLocales")}</TableHead>
+              <TableHead>{t("table.header.joinedAt")}</TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -165,11 +165,11 @@ export default function ProjectMembersTable({
                             {projectMember.user.name}
                           </span>
                           {projectMember.user.id === user?.id && (
-                            <Badge>{t("badge.you")}</Badge>
+                            <Badge>{t("table.row.badge.you")}</Badge>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {t("email")}
+                          {t("table.row.email")}
                           <span
                             className={cn(
                               projectMember.user.email === "" && "blur-xs"
@@ -204,7 +204,7 @@ export default function ProjectMembersTable({
                         ))
                       ) : (
                         <span className="text-muted-foreground italic">
-                          {t("noAssignedLocales")}
+                          {t("table.row.noAssignedLocales")}
                         </span>
                       )}
                     </TableCell>

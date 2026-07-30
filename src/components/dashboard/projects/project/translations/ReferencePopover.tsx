@@ -117,9 +117,7 @@ export default function ReferencePopover({
           </span>
         </TooltipTrigger>
         {project.locales.length <= 1 && (
-          <TooltipContent>
-            {t("tooltip.onlyOneLocale")}
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.onlyOneLocale")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -155,7 +153,7 @@ export default function ReferencePopover({
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
               {t("availableLocales", {
-                count: format.number(filteredLocales.length)
+                count: format.number(filteredLocales.length),
               })}
             </span>
             {referenceLocale && (

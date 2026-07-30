@@ -75,13 +75,13 @@ export default function InvitationsTable({
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.projectName")}</TableHead>
-              <TableHead>{t("tableHeader.role")}</TableHead>
-              <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+              <TableHead>{t("table.header.projectName")}</TableHead>
+              <TableHead>{t("table.header.role")}</TableHead>
+              <TableHead>{t("table.header.expiresAt")}</TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>

@@ -127,13 +127,13 @@ export default function AdminProjectsTable({
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
-              <TableHead>{t("tableHeader.description")}</TableHead>
-              <TableHead>{t("tableHeader.owner")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.description")}</TableHead>
+              <TableHead>{t("table.header.owner")}</TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -158,21 +158,21 @@ export default function AdminProjectsTable({
                         !project.description && "text-muted-foreground italic"
                       )}
                     >
-                      {project.description ?? "None"}
+                      {project.description ?? t("table.row.noDescription")}
                     </TableCell>
 
                     <TableCell className="max-w-30">
                       {owner ? (
                         <>
                           <span className="text-sm font-medium text-foreground sm:hidden">
-                            {owner.name || "Unknown User"}
+                            {owner.name || t("table.row.unknownUser")}
                           </span>
 
                           <div className="hidden w-fit items-center gap-2 rounded-full bg-muted px-3 py-1 sm:inline-flex">
                             <Avatar className="h-6 w-6 shrink-0">
                               <AvatarImage
                                 src={owner.image || undefined}
-                                alt={owner.name || "Unknown User"}
+                                alt={owner.name || t("table.row.unknownUser")}
                               />
                               <AvatarFallback className="bg-primary text-primary-foreground">
                                 {owner.name
@@ -181,13 +181,13 @@ export default function AdminProjectsTable({
                               </AvatarFallback>
                             </Avatar>
                             <span className="max-w-full truncate text-sm font-medium text-foreground">
-                              {owner.name || "Unknown User"}
+                              {owner.name || t("table.row.unknownUser")}
                             </span>
                           </div>
                         </>
                       ) : (
                         <span className="text-sm text-muted-foreground italic">
-                          {t("table.noOwner")}
+                          {t("table.row.noOwner")}
                         </span>
                       )}
                     </TableCell>

@@ -164,20 +164,20 @@ export default function ApiKeysTable({
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.enabled")}
+                {t("table.header.enabled")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.rateLimited")}
+                {t("table.header.rateLimited")}
               </TableHead>
-              <TableHead>{t("tableHeader.lastUsed")}</TableHead>
-              <TableHead>{t("tableHeader.expiresAt")}</TableHead>
-              <TableHead>{t("tableHeader.createdAt")}</TableHead>
+              <TableHead>{t("table.header.lastUsed")}</TableHead>
+              <TableHead>{t("table.header.expiresAt")}</TableHead>
+              <TableHead>{t("table.header.createdAt")}</TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -236,7 +236,7 @@ export default function ApiKeysTable({
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : t("never")}
+                      : t("table.row.lastRequestNever")}
                   </TableCell>
 
                   <TableCell
@@ -252,7 +252,7 @@ export default function ApiKeysTable({
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : t("never")}
+                      : t("table.row.expiresAtNever")}
                   </TableCell>
 
                   <TableCell>

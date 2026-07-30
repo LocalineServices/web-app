@@ -138,15 +138,15 @@ export default function InvitationsDialog() {
             <TableHeader>
               <TableRow>
                 <TableHead className="max-w-28 text-center">
-                  {t("tableHeader.id")}
+                  {t("table.header.id")}
                 </TableHead>
-                <TableHead>{t("tableHeader.email")}</TableHead>
+                <TableHead>{t("table.header.email")}</TableHead>
                 <TableHead className="text-center">
-                  {t("tableHeader.role")}
+                  {t("table.header.role")}
                 </TableHead>
-                <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+                <TableHead>{t("table.header.expiresAt")}</TableHead>
                 <TableHead className="max-w-24 text-center">
-                  {t("tableHeader.actions")}
+                  {t("table.header.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -195,7 +195,7 @@ export default function InvitationsDialog() {
                         })}
                         {invitation.expiresAt < new Date() && (
                           <Badge variant="destructive" className="ml-2">
-                            {t("badge.expired")}
+                            {t("table.row.badge.expired")}
                           </Badge>
                         )}
                       </div>

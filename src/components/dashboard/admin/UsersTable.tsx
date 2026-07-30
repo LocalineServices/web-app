@@ -119,18 +119,18 @@ export default function AdminUsersTable({ users }: { users: UserWithRole[] }) {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
-              <TableHead>{t("tableHeader.email")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.email")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.role")}
+                {t("table.header.role")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.banned")}
+                {t("table.header.banned")}
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -148,7 +148,7 @@ export default function AdminUsersTable({ users }: { users: UserWithRole[] }) {
                       <div className="flex gap-2">
                         <span className="font-mono text-sm">{user.name}</span>
                         {user.id === currentUser?.id && (
-                          <Badge>{t("you")}</Badge>
+                          <Badge>{t("table.row.badge.you")}</Badge>
                         )}
                       </div>
                     </TableCell>

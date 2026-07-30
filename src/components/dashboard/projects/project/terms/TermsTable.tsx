@@ -172,23 +172,23 @@ export default function ProjectTermsTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.key")}</TableHead>
-              <TableHead>{t("tableHeader.context")}</TableHead>
+              <TableHead>{t("table.header.key")}</TableHead>
+              <TableHead>{t("table.header.context")}</TableHead>
               <TableHead className="text-center">
                 <HoverCard openDelay={10} closeDelay={10}>
                   <HoverCardTrigger asChild>
-                    <Button variant="ghost">{t("tableHeader.locked")}</Button>
+                    <Button variant="ghost">{t("table.header.locked")}</Button>
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    {t("tableHeader.lockedHoverContent")}
+                    {t("table.header.lockedHoverContent")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -206,7 +206,7 @@ export default function ProjectTermsTable() {
                   <TableCell className="min-w-80">
                     {term.context || (
                       <span className="text-muted-foreground italic">
-                        {t("noContext")}
+                        {t("table.row.noContext")}
                       </span>
                     )}
                   </TableCell>

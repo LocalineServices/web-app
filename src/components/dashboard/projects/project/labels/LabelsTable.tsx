@@ -129,18 +129,18 @@ export default function ProjectLabelsTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
-              <TableHead>{t("tableHeader.description")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.description")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.color")}
+                {t("table.header.color")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.icon")}
+                {t("table.header.icon")}
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -160,7 +160,7 @@ export default function ProjectLabelsTable() {
                       <span className="line-clamp-2">{label.description}</span>
                     ) : (
                       <span className="text-muted-foreground italic">
-                        {t("noDescription")}
+                        {t("table.row.noDescription")}
                       </span>
                     )}
                   </TableCell>
@@ -183,7 +183,7 @@ export default function ProjectLabelsTable() {
                         <p className="sr-only">{label.color}</p>
                       </>
                     ) : (
-                      <p>{t("noColor")}</p>
+                      <p>{t("table.row.noColor")}</p>
                     )}
                   </TableCell>
 
@@ -202,11 +202,11 @@ export default function ProjectLabelsTable() {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>{t("invalidIcon")}</p>
+                          <p>{t("table.row.invalidIcon")}</p>
                         )
                       })()
                     ) : (
-                      <p>{t("noIcon")}</p>
+                      <p>{t("table.row.noIcon")}</p>
                     )}
                   </TableCell>
 

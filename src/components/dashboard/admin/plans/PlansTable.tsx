@@ -217,35 +217,35 @@ export default function AdminPlansTable({
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.displayName")}</TableHead>
-              <TableHead>{t("tableHeader.description")}</TableHead>
+              <TableHead>{t("table.header.displayName")}</TableHead>
+              <TableHead>{t("table.header.description")}</TableHead>
               <TableHead className="text-center">
                 <HoverCard openDelay={10} closeDelay={10}>
                   <HoverCardTrigger asChild>
-                    <Button variant="ghost">{t("tableHeader.default")}</Button>
+                    <Button variant="ghost">{t("table.header.default")}</Button>
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    {t("tableHeader.defaultHover")}
+                    {t("table.header.defaultHover")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.localesLimit")}
+                {t("table.header.localesLimit")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.termsLimit")}
+                {t("table.header.termsLimit")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.labelsLimit")}
+                {t("table.header.labelsLimit")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.membersLimit")}
+                {t("table.header.membersLimit")}
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -291,25 +291,25 @@ export default function AdminPlansTable({
                   <TableCell className="text-center">
                     {plan.localesLimit !== null
                       ? format.number(plan.localesLimit)
-                      : t("unlimited")}
+                      : t("table.row.unlimitedLocales")}
                   </TableCell>
 
                   <TableCell className="text-center">
                     {plan.termsLimit !== null
                       ? format.number(plan.termsLimit)
-                      : t("unlimited")}
+                      : t("table.row.unlimitedTerms")}
                   </TableCell>
 
                   <TableCell className="text-center">
                     {plan.labelsLimit !== null
                       ? format.number(plan.labelsLimit)
-                      : t("unlimited")}
+                      : t("table.row.unlimitedLabels")}
                   </TableCell>
 
                   <TableCell className="text-center">
                     {plan.membersLimit !== null
                       ? format.number(plan.membersLimit)
-                      : t("unlimited")}
+                      : t("table.row.unlimitedMembers")}
                   </TableCell>
 
                   <TableCell>

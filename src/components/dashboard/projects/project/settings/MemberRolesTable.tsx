@@ -253,20 +253,20 @@ export default function ProjectMemberRolesTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.color")}
+                {t("table.header.color")}
               </TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.icon")}
+                {t("table.header.icon")}
               </TableHead>
               <TableHead className="max-w-32 text-center">
-                {t("tableHeader.permissions")}
+                {t("table.header.permissions")}
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -287,7 +287,7 @@ export default function ProjectMemberRolesTable() {
                           <StarIcon className="ml-2 inline h-4 w-4 cursor-pointer text-yellow-500 hover:opacity-80" />
                         </HoverCardTrigger>
                         <HoverCardContent>
-                          {t("tooltip.ownerRoleHover")}
+                          {t("hoverCard.ownerRole")}
                         </HoverCardContent>
                       </HoverCard>
                     )}
@@ -311,7 +311,7 @@ export default function ProjectMemberRolesTable() {
                         <p className="sr-only">{role.color}</p>
                       </>
                     ) : (
-                      <p>{t("noColor")}</p>
+                      <p>{t("table.row.noColor")}</p>
                     )}
                   </TableCell>
 
@@ -330,11 +330,11 @@ export default function ProjectMemberRolesTable() {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>{t("invalidIcon")}</p>
+                          <p>{t("table.row.invalidIcon")}</p>
                         )
                       })()
                     ) : (
-                      <p>{t("noIcon")}</p>
+                      <p>{t("table.row.noIcon")}</p>
                     )}
                   </TableCell>
 
@@ -346,7 +346,7 @@ export default function ProjectMemberRolesTable() {
                     )}
                   >
                     {role.permissions === BigInt(0) ? (
-                      <p>{t("noPermissions")}</p>
+                      <p>{t("table.row.noPermissions")}</p>
                     ) : (
                       <>{getPermissions(role.permissions).length}</>
                     )}

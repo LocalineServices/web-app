@@ -111,13 +111,13 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.session")}
+                {t("table.header.session")}
               </TableHead>
-              <TableHead>{t("tableHeader.device")}</TableHead>
-              <TableHead>{t("tableHeader.ipAddress")}</TableHead>
-              <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+              <TableHead>{t("table.header.device")}</TableHead>
+              <TableHead>{t("table.header.ipAddress")}</TableHead>
+              <TableHead>{t("table.header.expiresAt")}</TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -142,11 +142,13 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                           <Badge
                             variant={isCurrentSession ? "default" : "outline"}
                           >
-                            {isCurrentSession ? "Current" : "Active"}
+                            {isCurrentSession
+                              ? t("table.row.badge.currentSession")
+                              : t("table.row.badge.activeSession")}
                           </Badge>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {t("table.createdAt", {
+                          {t("table.row.createdAt", {
                             date: format.dateTime(new Date(session.createdAt), {
                               year: "numeric",
                               month: "short",
@@ -166,30 +168,35 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                           className="max-w-[18rem] truncate text-xs text-muted-foreground"
                           title={session.userAgent ?? undefined}
                         >
-                          {browserLabel
-                            ? `${browserLabel}${session.userAgent ? ` • ${session.userAgent}` : ""}`
-                            : (session.userAgent ?? t("table.noUserAgent"))}
+                          {browserLabel && session.userAgent
+                            ? t("table.row.userAgent", {
+                                browserLabel,
+                                userAgent: session.userAgent,
+                              })
+                            : t("table.row.noUserAgent")}
                         </span>
                       </div>
                     </TableCell>
 
                     <TableCell>
-                      {session.ipAddress ?? t("table.noIpAddress")}
+                      {session.ipAddress ?? t("table.row.noIpAddress")}
                     </TableCell>
 
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <span>
-                          {format.dateTime(new Date(session.expiresAt), {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
+                          {t("table.row.expiresAt", {
+                            date: format.dateTime(new Date(session.expiresAt), {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }),
                           })}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {t("table.updatedAt", {
+                          {t("table.row.updatedAt", {
                             date: format.dateTime(new Date(session.updatedAt), {
                               year: "numeric",
                               month: "short",

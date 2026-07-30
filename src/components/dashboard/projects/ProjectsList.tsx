@@ -237,16 +237,14 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
-              <TableHead>{t("tableHeader.description")}</TableHead>
-              <TableHead className="text-center">
-                {t("tableHeader.role")}
-              </TableHead>
-              <TableHead>{t("tableHeader.plan")}</TableHead>
+              <TableHead>{t("header.name")}</TableHead>
+              <TableHead>{t("header.description")}</TableHead>
+              <TableHead className="text-center">{t("header.role")}</TableHead>
+              <TableHead>{t("header.plan")}</TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>

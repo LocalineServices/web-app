@@ -121,15 +121,15 @@ export default function ProjectLocalesTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.name")}</TableHead>
-              <TableHead>{t("tableHeader.code")}</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.code")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.flag")}
+                {t("table.header.flag")}
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -166,11 +166,11 @@ export default function ProjectLocalesTable() {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>{t("invalidFlag")}</p>
+                          <p>{t("table.row.invalidFlag")}</p>
                         )
                       })()
                     ) : (
-                      <p>{t("noFlag")}</p>
+                      <p>{t("table.row.noFlag")}</p>
                     )}
                   </TableCell>
 

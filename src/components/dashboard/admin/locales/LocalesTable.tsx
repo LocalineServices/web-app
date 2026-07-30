@@ -154,28 +154,28 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-28 text-center">
-                {t("tableHeader.id")}
+                {t("table.header.id")}
               </TableHead>
-              <TableHead>{t("tableHeader.displayName")}</TableHead>
-              <TableHead>{t("tableHeader.language")}</TableHead>
-              <TableHead>{t("tableHeader.region")}</TableHead>
-              <TableHead>{t("tableHeader.code")}</TableHead>
+              <TableHead>{t("table.header.displayName")}</TableHead>
+              <TableHead>{t("table.header.language")}</TableHead>
+              <TableHead>{t("table.header.region")}</TableHead>
+              <TableHead>{t("table.header.code")}</TableHead>
               <TableHead className="text-center">
-                {t("tableHeader.flag")}
+                {t("table.header.flag")}
               </TableHead>
               <TableHead className="text-center">
                 <HoverCard openDelay={10} closeDelay={10}>
                   <HoverCardTrigger asChild>
-                    <Button variant="ghost">{t("tableHeader.enabled")}</Button>
+                    <Button variant="ghost">{t("table.header.enabled")}</Button>
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    {t("tableHeader.enabledHoverContent")}
+                    {t("table.header.enabledHoverContent")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
               <TableHead className="max-w-24 text-center">
-                {t("tableHeader.actions")}
+                {t("table.header.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -200,7 +200,7 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
                       !locale.region && "text-muted-foreground italic"
                     )}
                   >
-                    {locale.region ?? "None"}
+                    {locale.region ?? t("table.row.none")}
                   </TableCell>
 
                   <TableCell className="min-w-32">
@@ -222,11 +222,11 @@ export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>{t("invalidFlag")}</p>
+                          <p>{t("table.row.invalidFlag")}</p>
                         )
                       })()
                     ) : (
-                      <p>{t("none")}</p>
+                      <p>{t("table.row.none")}</p>
                     )}
                   </TableCell>
 

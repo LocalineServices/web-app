@@ -132,7 +132,7 @@ export default function ProjectTranslationsCard({
       <CardHeader className="flex">
         <div>
           <CardTitle className="text-lg">
-            {t("title", {
+            {t("card.title", {
               localeCode: locale.locale.code,
               localeDisplayName: locale.locale.displayName,
               translatedTermsCount,
@@ -140,7 +140,7 @@ export default function ProjectTranslationsCard({
             })}
           </CardTitle>
           <CardDescription>
-            {t("description", {
+            {t("card.description", {
               translatedTermsCount,
               totalTermsCount: project.terms.length,
             })}
@@ -197,10 +197,11 @@ function TranslationsCardContent({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjectTerms = normalizedSearchQuery
-    ? terms.filter((term) =>
-      (term.key ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-      (term.context ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+    ? terms.filter(
+        (term) =>
+          (term.key ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (term.context ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : terms
 
   const total = filteredProjectTerms.length
@@ -252,10 +253,12 @@ function TranslationsCardContent({
       value: newValue == "" ? null : newValue,
     })
       .then((translation) => {
-        toast.success(t("toast.saveSuccess", { 
-          termKey: translation.term.key,
-          termId: translation.term.id.slice(0, 8),
-        }))
+        toast.success(
+          t("toast.saveSuccess", {
+            termKey: translation.term.key,
+            termId: translation.term.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
@@ -295,8 +298,10 @@ function TranslationsCardContent({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("tableHeader.key")}</TableHead>
-              <TableHead className="text-center">{t("tableHeader.translation")}</TableHead>
+              <TableHead>{t("table.header.key")}</TableHead>
+              <TableHead className="text-center">
+                {t("table.header.translation")}
+              </TableHead>
               <TableHead className="w-0" />
             </TableRow>
           </TableHeader>
@@ -389,9 +394,14 @@ function TranslationsCardContent({
                                 <MousePointerClickIcon className="h-4 w-4 text-green-600 dark:text-green-500" />
                                 <p className="text-xs text-green-600 italic dark:text-green-500">
                                   {t("table.row.referenceTranslationLabel", {
-                                    referenceLocaleCode: referenceLocale.locale.code,
-                                    referenceLocaleDisplayName: referenceLocale.locale.displayName,
-                                    referenceLocaleId: referenceLocale.id.slice(0, 8),
+                                    referenceLocaleCode:
+                                      referenceLocale.locale.code,
+                                    referenceLocaleDisplayName:
+                                      referenceLocale.locale.displayName,
+                                    referenceLocaleId: referenceLocale.id.slice(
+                                      0,
+                                      8
+                                    ),
                                   })}
                                 </p>
                               </div>
@@ -415,9 +425,14 @@ function TranslationsCardContent({
                               <InfoIcon className="h-4 w-4 text-amber-600 dark:text-amber-500" />
                               <p className="text-xs text-amber-600 italic dark:text-amber-500">
                                 {t("table.row.noReferenceTranslation", {
-                                  referenceLocaleCode: referenceLocale.locale.code,
-                                  referenceLocaleDisplayName: referenceLocale.locale.displayName,
-                                  referenceLocaleId: referenceLocale.id.slice(0, 8),
+                                  referenceLocaleCode:
+                                    referenceLocale.locale.code,
+                                  referenceLocaleDisplayName:
+                                    referenceLocale.locale.displayName,
+                                  referenceLocaleId: referenceLocale.id.slice(
+                                    0,
+                                    8
+                                  ),
                                 })}
                               </p>
                             </div>
