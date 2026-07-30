@@ -117,7 +117,7 @@ export default function ProjectMembersTable({
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search members by ID, name, or email..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
