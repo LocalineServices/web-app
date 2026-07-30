@@ -54,12 +54,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
-export default function TranslationsCard({
+export default function ProjectTranslationsCard({
   localeCode,
 }: {
   localeCode: string
 }) {
+  const t = useTranslations("ProjectTranslationsCard")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -79,10 +82,16 @@ export default function TranslationsCard({
               <AlertTriangleIcon />
             </EmptyMedia>
 
-            <EmptyTitle className="text-4xl">Locale Not Found</EmptyTitle>
+            <EmptyTitle className="text-4xl">
+              {t("empty.title", {
+                localeCode,
+              })}
+            </EmptyTitle>
 
             <EmptyDescription className="text-lg">
-              The locale you are looking for does not exist in this project.
+              {t("empty.description", {
+                localeCode,
+              })}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -90,7 +99,7 @@ export default function TranslationsCard({
             <Button asChild size="lg">
               <Link href={`/projects/${project.id}/translations`}>
                 <UndoDotIcon className="mr-2 h-5 w-5" />
-                Go back
+                {t("empty.button.goBack")}
               </Link>
             </Button>
           </EmptyContent>
@@ -114,22 +123,27 @@ export default function TranslationsCard({
       },
     })
 
+  const translatedTermsCount = project.terms.filter((term) =>
+    term.translations.some((translation) => translation.localeId === locale.id)
+  ).length
+
   return (
     <Card>
       <CardHeader className="flex">
         <div>
           <CardTitle className="text-lg">
-            Translations for {locale.locale.displayName}
+            {t("title", {
+              localeCode: locale.locale.code,
+              localeDisplayName: locale.locale.displayName,
+              translatedTermsCount,
+              totalTermsCount: project.terms.length,
+            })}
           </CardTitle>
           <CardDescription>
-            {
-              project.terms.filter((term) =>
-                term.translations.some(
-                  (translation) => translation.localeId === locale.id
-                )
-              ).length
-            }{" "}
-            of {project.terms.length} terms have translations in this locale.
+            {t("description", {
+              translatedTermsCount,
+              totalTermsCount: project.terms.length,
+            })}
           </CardDescription>
         </div>
 
@@ -168,6 +182,7 @@ function TranslationsCardContent({
   canTranslate: boolean
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectTranslationsCard")
 
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
 
@@ -183,8 +198,9 @@ function TranslationsCardContent({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjectTerms = normalizedSearchQuery
     ? terms.filter((term) =>
-        (term.key ?? "").toLowerCase().includes(normalizedSearchQuery)
-      )
+      (term.key ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+      (term.context ?? "").toLowerCase().includes(normalizedSearchQuery)
+    )
     : terms
 
   const total = filteredProjectTerms.length
@@ -229,7 +245,6 @@ function TranslationsCardContent({
     if (newValue === undefined) return
 
     setLoading(true)
-
     await upsertProjectTranslation({
       projectId: locale.projectId,
       termId,
@@ -237,12 +252,15 @@ function TranslationsCardContent({
       value: newValue == "" ? null : newValue,
     })
       .then((translation) => {
-        toast.success(`Translation saved for term "${translation.term.key}".`)
+        toast.success(t("toast.saveSuccess", { 
+          termKey: translation.term.key,
+          termId: translation.term.id.slice(0, 8),
+        }))
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "An error occurred while saving the translation."
+          error?.message || t("toast.saveError", { termId: termId.slice(0, 8) })
         )
       })
       .finally(() => {
@@ -261,7 +279,7 @@ function TranslationsCardContent({
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search terms by key..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -277,8 +295,8 @@ function TranslationsCardContent({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Key</TableHead>
-              <TableHead className="text-center">Translation</TableHead>
+              <TableHead>{t("tableHeader.key")}</TableHead>
+              <TableHead className="text-center">{t("tableHeader.translation")}</TableHead>
               <TableHead className="w-0" />
             </TableRow>
           </TableHeader>
@@ -316,7 +334,7 @@ function TranslationsCardContent({
                           currentTerm?.id === term.id ? "ring-3" : ""
                         )}
                         disabled={loading}
-                        placeholder="Enter translation..."
+                        placeholder={t("table.row.translationPlaceholder")}
                         onFocus={() => {
                           if (!canTranslate) return
 
@@ -370,8 +388,11 @@ function TranslationsCardContent({
                               <div className="mt-2 flex items-center gap-2">
                                 <MousePointerClickIcon className="h-4 w-4 text-green-600 dark:text-green-500" />
                                 <p className="text-xs text-green-600 italic dark:text-green-500">
-                                  Found reference translation in{" "}
-                                  {referenceLocale.locale.displayName}
+                                  {t("table.row.referenceTranslationLabel", {
+                                    referenceLocaleCode: referenceLocale.locale.code,
+                                    referenceLocaleDisplayName: referenceLocale.locale.displayName,
+                                    referenceLocaleId: referenceLocale.id.slice(0, 8),
+                                  })}
                                 </p>
                               </div>
 
@@ -393,7 +414,11 @@ function TranslationsCardContent({
                             <div className="mt-2 flex items-center gap-2">
                               <InfoIcon className="h-4 w-4 text-amber-600 dark:text-amber-500" />
                               <p className="text-xs text-amber-600 italic dark:text-amber-500">
-                                No reference translation available
+                                {t("table.row.noReferenceTranslation", {
+                                  referenceLocaleCode: referenceLocale.locale.code,
+                                  referenceLocaleDisplayName: referenceLocale.locale.displayName,
+                                  referenceLocaleId: referenceLocale.id.slice(0, 8),
+                                })}
                               </p>
                             </div>
                           )}
@@ -439,8 +464,8 @@ function TranslationsCardContent({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No terms found matching your search."
-                    : "No terms found."}
+                    ? t("table.noTermsFound", { query: searchQuery })
+                    : t("table.noTermsFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}

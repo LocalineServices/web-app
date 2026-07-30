@@ -20,9 +20,12 @@ import {
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { getFlag } from "@/lib/project-utils"
 import { AlertTriangleIcon, GlobeIcon, GlobeOffIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 
-export default function LocalesCards() {
+export default function ProjectTranslationLocalesCards() {
+  const t = useTranslations("ProjectTranslationLocalesCards")
+
   const { project, member } = useProject()
 
   if (project.locales.length === 0) {
@@ -34,11 +37,10 @@ export default function LocalesCards() {
               <GlobeOffIcon />
             </EmptyMedia>
 
-            <EmptyTitle className="text-4xl">No Locales</EmptyTitle>
+            <EmptyTitle className="text-4xl">{t("empty.title")}</EmptyTitle>
 
             <EmptyDescription className="text-lg">
-              In order to add translations, you need at least one locale being
-              added to your project.
+              {t("empty.description")}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -46,7 +48,7 @@ export default function LocalesCards() {
             <Button asChild size="lg">
               <Link href={`/projects/${project.id}/locales`}>
                 <GlobeIcon className="mr-2 h-5 w-5" />
-                Go to Locales
+                {t("empty.button.goToLocales")}
               </Link>
             </Button>
           </EmptyContent>
@@ -106,7 +108,7 @@ export default function LocalesCards() {
                   <Link
                     href={`/projects/${projectLocale.projectId}/translations/${projectLocale.locale.code}`}
                   >
-                    Open Translations
+                    {t("card.button.viewTranslations")}
                   </Link>
                 </Button>
               </CardAction>
@@ -116,7 +118,9 @@ export default function LocalesCards() {
               <CardContent>
                 <p className="text-sm text-amber-600 dark:text-amber-300">
                   <AlertTriangleIcon className="mr-1 inline h-4 w-4" />
-                  You don&rsquo;t have permission to translate for this locale.
+                  {t("card.content.notAllowedToTranslate", {
+                    localeDisplayName: projectLocale.locale.displayName,
+                  })}
                 </p>
               </CardContent>
             )}

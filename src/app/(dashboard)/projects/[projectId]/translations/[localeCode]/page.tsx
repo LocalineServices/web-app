@@ -1,9 +1,13 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
-import TranslationsCard from "@/components/dashboard/projects/project/translations/TranslationsCard"
+import ProjectTranslationsCard from "@/components/dashboard/projects/project/translations/TranslationsCard"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Translate",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("ProjectTranslationsPage")
+  return {
+    title: t("title"),
+  }
 }
 
 export default async function ProjectTranslationsPage({
@@ -12,13 +16,14 @@ export default async function ProjectTranslationsPage({
   params: Promise<{ localeCode: string }>
 }) {
   const { localeCode } = await params
+  const t = await getTranslations("ProjectTranslationsPage")
 
   return (
     <div className="flex flex-col gap-4">
-      <ProjectNavigation description="Manage translations for your project." />
+      <ProjectNavigation description={t("description")} />
 
       <div>
-        <TranslationsCard localeCode={localeCode} />
+        <ProjectTranslationsCard localeCode={localeCode} />
       </div>
     </div>
   )
