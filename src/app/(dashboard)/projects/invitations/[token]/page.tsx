@@ -89,11 +89,21 @@ export default async function InvitationsPage({
             </EmptyMedia>
 
             <EmptyTitle className="text-4xl">
-              {t("empty.expired.title")}
+              {t("empty.expired.title", {
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
             </EmptyTitle>
 
             <EmptyDescription className="text-lg">
-              {t("empty.expired.description")}
+              {t("empty.expired.description", {
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -118,13 +128,20 @@ export default async function InvitationsPage({
         <div className="w-full space-y-6">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
-              {t("title", { projectName: invitation.project.name })}
+              {t("title", { 
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
             </h1>
 
             <p className="mx-auto mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
               {t("description", {
                 projectName: invitation.project.name,
-                role: invitation.role.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
               })}
             </p>
           </div>
