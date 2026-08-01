@@ -3,6 +3,7 @@ import BackgroundPattern from "@/components/background-pattern"
 import LocalineLogo from "@/components/logo"
 import { KeyRoundIcon, LanguagesIcon, UsersIcon } from "lucide-react"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
 export const metadata: Metadata = {
   robots: {
@@ -16,6 +17,7 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
+  const t = await getTranslations("AuthLayout")
   const appName = await getAppName()
 
   return (
@@ -30,29 +32,23 @@ export default async function AuthLayout({
 
         <div className="relative z-10 flex flex-1 flex-col justify-center">
           <blockquote className="space-y-4">
-            <p className="text-lg">
-              &ldquo;The open translation management platform that helps teams
-              collaborate on localization. Simple, fast, and
-              developer-friendly.&rdquo;
-            </p>
-            <footer className="text-sm opacity-80">
-              — Manage translations across all your projects
-            </footer>
+            <p className="text-lg">{t("description")}</p>
+            <footer className="text-sm opacity-80">{t("subtitle")}</footer>
           </blockquote>
         </div>
         <div className="relative z-10 mt-auto">
           <div className="flex gap-8 text-sm opacity-80">
             <div className="flex items-center gap-2">
               <LanguagesIcon className="h-4 w-4" />
-              <span>Multiple formats</span>
+              <span>{t("features.formats")}</span>
             </div>
             <div className="flex items-center gap-2">
               <UsersIcon className="h-4 w-4" />
-              <span>Team collaboration</span>
+              <span>{t("features.team")}</span>
             </div>
             <div className="flex items-center gap-2">
               <KeyRoundIcon className="h-4 w-4" />
-              <span>API access</span>
+              <span>{t("features.api")}</span>
             </div>
           </div>
         </div>
