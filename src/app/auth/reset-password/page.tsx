@@ -1,9 +1,13 @@
 import ResetPasswordForm from "@/components/auth/form/ResetPasswordForm"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { Suspense } from "react"
 
-export const metadata: Metadata = {
-  title: "Reset Password",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("ResetPasswordPage")
+  return {
+    title: t("title"),
+  }
 }
 
 export default function ResetPasswordPage() {
