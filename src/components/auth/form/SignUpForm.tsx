@@ -16,17 +16,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-
-function GoBackButton() {
-  return (
-    <p className="mt-6 text-center text-sm text-muted-foreground">
-      Already have an account?{" "}
-      <Link href="/auth/signin" className="text-primary underline">
-        Sign in
-      </Link>
-    </p>
-  )
-}
+import { useTranslations } from "next-intl"
 
 export default function SignUpForm({
   showSocialButtons,
@@ -41,6 +31,8 @@ export default function SignUpForm({
   githubEnabled?: boolean
   discordEnabled?: boolean
 }) {
+  const t = useTranslations("SignUpForm")
+
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -52,16 +44,23 @@ export default function SignUpForm({
       <div className="space-y-4">
         <div className="flex items-center justify-center gap-4">
           <AlertCircleIcon className="h-16 w-16 text-muted-foreground" />
-          <h2 className="text-3xl font-semibold">Sign Up Disabled</h2>
+          <h2 className="text-3xl font-semibold">{t("disabled.title")}</h2>
         </div>
+
         <p className="mx-auto max-w-lg text-center text-lg text-muted-foreground">
-          The administrator of this instance has disabled new account
-          registrations. Please contact your administrator for more information.
+          {t("disabled.description")}
         </p>
+
         <div className="relative inset-0 flex items-center">
           <span className="w-full border-t" />
         </div>
-        <GoBackButton />
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          {t("disabled.footer.goBackToSignIn")}{" "}
+          <Link href="/auth/signin" className="text-primary underline">
+            {t("disabled.footer.signIn")}
+          </Link>
+        </p>
       </div>
     )
   }
@@ -78,15 +77,12 @@ export default function SignUpForm({
       image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(
-            "Account created successfully. Please check your email to verify your account."
-          )
+          toast.success(t("toast.signUpSuccess"))
           redirect("/")
         },
         onError: ({ error }) => {
           toast.error(
-            error?.message ||
-              "Unable to create account. Please check your credentials."
+            error?.message || t("toast.signUpFailed")
           )
           setLoading(false)
         },
@@ -97,15 +93,15 @@ export default function SignUpForm({
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="mb-4 text-2xl font-bold">Create your account</h1>
+        <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">
-          Welcome! Please enter your details to create an account.
+          {t("description")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-1">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">{t("nameLabel")}</Label>
           <Input
             id="name"
             type="text"
@@ -117,7 +113,7 @@ export default function SignUpForm({
         </div>
 
         <div className="grid gap-1">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("emailLabel")}</Label>
           <Input
             id="email"
             type="email"
@@ -129,11 +125,11 @@ export default function SignUpForm({
         </div>
 
         <div className="grid gap-1">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("passwordLabel")}</Label>
           <InputGroup>
             <InputGroupInput
               id="password"
-              placeholder="Enter your password"
+              placeholder={t("passwordPlaceholder")}
               type={showPassword && !loading ? "text" : "password"}
               required
               value={password}
@@ -169,7 +165,7 @@ export default function SignUpForm({
           disabled={loading}
         >
           {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
-          Sign up
+          {t("button.signUp")}
         </Button>
       </form>
 
@@ -181,7 +177,7 @@ export default function SignUpForm({
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or register with
+                {t("socialProviders.title")}
               </span>
             </div>
           </div>
@@ -198,7 +194,12 @@ export default function SignUpForm({
         </>
       )}
 
-      <GoBackButton />
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        {t("footer.alreadyHaveAccount")}{" "}
+        <Link href="/auth/signin" className="text-primary underline">
+          {t("footer.signIn")}
+        </Link>
+      </p>
     </>
   )
 }

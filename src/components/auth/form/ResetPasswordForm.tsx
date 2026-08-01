@@ -10,12 +10,15 @@ import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
 import { AlertCircleIcon, EyeIcon, EyeOffIcon, LockIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { redirect, useSearchParams } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function ResetPasswordForm() {
+  const t = useTranslations("ResetPasswordForm")
+
   const searchParams = useSearchParams()
   const token = searchParams.get("token") ?? ""
 
@@ -28,12 +31,11 @@ export default function ResetPasswordForm() {
       <div className="space-y-4">
         <div className="flex items-center justify-center gap-4">
           <AlertCircleIcon className="h-16 w-16 text-muted-foreground" />
-          <h2 className="text-3xl font-semibold">Invalid Token</h2>
+          <h2 className="text-3xl font-semibold">{t("missingToken.title")}</h2>
         </div>
 
         <p className="mx-auto max-w-lg text-center text-lg text-muted-foreground">
-          The password reset link is invalid. Please make sure you copied the
-          entire link from your email and try again.
+          {t("missingToken.description")}
         </p>
 
         <div className="relative inset-0 flex items-center">
@@ -41,9 +43,9 @@ export default function ResetPasswordForm() {
         </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Forgot your password?{" "}
+          {t("missingToken.footer.backToForgotPassword")}{" "}
           <Link href="/auth/forgot-password" className="text-primary underline">
-            Reset it
+            {t("missingToken.footer.forgotPassword")}
           </Link>
         </p>
       </div>
@@ -52,20 +54,17 @@ export default function ResetPasswordForm() {
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.resetPassword({
       fetchOptions: {
         onSuccess: () => {
-          toast.success(
-            "Password reset successfully. You can now sign in with your new password."
-          )
+          toast.success(t("toast.resetPasswordSuccess"))
           redirect("/auth/signin")
         },
         onError: ({ error }) => {
           toast.error(
-            error?.message ||
-              "Unable to reset password. The reset link may be invalid or expired."
+            error?.message || t("toast.resetPasswordFailed")
           )
           setLoading(false)
         },
@@ -78,20 +77,20 @@ export default function ResetPasswordForm() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="mb-4 text-2xl font-bold">Reset Password</h1>
+        <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">
-          Please enter your new password.
+          {t("description")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-1">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("passwordLabel")}</Label>
 
           <InputGroup>
             <InputGroupInput
               id="password"
-              placeholder="Enter your password"
+              placeholder={t("passwordPlaceholder")}
               type={showPassword && !loading ? "text" : "password"}
               required
               value={password}
@@ -127,7 +126,7 @@ export default function ResetPasswordForm() {
           disabled={loading}
         >
           {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
-          Reset Password
+          {t("button.reset")}
         </Button>
       </form>
     </>

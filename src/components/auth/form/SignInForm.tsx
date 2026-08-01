@@ -17,6 +17,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { useTranslations } from "next-intl"
 
 export default function SignInForm({
   showSocialButtons,
@@ -31,6 +32,8 @@ export default function SignInForm({
   githubEnabled?: boolean
   discordEnabled?: boolean
 }) {
+  const t = useTranslations("SignInForm")
+
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -47,13 +50,12 @@ export default function SignInForm({
       rememberMe,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Signed in successfully")
+          toast.success(t("toast.signInSuccess"))
           redirect("/")
         },
         onError: ({ error }) => {
           toast.error(
-            error?.message ||
-              "Unable to sign in. Please check your credentials."
+            error?.message || t("toast.signInFailed")
           )
           setLoading(false)
         },
@@ -64,15 +66,15 @@ export default function SignInForm({
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="mb-4 text-2xl font-bold">Sign into your account</h1>
+        <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">
-          Welcome back! Please enter your details to sign in.
+          {t("description")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-1">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("emailLabel")}</Label>
           <Input
             id="email"
             type="email"
@@ -85,19 +87,19 @@ export default function SignInForm({
 
         <div className="grid gap-1">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("passwordLabel")}</Label>
             <Link
               href="/auth/forgot-password"
               className="text-sm text-primary hover:underline"
             >
-              Forgot password?
+              {t("forgotPasswordLink")}
             </Link>
           </div>
 
           <InputGroup>
             <InputGroupInput
               id="password"
-              placeholder="Enter your password"
+              placeholder={t("passwordPlaceholder")}
               type={showPassword && !loading ? "text" : "password"}
               required
               value={password}
@@ -135,7 +137,7 @@ export default function SignInForm({
             disabled={loading}
           />
           <Label htmlFor="rememberMe" className="text-sm">
-            Remember me
+            {t("rememberMeLabel")}
           </Label>
         </div>
 
@@ -145,7 +147,7 @@ export default function SignInForm({
           disabled={loading}
         >
           {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
-          Sign in
+          {t("button.signIn")}
         </Button>
       </form>
 
@@ -157,7 +159,7 @@ export default function SignInForm({
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t("socialProviders.title")}
               </span>
             </div>
           </div>
@@ -176,9 +178,9 @@ export default function SignInForm({
 
       {!signUpsDisabled && (
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          {t("footer.noAccount")}{" "}
           <Link href="/auth/signup" className="text-primary underline">
-            Sign up
+            {t("footer.signUp")}
           </Link>
         </p>
       )}
