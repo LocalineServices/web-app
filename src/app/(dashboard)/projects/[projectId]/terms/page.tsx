@@ -7,7 +7,7 @@ import { getTranslations } from "next-intl/server"
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ProjectTermsPage")
   return {
-    title: t("title"),
+    title: t("metadata.title"),
   }
 }
 

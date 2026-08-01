@@ -27,7 +27,7 @@ export async function generateMetadata({
 
   if (!invitation) {
     return {
-      title: t("metadata.notFoundTitle"),
+      title: t("metadata.titleNotFound"),
       robots: "noindex",
     }
   }

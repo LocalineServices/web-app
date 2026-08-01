@@ -9,7 +9,7 @@ import { headers } from "next/headers"
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ApiKeysPage")
   return {
-    title: t("title"),
+    title: t("metadata.title"),
   }
 }
 

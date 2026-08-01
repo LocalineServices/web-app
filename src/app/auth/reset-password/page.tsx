@@ -6,7 +6,7 @@ import { Suspense } from "react"
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ResetPasswordPage")
   return {
-    title: t("title"),
+    title: t("metadata.title"),
   }
 }
 

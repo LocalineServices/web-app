@@ -8,7 +8,7 @@ import { headers } from "next/headers"
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("PublicProfilePage")
   return {
-    title: t("title"),
+    title: t("metadata.title"),
   }
 }
 
