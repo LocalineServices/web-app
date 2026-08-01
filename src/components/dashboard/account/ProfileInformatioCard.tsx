@@ -61,9 +61,9 @@ export default function ProfileInformationCard() {
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(user.id)
-                toast.success(t("card.copyToClipboard"))
+                toast.success(t("toast.copyToClipboard"))
               } catch {
-                toast.error(t("card.copyFailed"))
+                toast.error(t("toast.copyFailed"))
               }
             }}
           >
