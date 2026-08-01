@@ -41,7 +41,10 @@ export default function SocialAuthButtons({
         },
         onError: ({ error }) => {
           toast.error(
-            t("toast.requestFailed", { provider, message: error?.message || "500 Internal Server Error" })
+            t("toast.requestFailed", {
+              provider,
+              message: error?.message || "500 Internal Server Error",
+            })
           )
           setLoading(false)
         },

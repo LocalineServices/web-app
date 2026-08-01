@@ -25,9 +25,11 @@ export default function ForgotPasswordForm() {
       email,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(t("toast.resetLinkSentSuccess", {
-            email,
-          }))
+          toast.success(
+            t("toast.resetLinkSentSuccess", {
+              email,
+            })
+          )
           redirect("/auth/signin")
         },
         onError: ({ error }) => {
@@ -43,9 +45,7 @@ export default function ForgotPasswordForm() {
     <>
       <div className="flex flex-col items-center">
         <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t("description")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

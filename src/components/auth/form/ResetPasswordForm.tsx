@@ -63,9 +63,7 @@ export default function ResetPasswordForm() {
           redirect("/auth/signin")
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || t("toast.resetPasswordFailed")
-          )
+          toast.error(error?.message || t("toast.resetPasswordFailed"))
           setLoading(false)
         },
       },
@@ -78,9 +76,7 @@ export default function ResetPasswordForm() {
     <>
       <div className="flex flex-col items-center">
         <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t("description")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
