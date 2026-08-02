@@ -674,8 +674,9 @@ const IMPORTABLE_LOCALE_GROUPS = IMPORTABLE_LOCALES.reduce<
 }, [])
 
 export default function ImportLocalesDialog() {
-  const router = useRouter()
   const t = useTranslations("ImportLocalesDialog")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -717,8 +718,8 @@ export default function ImportLocalesDialog() {
 
   const handleImportLocales = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     try {
       const result = await importLocales(
         selectedLocales.map((locale) => ({

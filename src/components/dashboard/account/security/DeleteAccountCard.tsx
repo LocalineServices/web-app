@@ -29,16 +29,16 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function DeleteAccountCard() {
-  const router = useRouter()
   const t = useTranslations("DeleteAccountCard")
+  const router = useRouter()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   const handleDeleteAccount = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.deleteUser({
       fetchOptions: {
         onSuccess: () => {

@@ -98,13 +98,13 @@ function ProviderCardContent({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("ConnectionsCard")
+  const router = useRouter()
 
   const handleLink = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.linkSocial({
       provider: name,
       callbackURL: `${window.location.origin}/account/connections`,
@@ -127,8 +127,8 @@ function ProviderCardContent({
 
   const handleUnlink = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.unlinkAccount({
       providerId: name.toLowerCase(),
       fetchOptions: {

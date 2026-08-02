@@ -28,8 +28,9 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateLocaleDialog() {
-  const router = useRouter()
   const t = useTranslations("CreateLocaleDialog")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -48,10 +49,10 @@ export default function CreateLocaleDialog() {
 
   const handleCreateLocale = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
     const displayName = `${language}${region ? ` (${region})` : ""}`
 
+    setLoading(true)
     await createLocale({
       displayName,
       language,

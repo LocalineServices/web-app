@@ -65,9 +65,10 @@ export default function ApiKeysTable({
   apiKeys: ApiKey[]
   apiKeysLimit: number
 }) {
-  const router = useRouter()
   const t = useTranslations("ApiKeysTable")
   const format = useFormatter()
+
+  const router = useRouter()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -311,8 +312,8 @@ function DeleteApiKeyDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("ApiKeysTable")
+  const router = useRouter()
 
   const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
 

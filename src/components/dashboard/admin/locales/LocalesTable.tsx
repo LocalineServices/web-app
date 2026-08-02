@@ -293,8 +293,9 @@ function UpdateLocaleSheet({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminLocalesTable")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [updatingLocale, setUpdatingLocale] = useState<Locale | null>(null)
@@ -569,8 +570,9 @@ function DeleteLocaleDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminLocalesTable")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
@@ -585,7 +587,6 @@ function DeleteLocaleDialog({
 
   async function handleDeleteLocale(locale: Locale) {
     setLoading(true)
-
     await deleteLocale(locale.id)
       .then(() => {
         toast.success(

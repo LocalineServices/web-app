@@ -155,8 +155,8 @@ function InvitationsMenu({
   isExpanded: boolean
   handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
-  const pathname = usePathname()
   const t = useTranslations("AppSidebar")
+  const pathname = usePathname()
 
   const [invitations, setInvitations] = useState<ProjectInvitation[]>([])
 
@@ -226,8 +226,8 @@ function AccountMenu({
   isExpanded: boolean
   handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
-  const pathname = usePathname()
   const t = useTranslations("AppSidebar")
+  const pathname = usePathname()
 
   const isAccountPage = accountNavigationItems.some(({ href }) =>
     isActive(pathname, href)
@@ -283,8 +283,8 @@ function ProjectMenu({
   isExpanded: boolean
   handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
-  const pathname = usePathname()
   const t = useTranslations("AppSidebar")
+  const pathname = usePathname()
 
   const [project, setProject] = useState<Project | null>(null)
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false)
@@ -496,8 +496,8 @@ function AdminMenu({
   isExpanded: boolean
   handleLinkClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
 }) {
-  const pathname = usePathname()
   const t = useTranslations("AppSidebar")
+  const pathname = usePathname()
 
   const [canAccessAdmin, setCanAccessAdmin] = useState(false)
 

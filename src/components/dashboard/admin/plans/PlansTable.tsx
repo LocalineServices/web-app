@@ -368,8 +368,9 @@ function UpdatePlanSheet({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminPlansTable")
+
+  const router = useRouter()
 
   const [updatingPlan, setUpdatingPlan] = useState<Plan | null>(null)
 
@@ -635,8 +636,9 @@ function DeletePlanDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminPlansTable")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
@@ -651,7 +653,6 @@ function DeletePlanDialog({
 
   async function handleDeletePlan(plan: Plan) {
     setLoading(true)
-
     await deletePlan(plan.id)
       .then(() => {
         toast.success(

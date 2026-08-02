@@ -28,8 +28,9 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreatePlanDialog() {
-  const router = useRouter()
   const t = useTranslations("CreatePlanDialog")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -47,8 +48,8 @@ export default function CreatePlanDialog() {
 
   const handleCreatePlan = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await createPlan({
       displayName,
       description: description || undefined,

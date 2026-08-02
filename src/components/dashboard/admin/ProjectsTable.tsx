@@ -256,8 +256,9 @@ function ChangePlanDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminProjectsTable")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [editingProject, setEditingProject] = useState<FullProject | null>(null)

@@ -31,8 +31,9 @@ export default function AppHeader({
 }: {
   projects: Awaited<ReturnType<typeof getProjects>>
 }) {
-  const router = useRouter()
   const t = useTranslations("AppHeader")
+
+  const router = useRouter()
   const { session, user } = useSession()
 
   const searchContainerRef = useRef<HTMLDivElement>(null)
@@ -69,8 +70,8 @@ export default function AppHeader({
 
   const handleSignOut = async (event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await signOut({
       fetchOptions: {
         onSuccess: () => {
@@ -87,8 +88,8 @@ export default function AppHeader({
 
   const handleStopImpersonation = async (event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.admin.stopImpersonating({
       fetchOptions: {
         onSuccess: () => {

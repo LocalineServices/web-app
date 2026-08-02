@@ -36,9 +36,9 @@ export default function SecurityDetailsCard({
 }: {
   hasCredentialAccount: boolean
 }) {
-  const router = useRouter()
   const t = useTranslations("SecurityDetailsCard")
 
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -53,8 +53,8 @@ export default function SecurityDetailsCard({
 
   const handleUpdateEmail = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.changeEmail({
       newEmail: email.trim(),
       callbackURL: `${window.location.origin}/account/security`,
@@ -79,8 +79,8 @@ export default function SecurityDetailsCard({
 
   const handleUpdatePassword = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.changePassword({
       currentPassword: currentPassword.trim(),
       newPassword: newPassword.trim(),

@@ -31,16 +31,16 @@ import { toast } from "sonner"
 import { useTranslations } from "next-intl"
 
 export function RevokeOtherSessionsDialog() {
-  const router = useRouter()
   const t = useTranslations("RevokeOtherSessionsDialog")
+  const router = useRouter()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   const handleRevokeSessions = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.revokeOtherSessions({
       fetchOptions: {
         onSuccess: () => {
@@ -106,16 +106,16 @@ export function RevokeOtherSessionsDialog() {
 }
 
 export function RevokeAllSessionsDialog() {
-  const router = useRouter()
   const t = useTranslations("RevokeAllSessionsDialog")
+  const router = useRouter()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   const handleRevokeSessions = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.revokeSessions({
       fetchOptions: {
         onSuccess: () => {

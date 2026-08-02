@@ -14,8 +14,9 @@ export default function DashboardAlerts({
   latestRelease: string | null
   currentVersion: string
 }) {
-  const { user } = useSession()
   const t = useTranslations("DashboardAlerts")
+
+  const { user } = useSession()
 
   return (
     <>

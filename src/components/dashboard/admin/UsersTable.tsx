@@ -74,6 +74,7 @@ const PAGE_SIZE = 10
 
 export default function AdminUsersTable({ users }: { users: UserWithRole[] }) {
   const t = useTranslations("AdminUsersTable")
+
   const { user: currentUser } = useSession()
 
   const [page, setPage] = useState(1)
@@ -247,8 +248,9 @@ function UpdateUserSheet({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminUsersTable")
+
+  const router = useRouter()
   const { user: currentUser } = useSession()
 
   const [updatingUser, setUpdatingUser] = useState<UserWithRole | null>(null)
@@ -765,15 +767,15 @@ function ImpersonateUserButton({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminUsersTable")
+
+  const router = useRouter()
   const { user: currentUser } = useSession()
 
   const canImpersonateUser = user.id !== currentUser?.id && !user.banned
 
   function handleImpersonateUser(user: { id: string; name: string }) {
     setLoading(true)
-
     authClient.admin.impersonateUser({
       userId: user.id,
       fetchOptions: {
@@ -840,8 +842,9 @@ function DeleteUserDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
-  const router = useRouter()
   const t = useTranslations("AdminUsersTable")
+
+  const router = useRouter()
   const { user: currentUser } = useSession()
 
   const [deletingUser, setDeletingUser] = useState<UserWithRole | null>(null)

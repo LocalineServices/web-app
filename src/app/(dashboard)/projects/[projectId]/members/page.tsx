@@ -18,9 +18,9 @@ export default async function ProjectMembersPage({
 }: {
   params: Promise<{ projectId: string }>
 }) {
-  const { projectId } = await params
   const t = await getTranslations("ProjectMembersPage")
 
+  const { projectId } = await params
   const projectMembers = await getProjectMembers({ projectId })
 
   return (

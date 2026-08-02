@@ -15,8 +15,9 @@ import { useSession } from "@/components/session-provider"
 import { useTranslations } from "next-intl"
 
 export default function ToggleAdminButton() {
-  const router = useRouter()
   const t = useTranslations("ToggleAdminButton")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)

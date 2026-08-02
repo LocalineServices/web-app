@@ -39,8 +39,9 @@ export default function CreateApiKeyDialog({
   apiKeysCount: number
   apiKeysLimit: number
 }) {
-  const router = useRouter()
   const t = useTranslations("CreateApiKeyDialog")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)

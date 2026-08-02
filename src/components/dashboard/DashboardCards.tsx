@@ -40,6 +40,7 @@ export default function DashboardCards({
   currentVersion: string
 }) {
   const t = useTranslations("DashboardCards")
+
   const { user } = useSession()
 
   const [latestRelease, setLatestRelease] = useState<string | null>(null)

@@ -76,10 +76,10 @@ const IMPORTABLE_PLANS: ImportablePlanProps[] = [
 ]
 
 export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
-  const router = useRouter()
   const t = useTranslations("PlanPresetsDialog")
   const format = useFormatter()
 
+  const router = useRouter()
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -112,7 +112,6 @@ export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
 
   const handleImportPlans = async () => {
     setLoading(true)
-
     try {
       const result = await createPlans(
         selectedPlans

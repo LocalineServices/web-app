@@ -38,8 +38,9 @@ function ThemeProvider({
 }
 
 function ThemeModeSelector() {
-  const { theme, setTheme } = useTheme()
   const t = useTranslations("ThemeModeSelector")
+
+  const { theme, setTheme } = useTheme()
 
   const [mounted, setMounted] = useState(false)
 

@@ -80,8 +80,9 @@ export default function ProfileDetailsCard({
 }: {
   githubAccount: Account | undefined
 }) {
-  const router = useRouter()
   const t = useTranslations("ProfileDetailsCard")
+
+  const router = useRouter()
   const { user } = useSession()
 
   const currentAvatarUrl = user?.image || undefined
@@ -129,8 +130,8 @@ export default function ProfileDetailsCard({
 
   const handleUpdateName = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setNameLoading(true)
 
+    setNameLoading(true)
     await authClient.updateUser({
       name: name.trim(),
       fetchOptions: {
@@ -151,8 +152,8 @@ export default function ProfileDetailsCard({
 
   const handleUpdateAvatar = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setAvatarLoading(true)
 
+    setAvatarLoading(true)
     await authClient.updateUser({
       image: selectedAvatarUrl ?? null,
       fetchOptions: {

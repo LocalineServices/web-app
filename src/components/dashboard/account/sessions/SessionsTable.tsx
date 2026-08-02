@@ -59,10 +59,10 @@ function getBrowserLabel(userAgent?: string | null) {
 }
 
 export default function SessionsTable({ sessions }: { sessions: Session[] }) {
-  const router = useRouter()
   const t = useTranslations("SessionsTable")
   const format = useFormatter()
 
+  const router = useRouter()
   const { session: currentSession } = useSession()
 
   const [loading, setLoading] = useState(false)
