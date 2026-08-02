@@ -22,11 +22,14 @@ import {
 } from "@/components/ui/tooltip"
 import { authClient } from "@/lib/auth-client"
 import { PlusIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreatePlanDialog() {
+  const t = useTranslations("CreatePlanDialog")
+
   const router = useRouter()
   const { user } = useSession()
 
@@ -45,19 +48,27 @@ export default function CreatePlanDialog() {
 
   const handleCreatePlan = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await createPlan({
       displayName,
       description: description || undefined,
     })
-      .then(() => {
-        toast.success(`Created plan ${displayName}.`)
+      .then((plan) => {
+        toast.success(
+          t("toast.creationSuccess", {
+            planDisplayName: displayName,
+            planId: plan.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to create plan. Please try again."
+          error?.message ||
+            t("toast.creationFailed", {
+              planDisplayName: displayName,
+            })
         )
       })
       .finally(() => {
@@ -82,40 +93,40 @@ export default function CreatePlanDialog() {
                 aria-disabled={!canCreatePlans || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                New Plan
+                {t("button.createPlan")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canCreatePlans && (
-          <TooltipContent>
-            You don&rsquo;t have permission to create a new plan.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new plan</DialogTitle>
-          <DialogDescription>Add a new plan to the system.</DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="planName">Plan Name</Label>
+            <Label htmlFor="planName">{t("dialog.planNameLabel")}</Label>
             <Input
               id="planName"
-              placeholder="e.g. Basic"
+              placeholder={t("dialog.planNamePlaceholder")}
               value={displayName}
               onChange={({ target: { value } }) => setDisplayName(value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="planDescription">Description (optional)</Label>
+            <Label htmlFor="planDescription">
+              {t("dialog.planDescriptionLabel")}
+            </Label>
             <Input
               id="planDescription"
-              placeholder="e.g. A basic plan with essential features"
+              placeholder={t("dialog.planDescriptionPlaceholder")}
               value={description || ""}
               onChange={({ target: { value } }) => setDescription(value)}
             />
@@ -132,7 +143,7 @@ export default function CreatePlanDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -143,12 +154,12 @@ export default function CreatePlanDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Creating...
+                {t("dialog.creatingPlan")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Create Plan
+                {t("dialog.createPlan")}
               </>
             )}
           </Button>

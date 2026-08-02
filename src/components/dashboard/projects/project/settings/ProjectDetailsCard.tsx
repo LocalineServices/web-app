@@ -31,9 +31,12 @@ import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { authClient } from "@/lib/auth-client"
 import { useProject } from "@/components/project-provider"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 export default function ProjectDetailsCard() {
   const router = useRouter()
+  const t = useTranslations("ProjectDetailsCard")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -66,13 +69,22 @@ export default function ProjectDetailsCard() {
       name: name.trim(),
     })
       .then((project) => {
-        toast.success(`Updated project name to ${project?.name}.`)
-        router.refresh()
+        toast.success(
+          t("toast.updateNameSuccess", {
+            projectName: project?.name ?? "",
+            projectId: project?.id ?? "",
+          })
+        )
         setName(project?.name ?? "")
+        router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update project name. Please try again."
+          error?.message ||
+            t("toast.updateNameFailed", {
+              projectName: project.name,
+              projectId: project.id,
+            })
         )
       })
       .finally(() => {
@@ -92,14 +104,23 @@ export default function ProjectDetailsCard() {
       description: description.trim(),
     })
       .then((project) => {
-        toast.success(`Updated project description.`)
-        router.refresh()
+        toast.success(
+          t("toast.updateDescriptionSuccess", {
+            description: description.trim() || t("noDescription"),
+            projectName: project?.name ?? "",
+            projectId: project?.id ?? "",
+          })
+        )
         setDescription(project?.description ?? "")
+        router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
-            "Failed to update project description. Please try again."
+            t("toast.updateDescriptionFailed", {
+              projectName: project.name,
+              projectId: project.id,
+            })
         )
       })
       .finally(() => {
@@ -113,12 +134,12 @@ export default function ProjectDetailsCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <TagIcon className="size-4" />
-          <p>Name:</p>
+          <p>{t("card.name")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
           <p className="min-w-0 font-mono text-sm break-all text-foreground">
-            {project?.name ?? "Unknown"}
+            {project?.name ?? t("unknown")}
           </p>
           <Dialog open={isNameDialogOpen} onOpenChange={setNameDialogOpen}>
             <Tooltip>
@@ -143,26 +164,27 @@ export default function ProjectDetailsCard() {
               </TooltipTrigger>
               {!canManageProject && (
                 <TooltipContent>
-                  You don&rsquo;t have permission to change this project&rsquo;s
-                  name.
+                  {t("tooltip.noPermissionUpdateName")}
                 </TooltipContent>
               )}
             </Tooltip>
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Edit name</DialogTitle>
+                <DialogTitle>{t("dialog.updateName.title")}</DialogTitle>
                 <DialogDescription>
-                  Update the public name shown on your profile.
+                  {t("dialog.updateName.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="projectName">
+                  {t("dialog.updateName.nameLabel")}
+                </Label>
                 <Input
-                  id="name"
+                  id="projectName"
                   value={name}
-                  placeholder="Enter your name"
+                  placeholder={t("dialog.updateName.namePlaceholder")}
                   disabled={loading}
                   minLength={1}
                   maxLength={32}
@@ -177,7 +199,7 @@ export default function ProjectDetailsCard() {
                   onClick={() => setNameDialogOpen(false)}
                   disabled={loading}
                 >
-                  Close
+                  {t("dialog.close")}
                 </Button>
 
                 <Button
@@ -192,12 +214,12 @@ export default function ProjectDetailsCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Saving...
+                      {t("dialog.updateName.updatingName")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      Save changes
+                      {t("dialog.updateName.updateName")}
                     </>
                   )}
                 </Button>
@@ -212,7 +234,7 @@ export default function ProjectDetailsCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <TextIcon className="size-4" />
-          <p>Description:</p>
+          <p>{t("card.description")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
@@ -222,7 +244,7 @@ export default function ProjectDetailsCard() {
               !project?.description && "text-muted-foreground italic"
             )}
           >
-            {project?.description ?? "None"}
+            {project?.description ?? t("noDescription")}
           </p>
           <Dialog
             open={isDescriptionDialogOpen}
@@ -250,27 +272,30 @@ export default function ProjectDetailsCard() {
               </TooltipTrigger>
               {!canManageProject && (
                 <TooltipContent>
-                  You don&rsquo;t have permission to change this project&rsquo;s
-                  description.
+                  {t("tooltip.noPermissionUpdateDescription")}
                 </TooltipContent>
               )}
             </Tooltip>
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Edit description</DialogTitle>
+                <DialogTitle>{t("dialog.updateDescription.title")}</DialogTitle>
                 <DialogDescription>
-                  Update the public description shown on your profile.
+                  {t("dialog.updateDescription.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="projectDescription">
+                  {t("dialog.updateDescription.descriptionLabel")}
+                </Label>
                 <Textarea
-                  id="description"
+                  id="projectDescription"
                   className="min-h-24 resize-none"
                   value={description}
-                  placeholder="Enter your description"
+                  placeholder={t(
+                    "dialog.updateDescription.descriptionPlaceholder"
+                  )}
                   disabled={loading}
                   minLength={1}
                   maxLength={255}
@@ -284,7 +309,7 @@ export default function ProjectDetailsCard() {
                   onClick={() => setDescriptionDialogOpen(false)}
                   disabled={loading}
                 >
-                  Close
+                  {t("dialog.close")}
                 </Button>
 
                 <Button
@@ -298,12 +323,12 @@ export default function ProjectDetailsCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Saving...
+                      {t("dialog.updateDescription.updatingDescription")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      Save changes
+                      {t("dialog.updateDescription.updateDescription")}
                     </>
                   )}
                 </Button>
@@ -318,11 +343,11 @@ export default function ProjectDetailsCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <PackageIcon className="size-4" />
-          <p>Plan:</p>
+          <p>{t("card.plan")}</p>
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground capitalize">
-          {project.plan.displayName ?? "Unknown"}
+          {project.plan.displayName ?? t("unknown")}
         </p>
       </CardContent>
     </Card>

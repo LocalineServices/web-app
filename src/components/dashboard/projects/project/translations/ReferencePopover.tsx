@@ -18,6 +18,7 @@ import { getFlag } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { ProjectLocaleWithLocale } from "@/types/project"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { createElement, useMemo, useState } from "react"
 
 export default function ReferencePopover({
@@ -29,6 +30,9 @@ export default function ReferencePopover({
   referenceLocale: ProjectLocaleWithLocale | null
   setReferenceLocale: (locale: ProjectLocaleWithLocale | null) => void
 }) {
+  const t = useTranslations("ProjectTranslationReferencePopover")
+  const format = useFormatter()
+
   const { project } = useProject()
 
   const [open, setOpen] = useState(false)
@@ -104,7 +108,7 @@ export default function ReferencePopover({
                       </span>
                     </>
                   ) : (
-                    "Select reference locale"
+                    t("button.selectReferenceLocale")
                   )}
                 </span>
                 <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -113,10 +117,7 @@ export default function ReferencePopover({
           </span>
         </TooltipTrigger>
         {project.locales.length <= 1 && (
-          <TooltipContent>
-            You need at least 2 locales in the project to select a reference
-            locale.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.onlyOneLocale")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -132,7 +133,7 @@ export default function ReferencePopover({
               onChange={({ target: { value: nextValue } }) =>
                 setSearchQuery(nextValue)
               }
-              placeholder="Search locales by name, code, or region..."
+              placeholder={t("input.searchPlaceholder")}
               className="pr-9 pl-9"
               autoComplete="off"
             />
@@ -143,7 +144,6 @@ export default function ReferencePopover({
                 size="icon"
                 className="absolute top-1/2 right-1 size-7 -translate-y-1/2"
                 onClick={() => setSearchQuery("")}
-                aria-label="Clear locale search"
               >
                 <XIcon className="h-4 w-4" />
               </Button>
@@ -151,7 +151,11 @@ export default function ReferencePopover({
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filteredLocales.length.toLocaleString()} locales</span>
+            <span>
+              {t("availableLocales", {
+                count: format.number(filteredLocales.length),
+              })}
+            </span>
             {referenceLocale && (
               <Button
                 type="button"
@@ -160,7 +164,7 @@ export default function ReferencePopover({
                 className="h-7 px-2 text-xs"
                 onClick={clearSelection}
               >
-                Clear selection
+                {t("button.clearReferenceLocale")}
               </Button>
             )}
           </div>
@@ -216,7 +220,7 @@ export default function ReferencePopover({
                 })
               ) : (
                 <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  No locales found.
+                  {t("noLocalesFound")}
                 </div>
               )}
             </div>

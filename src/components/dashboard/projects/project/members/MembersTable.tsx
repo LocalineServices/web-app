@@ -52,7 +52,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip"
 import { generateRoleBadge } from "@/lib/project-utils"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { FullProjectMember, ProjectLocaleWithLocale } from "@/types/project"
 import { ProjectMember, ProjectMemberRole } from "@prisma/client"
 import {
@@ -64,20 +64,24 @@ import {
   TrashIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { authClient } from "@/lib/auth-client"
+import { useFormatter, useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function MembersTable({
+export default function ProjectMembersTable({
   members,
 }: {
   members: FullProjectMember[]
 }) {
+  const t = useTranslations("ProjectMembersTable")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project } = useProject()
 
@@ -113,7 +117,7 @@ export default function MembersTable({
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search members by ID, name, or email..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -129,12 +133,18 @@ export default function MembersTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-center">Role</TableHead>
-              <TableHead>Assigned Locales</TableHead>
-              <TableHead>Member since</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("table.header.id")}
+              </TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead className="text-center">
+                {t("table.header.role")}
+              </TableHead>
+              <TableHead>{t("table.header.assignedLocales")}</TableHead>
+              <TableHead>{t("table.header.joinedAt")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("table.header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -155,11 +165,11 @@ export default function MembersTable({
                             {projectMember.user.name}
                           </span>
                           {projectMember.user.id === user?.id && (
-                            <Badge>You</Badge>
+                            <Badge>{t("table.row.badge.you")}</Badge>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          E-Mail:{" "}
+                          {t("table.row.email")}
                           <span
                             className={cn(
                               projectMember.user.email === "" && "blur-xs"
@@ -194,22 +204,27 @@ export default function MembersTable({
                         ))
                       ) : (
                         <span className="text-muted-foreground italic">
-                          No specific locales assigned
+                          {t("table.row.noAssignedLocales")}
                         </span>
                       )}
                     </TableCell>
 
-                    <TableCell>{formatDate(projectMember.createdAt)}</TableCell>
+                    <TableCell>
+                      {format.dateTime(projectMember.createdAt, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </TableCell>
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
-                        <EditMemberRoleDialog
+                        <UpdateMemberRoleDialog
                           projectMember={projectMember}
                           isOwner={isOwner}
                           loading={loading}
                           setLoading={setLoading}
                         />
-                        <EditMemberLocalesDialog
+                        <UpdateMemberLocalesDialog
                           projectMember={projectMember}
                           isOwner={isOwner}
                           loading={loading}
@@ -233,8 +248,8 @@ export default function MembersTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No members found matching your search."
-                    : "No members found."}
+                    ? t("table.noMembersFound", { query: searchQuery })
+                    : t("table.noMembersFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -254,7 +269,7 @@ export default function MembersTable({
   )
 }
 
-function EditMemberRoleDialog({
+function UpdateMemberRoleDialog({
   projectMember,
   isOwner,
   loading,
@@ -266,10 +281,13 @@ function EditMemberRoleDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMembersTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [editingMember, setEditingMember] = useState<FullProjectMember | null>()
+  const [updatingMember, setUpdatingMember] =
+    useState<FullProjectMember | null>()
 
   const [role, setRole] = useState<ProjectMemberRole | null>(projectMember.role)
 
@@ -287,45 +305,56 @@ function EditMemberRoleDialog({
     })
 
   function openDialog(projectMember: FullProjectMember) {
-    setEditingMember(projectMember)
     setRole(projectMember.role)
+    setUpdatingMember(projectMember)
   }
 
   function closeEditor() {
-    setEditingMember(null)
+    setUpdatingMember(null)
     setRole(null)
   }
 
-  async function handleUpdateRole(projectMember: FullProjectMember) {
-    if (!role) return
+  async function handleUpdateRole(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+
+    if (!updatingMember || !role) return
 
     setLoading(true)
     await updateProjectMember({
-      projectId: projectMember.projectId,
-      memberId: projectMember.id,
+      projectId: updatingMember.projectId,
+      memberId: updatingMember.id,
       roleId: role.id,
     })
-      .then(() => {
+      .then((updatedMember) => {
         toast.success(
-          `The role of ${projectMember.user.name} has been updated to ${role.name}.`
+          t("toast.roleUpdateSuccess", {
+            userName: updatingMember.user.name, // TODO
+            memberId: updatedMember.id,
+            roleName: role.name,
+          })
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update member role. Please try again."
+          error?.message ||
+            t("toast.roleUpdateFailed", {
+              userName: updatingMember.user.name,
+              memberId: updatingMember.id,
+              roleName: role.name,
+            })
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingMember(null)
+        setUpdatingMember(null)
         setRole(null)
       })
   }
 
   return (
     <Dialog
-      open={editingMember?.id === projectMember.id}
+      open={updatingMember?.id === projectMember.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -352,46 +381,45 @@ function EditMemberRoleDialog({
           </span>
         </TooltipTrigger>
         {!canUpdateMembers && (
-          <TooltipContent>
-            You don&rsquo;t have permission to update members.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdateRole")}</TooltipContent>
         )}
         {isOwner && (
-          <TooltipContent>
-            The owner&rsquo;s role cannot be changed.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.ownerCannotChangeRole")}</TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent
-        className={cn(editingMember?.user.id === user?.id && "sm:max-w-130")}
+        className={cn(updatingMember?.user.id === user?.id && "sm:max-w-130")}
       >
         <DialogHeader>
-          <DialogTitle>Update Member Role</DialogTitle>
+          <DialogTitle>
+            {t("dialog.updateRole.title", {
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
+            })}
+          </DialogTitle>
           <DialogDescription>
-            You are updating the role of{" "}
-            <span className="font-medium">{editingMember?.user.name}</span>.
-            Please select a new role for this member.
+            {t("dialog.updateRole.description", {
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
+            })}
           </DialogDescription>
 
-          {editingMember?.user.id === user?.id && (
+          {updatingMember?.user.id === user?.id && (
             <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
               <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-              <AlertTitle>Updating Own Role</AlertTitle>
+              <AlertTitle>{t("alert.updateOwnRole.title")}</AlertTitle>
               <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                Changing your own role may affect your permissions in the
-                project. You may lose access to certain features or the ability
-                to manage members if you select a role with fewer permissions.
-                Please proceed with caution.
+                {t("alert.updateOwnRole.description")}
               </AlertDescription>
             </Alert>
           )}
         </DialogHeader>
 
         <div className="space-y-2 py-2">
-          <Label htmlFor="role">Role</Label>
+          <Label htmlFor="role">{t("dialog.updateRole.roleLabel")}</Label>
           <RolePickerField
-            id={`role-${editingMember?.id}`}
+            id={`role-${updatingMember?.id}`}
             roles={project.memberRoles
               .filter((role) => role.id !== project.id)
               .sort((a, b) => {
@@ -413,36 +441,28 @@ function EditMemberRoleDialog({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setEditingMember(null)}
-            disabled={loading}
-          >
-            Close
+          <Button variant="outline" onClick={closeEditor} disabled={loading}>
+            {t("dialog.close")}
           </Button>
 
           <Button
             disabled={
               loading ||
-              !editingMember ||
+              !updatingMember ||
               !role ||
-              role.id === editingMember.roleId
+              role.id === updatingMember.roleId
             }
-            onClick={(event) => {
-              event.preventDefault()
-              if (!editingMember) return
-              void handleUpdateRole(editingMember)
-            }}
+            onClick={handleUpdateRole}
           >
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Updating role...
+                {t("dialog.updateRole.updatingRole")}
               </>
             ) : (
               <>
                 <PencilIcon className="h-4 w-4" />
-                Update Role
+                {t("dialog.updateRole.updateRole")}
               </>
             )}
           </Button>
@@ -452,7 +472,7 @@ function EditMemberRoleDialog({
   )
 }
 
-function EditMemberLocalesDialog({
+function UpdateMemberLocalesDialog({
   projectMember,
   isOwner,
   loading,
@@ -464,10 +484,13 @@ function EditMemberLocalesDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMembersTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [editingMember, setEditingMember] = useState<FullProjectMember | null>()
+  const [updatingMember, setUpdatingMember] =
+    useState<FullProjectMember | null>()
 
   const [locales, setLocales] = useState<ProjectLocaleWithLocale[]>(
     projectMember.locales
@@ -487,45 +510,54 @@ function EditMemberLocalesDialog({
     })
 
   function openDialog(projectMember: FullProjectMember) {
-    setEditingMember(projectMember)
+    setUpdatingMember(projectMember)
     setLocales(projectMember.locales)
   }
 
   function closeEditor() {
-    setEditingMember(null)
     setLocales([])
+    setUpdatingMember(null)
   }
 
-  async function handleUpdateLocales(projectMember: FullProjectMember) {
-    setLoading(true)
-    if (!locales) return
+  async function handleUpdateLocales(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
 
+    if (!updatingMember || !locales) return
+
+    setLoading(true)
     await updateProjectMember({
-      projectId: projectMember.projectId,
-      memberId: projectMember.id,
+      projectId: updatingMember.projectId,
+      memberId: updatingMember.id,
       locales,
     })
-      .then(() => {
+      .then((updatedMember) => {
         toast.success(
-          `The locales of ${projectMember.user.name} have been updated.`
+          t("toast.localeAssignmentUpdateSuccess", {
+            userName: updatingMember.user.name, // TODO
+            memberId: updatedMember.id,
+          })
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update member locales. Please try again."
+          error?.message ||
+            t("toast.localeAssignmentUpdateFailed", {
+              userName: updatingMember.user.name,
+              memberId: updatingMember.id,
+            })
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingMember(null)
+        setUpdatingMember(null)
         setLocales([])
       })
   }
 
   return (
     <Dialog
-      open={editingMember?.id === projectMember.id}
+      open={updatingMember?.id === projectMember.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -553,30 +585,38 @@ function EditMemberLocalesDialog({
         </TooltipTrigger>
         {!canUpdateMembers && (
           <TooltipContent>
-            You don&rsquo;t have permission to update members.
+            {t("tooltip.noPermissionUpdateLocales")}
           </TooltipContent>
         )}
         {isOwner && (
           <TooltipContent>
-            The owner can&rsquo;t have specific locales assigned.
+            {t("tooltip.ownerCannotChangeLocales")}
           </TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Update Member Locales</DialogTitle>
+          <DialogTitle>
+            {t("dialog.updateLocales.title", {
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
+            })}
+          </DialogTitle>
           <DialogDescription>
-            You are updating the locales of{" "}
-            <span className="font-medium">{editingMember?.user.name}</span>.
-            Please select new locales for this member.
+            {t("dialog.updateLocales.description", {
+              userName: updatingMember?.user.name ?? "",
+              memberId: updatingMember?.id ?? "",
+            })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 py-2">
-          <Label htmlFor="locales">Assigned Locales</Label>
+          <Label htmlFor="locales">
+            {t("dialog.updateLocales.localesLabel")}
+          </Label>
           <ProjectLocalesPicker
-            id={`locales-${editingMember?.id}`}
+            id={`locales-${updatingMember?.id}`}
             locales={project.locales}
             value={locales}
             onChange={setLocales}
@@ -585,31 +625,23 @@ function EditMemberLocalesDialog({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setEditingMember(null)}
-            disabled={loading}
-          >
-            Close
+          <Button variant="outline" onClick={closeEditor} disabled={loading}>
+            {t("dialog.close")}
           </Button>
 
           <Button
-            disabled={loading || editingMember === null}
-            onClick={(event) => {
-              event.preventDefault()
-              if (!editingMember) return
-              void handleUpdateLocales(editingMember)
-            }}
+            disabled={loading || updatingMember === null}
+            onClick={handleUpdateLocales}
           >
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Updating locales...
+                {t("dialog.updateLocales.updatingLocales")}
               </>
             ) : (
               <>
                 <PencilIcon className="h-4 w-4" />
-                Update Locales
+                {t("dialog.updateLocales.updateLocales")}
               </>
             )}
           </Button>
@@ -631,6 +663,8 @@ function RemoveMemberDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMembersTable")
+
   const { user } = useSession()
   const { member } = useProject()
 
@@ -650,20 +684,29 @@ function RemoveMemberDialog({
       },
     })
 
-  async function handleRemoveMember(currentMember: ProjectMember) {
+  async function handleRemoveMember(removingMember: ProjectMember) {
     setLoading(true)
 
     await removeProjectMember({
-      projectId: currentMember.projectId,
-      memberId: currentMember.id,
+      projectId: removingMember.projectId,
+      memberId: removingMember.id,
     })
       .then((projectMember) => {
-        toast.success(`Removed member ${projectMember.user.name}.`)
+        toast.success(
+          t("toast.removeMemberSuccess", {
+            userName: projectMember.user.name,
+            memberId: projectMember.id,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to remove member. Please try again."
+          error?.message ||
+            t("toast.removeMemberFailed", {
+              userId: removingMember.userId,
+              memberId: removingMember.id,
+            })
         )
       })
       .finally(() => {
@@ -702,13 +745,11 @@ function RemoveMemberDialog({
         </TooltipTrigger>
         {!canRemoveMembers && (
           <TooltipContent>
-            You don&rsquo;t have permission to remove members.
+            {t("tooltip.noPermissionRemoveMember")}
           </TooltipContent>
         )}
         {isOwner && (
-          <TooltipContent>
-            The owner can&rsquo;t be removed from the project.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.ownerCannotBeRemoved")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -717,26 +758,25 @@ function RemoveMemberDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove member?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.removeMember.title", {
+                userName: removingMember?.user.name ?? "",
+                memberId: removingMember?.id ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently remove the
-              member{" "}
-              <span className="font-mono">
-                {removingMember?.user.name} (
-                {removingMember?.user.id.slice(0, 8)})
-              </span>
-              .
+              {t("dialog.removeMember.description", {
+                userName: removingMember?.user.name ?? "",
+                memberId: removingMember?.id ?? "",
+              })}
             </AlertDialogDescription>
 
             {removingMember?.user.id === user?.id && (
               <Alert className="mt-4 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                 <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                <AlertTitle>Removing Own Membership</AlertTitle>
+                <AlertTitle>{t("alert.removeOwnMembership.title")}</AlertTitle>
                 <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                  You are about to remove your own membership from this project.
-                  This will result in losing access to the project and all its
-                  resources. You will need to be re-invited by another member to
-                  regain access. Please proceed with caution.
+                  {t("alert.removeOwnMembership.description")}
                 </AlertDescription>
               </Alert>
             )}
@@ -748,7 +788,7 @@ function RemoveMemberDialog({
               disabled={loading}
               onClick={() => setRemovingMember(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -763,12 +803,12 @@ function RemoveMemberDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Removing member...
+                  {t("dialog.removingMember")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Remove Member
+                  {t("dialog.removeMember")}
                 </>
               )}
             </Button>

@@ -24,12 +24,15 @@ import { getProjects } from "@/actions/projects"
 import { accountNavigationItems } from "@/components/dashboard/navigation-items"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 export default function AppHeader({
   projects,
 }: {
   projects: Awaited<ReturnType<typeof getProjects>>
 }) {
+  const t = useTranslations("AppHeader")
+
   const router = useRouter()
   const { session, user } = useSession()
 
@@ -67,16 +70,16 @@ export default function AppHeader({
 
   const handleSignOut = async (event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Signed out successfully")
+          toast.success(t("toast.signOutSuccess"))
           router.push("/")
         },
         onError: ({ error }) => {
-          toast.error(error?.message || "Unable to sign out. Please try again.")
+          toast.error(error?.message || t("toast.signOutFailed"))
           setLoading(false)
         },
       },
@@ -85,20 +88,18 @@ export default function AppHeader({
 
   const handleStopImpersonation = async (event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.admin.stopImpersonating({
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Stopped impersonation successfully")
+          toast.success(t("toast.stopImpersonationSuccess"))
           setLoading(false)
           router.push("/admin/users")
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Unable to stop impersonation. Please try again."
-          )
+          toast.error(error?.message || t("toast.stopImpersonationFailed"))
           setLoading(false)
         },
       },
@@ -112,7 +113,7 @@ export default function AppHeader({
         <div ref={searchContainerRef} className="relative w-full max-w-md">
           <InputGroup>
             <InputGroupInput
-              placeholder="Search projects by name or ID..."
+              placeholder={t("input.searchPlaceholder")}
               value={searchQuery}
               disabled={loading || projects.length === 0}
               onChange={({ target: { value } }) => setSearchQuery(value)}
@@ -144,7 +145,9 @@ export default function AppHeader({
                   ))
                 ) : (
                   <div className="px-3 py-2 text-sm text-muted-foreground">
-                    No projects found matching your search.
+                    {t("input.noProjectsFound", {
+                      query: normalizedSearchQuery,
+                    })}
                   </div>
                 )}
               </div>
@@ -179,7 +182,9 @@ export default function AppHeader({
 
           <DropdownMenuContent align="start" className="min-w-fit">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>Your Account</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {t("dropdown.accountLabel")}
+              </DropdownMenuLabel>
               {accountNavigationItems.map(({ name, icon: Icon, href }) => (
                 <DropdownMenuItem
                   key={name}
@@ -210,12 +215,12 @@ export default function AppHeader({
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" aria-hidden />
-                      Stopping impersonation...
+                      {t("dropdown.stoppingImpersonation")}
                     </>
                   ) : (
                     <>
                       <UserCog2Icon className="h-4 w-4" aria-hidden />
-                      Stop Impersonation
+                      {t("dropdown.stopImpersonation")}
                     </>
                   )}
                 </DropdownMenuItem>
@@ -232,12 +237,12 @@ export default function AppHeader({
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" aria-hidden />
-                      Signing out...
+                      {t("dropdown.signingOut")}
                     </>
                   ) : (
                     <>
                       <LogOutIcon className="h-4 w-4" aria-hidden />
-                      Sign Out
+                      {t("dropdown.signOut")}
                     </>
                   )}
                 </DropdownMenuItem>

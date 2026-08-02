@@ -17,6 +17,7 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { Account } from "better-auth"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import {
   useState,
@@ -33,6 +34,8 @@ export default function ConnectionsCard({
   accounts: Account[]
   enabledProviders: string[]
 }) {
+  const t = useTranslations("ConnectionsCard")
+
   const [loading, setLoading] = useState(false)
 
   function isProviderEnabled(provider: string) {
@@ -47,7 +50,7 @@ export default function ConnectionsCard({
     <Card className="w-full max-w-2xl">
       <ProviderCardContent
         name="google"
-        displayName="Google"
+        displayName={t("providers.google")}
         enabled={isProviderEnabled("google")}
         connected={isProviderConnected("google")}
         Icon={GoogleIcon}
@@ -57,7 +60,7 @@ export default function ConnectionsCard({
       <Separator />
       <ProviderCardContent
         name="github"
-        displayName="GitHub"
+        displayName={t("providers.github")}
         enabled={isProviderEnabled("github")}
         connected={isProviderConnected("github")}
         Icon={GitHubIcon}
@@ -67,7 +70,7 @@ export default function ConnectionsCard({
       <Separator />
       <ProviderCardContent
         name="discord"
-        displayName="Discord"
+        displayName={t("providers.discord")}
         enabled={isProviderEnabled("discord")}
         connected={isProviderConnected("discord")}
         Icon={DiscordIcon}
@@ -95,22 +98,26 @@ function ProviderCardContent({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
+  const t = useTranslations("ConnectionsCard")
   const router = useRouter()
 
   const handleLink = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.linkSocial({
       provider: name,
       callbackURL: `${window.location.origin}/account/connections`,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`Redirecting to ${displayName} for verification...`)
+          toast.success(t("toast.requestSent", { provider: displayName }))
         },
         onError: ({ error }) => {
           toast.error(
-            `Unable to link ${displayName} account. ${`(${error?.message})` || "Please try again."}`
+            t("toast.requestFailed", {
+              provider: displayName,
+              message: error?.message || t("toast.tryAgain"),
+            })
           )
           setLoading(false)
         },
@@ -120,19 +127,22 @@ function ProviderCardContent({
 
   const handleUnlink = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.unlinkAccount({
       providerId: name.toLowerCase(),
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`${displayName} account unlinked successfully.`)
+          toast.success(t("toast.unlinkSuccess", { provider: displayName }))
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
-            `Unable to unlink ${displayName} account. ${`(${error?.message})` || "Please try again."}`
+            t("toast.unlinkFailed", {
+              provider: displayName,
+              message: error?.message || t("toast.tryAgain"),
+            })
           )
           setLoading(false)
         },
@@ -148,7 +158,7 @@ function ProviderCardContent({
           <CardTitle>{displayName}</CardTitle>
 
           <CardDescription className="flex items-center gap-1 text-xs">
-            <span>Status:</span>
+            <span>{t("card.status")}:</span>
             <span
               className={cn(
                 !enabled
@@ -159,10 +169,10 @@ function ProviderCardContent({
               )}
             >
               {!enabled
-                ? "Not configured"
+                ? t("card.notConfigured")
                 : connected
-                  ? "Connected"
-                  : "Not connected"}
+                  ? t("card.connected")
+                  : t("card.notConnected")}
             </span>
           </CardDescription>
         </div>
@@ -174,14 +184,13 @@ function ProviderCardContent({
             <TooltipTrigger asChild className="cursor-not-allowed">
               <span className="inline-flex">
                 <Button variant="outline" size="sm" disabled>
-                  Link
+                  {t("button.link")}
                 </Button>
               </span>
             </TooltipTrigger>
 
             <TooltipContent>
-              {displayName} login is not configured. Please contact your
-              administrator.
+              {t("tooltip.notConfigured", { provider: displayName })}
             </TooltipContent>
           </Tooltip>
         ) : connected ? (
@@ -191,7 +200,7 @@ function ProviderCardContent({
             disabled={loading}
             onClick={handleUnlink}
           >
-            Unlink
+            {t("button.unlink")}
           </Button>
         ) : (
           <Button
@@ -200,7 +209,7 @@ function ProviderCardContent({
             disabled={loading}
             onClick={handleLink}
           >
-            Link
+            {t("button.link")}
           </Button>
         )}
       </div>

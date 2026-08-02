@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
 import { createElement, useMemo, useState } from "react"
 import { getAllFlagCodes, getFlag } from "@/lib/project-utils"
+import { useFormatter, useTranslations } from "next-intl"
 
 const allFlagCodes = getAllFlagCodes()
 
@@ -43,6 +44,9 @@ export default function FlagPickerField({
   onChange: (value: string) => void
   disabled?: boolean
 }) {
+  const t = useTranslations("FlagPickerField")
+  const format = useFormatter()
+
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -93,7 +97,7 @@ export default function FlagPickerField({
           <span className="flex min-w-0 items-center gap-3">
             {selectedPreview}
             <span className="truncate">
-              {value ? getFlagLabel(value.toUpperCase()) : "Select a flag"}
+              {value ? getFlagLabel(value.toUpperCase()) : t("placeholder")}
             </span>
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -112,7 +116,7 @@ export default function FlagPickerField({
               onChange={({ target: { value: nextValue } }) =>
                 setSearchQuery(nextValue)
               }
-              placeholder="Search flags by name or code..."
+              placeholder={t("input.searchPlaceholder")}
               className="pr-9 pl-9"
               autoComplete="off"
             />
@@ -131,7 +135,11 @@ export default function FlagPickerField({
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filteredFlagCodes.length.toLocaleString()} flags</span>
+            <span>
+              {t("searchAmount", {
+                count: format.number(filteredFlagCodes.length),
+              })}
+            </span>
             {value ? (
               <Button
                 type="button"
@@ -140,7 +148,7 @@ export default function FlagPickerField({
                 className="h-7 px-2 text-xs"
                 onClick={() => selectFlag("")}
               >
-                Clear selection
+                {t("button.clearSelection")}
               </Button>
             ) : null}
           </div>
@@ -158,7 +166,11 @@ export default function FlagPickerField({
                 <span className="flex h-8 w-12 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
                   <XIcon className="h-4 w-4" aria-hidden="true" />
                 </span>
-                <span className="min-w-0 flex-1 truncate">None</span>
+
+                <span className="min-w-0 flex-1 truncate">
+                  {t("button.none")}
+                </span>
+
                 {!value ? (
                   <CheckIcon
                     className="h-4 w-4 shrink-0 text-foreground"
@@ -188,9 +200,11 @@ export default function FlagPickerField({
                           <span className="text-sm">{code}</span>
                         )}
                       </span>
+
                       <span className="min-w-0 flex-1 truncate">
                         {getFlagLabel(code)}
                       </span>
+
                       {selectedFlag ? (
                         <CheckIcon
                           className="h-4 w-4 shrink-0 text-foreground"
@@ -202,7 +216,9 @@ export default function FlagPickerField({
                 })
               ) : (
                 <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  No flags found.
+                  {t("noFlagsFound", {
+                    query: searchQuery,
+                  })}
                 </div>
               )}
             </div>

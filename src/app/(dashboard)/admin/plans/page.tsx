@@ -1,14 +1,20 @@
 import { getPlans } from "@/actions/plans"
 import CreatePlanDialog from "@/components/dashboard/admin/plans/CreatePlanDialog"
 import PlanPresetsDialog from "@/components/dashboard/admin/plans/PlanPresetsDialog"
-import PlansTable from "@/components/dashboard/admin/plans/PlansTable"
+import AdminPlansTable from "@/components/dashboard/admin/plans/PlansTable"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Plans",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("AdminPlansPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function AdminPlansPage() {
+  const t = await getTranslations("AdminPlansPage")
+
   const plans = await getPlans()
   const existsDefaultPlan = plans.some((plan) => plan.default)
 
@@ -16,10 +22,8 @@ export default async function AdminPlansPage() {
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">Plans</h1>
-          <p className="text-muted-foreground">
-            View and manage all plans in the system.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
 
         <div className="flex gap-2">
@@ -29,7 +33,7 @@ export default async function AdminPlansPage() {
       </div>
 
       <div>
-        <PlansTable plans={plans} existsDefaultPlan={existsDefaultPlan} />
+        <AdminPlansTable plans={plans} existsDefaultPlan={existsDefaultPlan} />
       </div>
     </div>
   )

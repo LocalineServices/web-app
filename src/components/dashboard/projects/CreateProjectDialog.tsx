@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Plan } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
@@ -34,6 +35,9 @@ export default function CreateProjectDialog({
   defaultPlan: Plan | null
 }) {
   const router = useRouter()
+  const t = useTranslations("CreateProjectDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -54,12 +58,17 @@ export default function CreateProjectDialog({
       planId: defaultPlan?.id || "",
     })
       .then((project) => {
-        toast.success(`Created project ${name} (${project.id.slice(0, 8)}).`)
+        toast.success(
+          t("toast.creationSuccess", {
+            projectName: project.name,
+            projectId: project.id,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to create project. Please try again."
+          error?.message || t("toast.creationFailed", { projectName: name })
         )
       })
       .finally(() => {
@@ -91,7 +100,7 @@ export default function CreateProjectDialog({
                 disabled={!canCreateProject || !defaultPlan || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                New Project
+                {t("button.createProject")}
               </Button>
             </DialogTrigger>
           </span>
@@ -99,32 +108,35 @@ export default function CreateProjectDialog({
         {!canCreateProject ? (
           <TooltipContent>
             {projectLimit === 0
-              ? "The project limit for your account is currently set to 0."
-              : `You have reached your project limit (${projectCount}/${projectLimit})`}
+              ? t("tooltip.limitZero")
+              : t("tooltip.limitExceeded", {
+                  current: format.number(projectCount),
+                  limit: format.number(projectLimit),
+                })}
           </TooltipContent>
         ) : (
           !defaultPlan && (
-            <TooltipContent>
-              No default plan found. Please contact your administrator.
-            </TooltipContent>
+            <TooltipContent>{t("tooltip.noDefaultPlan")}</TooltipContent>
           )
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new project</DialogTitle>
+          <DialogTitle>{t("dialog.createProject.title")}</DialogTitle>
           <DialogDescription>
-            Add a new translation project to your workspace.
+            {t("dialog.createProject.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="projectName">Project name</Label>
+            <Label htmlFor="projectName">
+              {t("dialog.createProject.nameLabel")}
+            </Label>
             <Input
               id="projectName"
-              placeholder="My Project"
+              placeholder={t("dialog.createProject.namePlaceholder")}
               value={name}
               minLength={1}
               maxLength={32}
@@ -134,10 +146,12 @@ export default function CreateProjectDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="projectDescription">Description (optional)</Label>
+            <Label htmlFor="projectDescription">
+              {t("dialog.createProject.descriptionLabel")}
+            </Label>
             <Input
               id="projectDescription"
-              placeholder="A brief description of your project"
+              placeholder={t("dialog.createProject.descriptionPlaceholder")}
               value={description ?? ""}
               minLength={1}
               maxLength={255}
@@ -156,7 +170,7 @@ export default function CreateProjectDialog({
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -167,12 +181,12 @@ export default function CreateProjectDialog({
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Creating...
+                {t("dialog.createProject.creatingProject")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Create Project
+                {t("dialog.createProject.createProject")}
               </>
             )}
           </Button>

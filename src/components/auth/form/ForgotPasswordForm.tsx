@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function ForgotPasswordForm() {
+  const t = useTranslations("ForgotPasswordForm")
+
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
 
@@ -22,14 +25,15 @@ export default function ForgotPasswordForm() {
       email,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Password reset email sent. Please check your email.")
+          toast.success(
+            t("toast.resetLinkSentSuccess", {
+              email,
+            })
+          )
           redirect("/auth/signin")
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message ||
-              "Unable to send password reset email. Please check your email."
-          )
+          toast.error(error?.message || t("toast.resetLinkSentFailed"))
           setLoading(false)
         },
       },
@@ -40,16 +44,13 @@ export default function ForgotPasswordForm() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="mb-4 text-2xl font-bold">Forgot Password</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your email address and we&rsquo;ll send you a link to reset your
-          password.
-        </p>
+        <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-1">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("emailLabel")}</Label>
           <Input
             id="email"
             type="email"
@@ -66,14 +67,14 @@ export default function ForgotPasswordForm() {
           disabled={loading}
         >
           {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
-          Send Reset Link
+          {t("button.submit")}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Remember your password?{" "}
+        {t("footer.backToSignIn")}{" "}
         <Link href="/auth/signin" className="text-primary underline">
-          Sign in
+          {t("footer.signIn")}
         </Link>
       </p>
     </>

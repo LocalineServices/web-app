@@ -37,6 +37,7 @@ import TablePagination from "@/components/dashboard/TablePagination"
 import { FullProject } from "@/types/project"
 import { generateRoleBadge } from "@/lib/project-utils"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 interface ProjectsListProps {
   projects: FullProject[]
@@ -69,6 +70,8 @@ export default function ProjectsList({
   projects: FullProject[]
   defaultPlan: Plan | null
 }) {
+  const t = useTranslations("ProjectsList")
+
   const [view, setView] = useState<"table" | "cards">("table")
   const [page, setPage] = useState<number>(1)
 
@@ -94,11 +97,10 @@ export default function ProjectsList({
             <FolderCodeIcon />
           </EmptyMedia>
 
-          <EmptyTitle>No Projects Yet</EmptyTitle>
+          <EmptyTitle>{t("empty.title")}</EmptyTitle>
 
           <EmptyDescription className="grid gap-2">
-            You haven&apos;t created any projects yet. Get started by creating
-            your first project.
+            {t("empty.description")}
           </EmptyDescription>
         </EmptyHeader>
 
@@ -126,8 +128,12 @@ export default function ProjectsList({
             }}
             className="ml-2"
           >
-            <ToggleGroupItem value="table">Table</ToggleGroupItem>
-            <ToggleGroupItem value="cards">Cards</ToggleGroupItem>
+            <ToggleGroupItem value="table">
+              {t("toggleGroup.tableView")}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="cards">
+              {t("toggleGroup.cardView")}
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>
@@ -143,6 +149,7 @@ export default function ProjectsList({
 
 export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
   const router = useRouter()
+  const t = useTranslations("ProjectsList.cards")
 
   const total = projects.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_CARDS))
@@ -169,7 +176,7 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
                       !description && "text-muted-foreground italic"
                     )}
                   >
-                    {description ?? "No description."}
+                    {description ?? t("noDescription")}
                   </CardDescription>
                 </div>
 
@@ -191,7 +198,7 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
 
               <CardContent>
                 <div className="text-xs text-muted-foreground">
-                  ID: {id.slice(0, 8)}
+                  {t("id", { projectId: id.slice(0, 8) })}
                 </div>
               </CardContent>
             </Card>
@@ -212,6 +219,7 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
 }
 
 export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
+  const t = useTranslations("ProjectsList.table")
   const { user } = useSession()
 
   const total = projects.length
@@ -228,12 +236,16 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-center">Role</TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("header.id")}
+              </TableHead>
+              <TableHead>{t("header.name")}</TableHead>
+              <TableHead>{t("header.description")}</TableHead>
+              <TableHead className="text-center">{t("header.role")}</TableHead>
+              <TableHead>{t("header.plan")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -271,7 +283,7 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
                           !description && "text-muted-foreground italic"
                         )}
                       >
-                        {description ?? "None"}
+                        {description ?? t("noDescription")}
                       </Link>
                     </TableCell>
 

@@ -24,6 +24,7 @@ model User {
   banReason       String?   @db.Text
   banExpires      DateTime?
   lastLoginMethod String?   @db.Text
+  locale          String    @default("en_US") @db.Text
   projectsLimit   Int       @default(5)
   sessions        Session[]
   accounts        Account[]

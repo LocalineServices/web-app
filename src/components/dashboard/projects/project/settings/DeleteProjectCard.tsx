@@ -32,12 +32,15 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { TrashIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function DeleteProjectCard() {
   const router = useRouter()
+  const t = useTranslations("DeleteProjectCard")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -61,13 +64,20 @@ export default function DeleteProjectCard() {
     await deleteProject(project)
       .then(() => {
         toast.success(
-          `Deleted project ${project.name} (${project.id.slice(0, 8)}).`
+          t("toast.deleteSuccess", {
+            projectName: project.name,
+            projectId: project.id,
+          })
         )
         router.push("/projects")
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to delete project. Please try again."
+          error?.message ||
+            t("toast.deleteFailed", {
+              projectName: project.name,
+              projectId: project.id,
+            })
         )
       })
       .finally(() => {
@@ -79,11 +89,8 @@ export default function DeleteProjectCard() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Delete Project</CardTitle>
-        <CardDescription>
-          Once you delete your project, there is no going back. Deleting your
-          project will remove all attached data from the system.
-        </CardDescription>
+        <CardTitle>{t("card.title")}</CardTitle>
+        <CardDescription>{t("card.description")}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -102,15 +109,13 @@ export default function DeleteProjectCard() {
                     disabled={loading || !canDeleteProject}
                   >
                     <TrashIcon className="me-1" />
-                    Delete Project
+                    {t("button.deleteProject")}
                   </Button>
                 </AlertDialogTrigger>
               </span>
             </TooltipTrigger>
             {!canDeleteProject && (
-              <TooltipContent>
-                Only the project owner can delete this project.
-              </TooltipContent>
+              <TooltipContent>{t("tooltip.noPermissionDelete")}</TooltipContent>
             )}
           </Tooltip>
 
@@ -119,10 +124,17 @@ export default function DeleteProjectCard() {
 
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t("dialog.deleteProject.title", {
+                    projectName: project.name,
+                    projectId: project.id,
+                  })}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your project and remove your data from the system.
+                  {t("dialog.deleteProject.description", {
+                    projectName: project.name,
+                    projectId: project.id,
+                  })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -132,7 +144,7 @@ export default function DeleteProjectCard() {
                   onClick={() => setDialogOpen(false)}
                   disabled={loading}
                 >
-                  Cancel
+                  {t("dialog.cancel")}
                 </AlertDialogCancel>
 
                 <Button
@@ -143,12 +155,12 @@ export default function DeleteProjectCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Deleting project...
+                      {t("dialog.deleteProject.deletingProject")}
                     </>
                   ) : (
                     <>
                       <TrashIcon className="h-4 w-4" />
-                      Delete project
+                      {t("dialog.deleteProject.deleteProject")}
                     </>
                   )}
                 </Button>

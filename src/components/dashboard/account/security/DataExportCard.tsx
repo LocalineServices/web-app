@@ -10,10 +10,13 @@ import {
 } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { RefreshCcwIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function DataExportCard() {
+  const t = useTranslations("DataExportCard")
+
   const [loading, setLoading] = useState(false)
 
   const handleDataExport = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -21,9 +24,7 @@ export default function DataExportCard() {
     setLoading(true)
 
     setTimeout(() => {
-      toast.success(
-        "Data export request submitted successfully. You will receive an email with the download link once it's ready."
-      )
+      toast.success(t("toast.dataExportSuccess"))
       setLoading(false)
     }, 2000)
   }
@@ -32,14 +33,12 @@ export default function DataExportCard() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>
-          Data Export
+          {t("card.title")}
           <span className="ml-1 rounded-md bg-muted px-1 text-xs text-muted-foreground">
             Coming soon
           </span>
         </CardTitle>
-        <CardDescription>
-          Request a copy of all your personal data that we have collected.
-        </CardDescription>
+        <CardDescription>{t("card.description")}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -51,12 +50,12 @@ export default function DataExportCard() {
           {loading ? (
             <>
               <Spinner className="me-1" />
-              Requesting Data Export...
+              {t("button.exportingData")}
             </>
           ) : (
             <>
               <RefreshCcwIcon className="me-1" />
-              Request Data Export
+              {t("button.exportData")}
             </>
           )}
         </Button>

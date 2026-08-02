@@ -10,6 +10,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { AlertTriangleIcon, HomeIcon, LogInIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 
 export function AccessDeniedPage({
@@ -17,6 +18,8 @@ export function AccessDeniedPage({
 }: {
   isAuthenticated: boolean
 }) {
+  const t = useTranslations("AccessDeniedPage")
+
   return (
     <div className="flex min-h-full flex-col">
       <Empty>
@@ -25,10 +28,10 @@ export function AccessDeniedPage({
             <AlertTriangleIcon />
           </EmptyMedia>
 
-          <EmptyTitle className="text-4xl">Access Denied</EmptyTitle>
+          <EmptyTitle className="text-4xl">{t("title")}</EmptyTitle>
 
           <EmptyDescription className="text-lg">
-            You don&apos;t have permission to access this resource.
+            {t("description")}
           </EmptyDescription>
         </EmptyHeader>
 
@@ -37,14 +40,14 @@ export function AccessDeniedPage({
             <Button asChild size="lg">
               <Link href="/">
                 <HomeIcon className="mr-2 h-5 w-5" />
-                Go back to dashboard
+                {t("button.goToDashboard")}
               </Link>
             </Button>
           ) : (
             <Button asChild variant="outline" size="lg">
               <Link href="/auth/signin">
                 <LogInIcon className="mr-2 h-5 w-5" />
-                Sign into your account
+                {t("button.signIn")}
               </Link>
             </Button>
           )}

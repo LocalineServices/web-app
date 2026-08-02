@@ -2,13 +2,19 @@ import ProfileDetailsCard from "@/components/dashboard/account/ProfileDetailsCar
 import ProfileInformationCard from "@/components/dashboard/account/ProfileInformatioCard"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { headers } from "next/headers"
 
-export const metadata: Metadata = {
-  title: "Public Profile",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("PublicProfilePage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function PublicProfilePage() {
+  const t = await getTranslations("PublicProfilePage")
+
   const accounts = await auth.api.listUserAccounts({
     headers: await headers(),
   })
@@ -20,11 +26,8 @@ export default async function PublicProfilePage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full gap-4 space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Public Profile</h1>
-        <p className="text-muted-foreground">
-          Manage your public profile information. You can also see details about
-          your account.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">

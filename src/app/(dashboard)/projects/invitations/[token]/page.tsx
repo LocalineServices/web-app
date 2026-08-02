@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/empty"
 import { AlertTriangleIcon, CalendarClockIcon, HomeIcon } from "lucide-react"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import Link from "next/link"
 
 export async function generateMetadata({
@@ -20,17 +21,19 @@ export async function generateMetadata({
   params: Promise<{ token: string }>
 }): Promise<Metadata> {
   const { token } = await params
+  const t = await getTranslations("InvitationPage")
+
   const invitation = await getProjectInvitation(token)
 
   if (!invitation) {
     return {
-      title: "Invitation",
+      title: t("metadata.titleNotFound"),
       robots: "noindex",
     }
   }
 
   return {
-    title: `Invited to ${invitation.project.name} | Localine`,
+    title: t("metadata.title", { projectName: invitation.project.name }),
     robots: "noindex",
   }
 }
@@ -41,6 +44,8 @@ export default async function InvitationsPage({
   params: Promise<{ token: string }>
 }) {
   const { token } = await params
+  const t = await getTranslations("InvitationPage")
+
   const invitation = await getProjectInvitation(token)
 
   if (!invitation) {
@@ -52,10 +57,12 @@ export default async function InvitationsPage({
               <AlertTriangleIcon />
             </EmptyMedia>
 
-            <EmptyTitle className="text-4xl">Invitation Not Found</EmptyTitle>
+            <EmptyTitle className="text-4xl">
+              {t("empty.notFound.title")}
+            </EmptyTitle>
 
             <EmptyDescription className="text-lg">
-              The invitation you are looking for does not exist.
+              {t("empty.notFound.description")}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -63,7 +70,7 @@ export default async function InvitationsPage({
             <Button asChild size="lg">
               <Link href="/">
                 <HomeIcon className="mr-2 h-5 w-5" />
-                Go back to dashboard
+                {t("empty.button.goToDashboard")}
               </Link>
             </Button>
           </EmptyContent>
@@ -81,10 +88,22 @@ export default async function InvitationsPage({
               <CalendarClockIcon />
             </EmptyMedia>
 
-            <EmptyTitle className="text-4xl">Invitation Expired</EmptyTitle>
+            <EmptyTitle className="text-4xl">
+              {t("empty.expired.title", {
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
+            </EmptyTitle>
 
             <EmptyDescription className="text-lg">
-              This invitation has expired and can no longer be accepted.
+              {t("empty.expired.description", {
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -92,7 +111,7 @@ export default async function InvitationsPage({
             <Button asChild size="lg">
               <Link href="/">
                 <HomeIcon className="mr-2 h-5 w-5" />
-                Go back to dashboard
+                {t("empty.button.goToDashboard")}
               </Link>
             </Button>
           </EmptyContent>
@@ -109,12 +128,21 @@ export default async function InvitationsPage({
         <div className="w-full space-y-6">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
-              You have been invited to {invitation.project.name}
+              {t("title", {
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
             </h1>
 
             <p className="mx-auto mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
-              Review the project details, confirm the access role you will get,
-              and check the invitation timeline before accepting.
+              {t("description", {
+                projectName: invitation.project.name,
+                projectId: invitation.project.id,
+                roleName: invitation.role.name,
+                roleId: invitation.role.id,
+              })}
             </p>
           </div>
 

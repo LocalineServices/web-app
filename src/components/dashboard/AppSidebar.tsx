@@ -48,6 +48,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useTranslations } from "next-intl"
 
 const isActive = (pathname: string, href: string, matchSubRoutes = false) => {
   if (!pathname) return false
@@ -154,6 +155,7 @@ function InvitationsMenu({
   isExpanded: boolean
   handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
+  const t = useTranslations("AppSidebar")
   const pathname = usePathname()
 
   const [invitations, setInvitations] = useState<ProjectInvitation[]>([])
@@ -195,7 +197,7 @@ function InvitationsMenu({
                       onClick={handleLinkClick}
                     >
                       <SendIcon className="h-4 w-4" />
-                      <span>Invitations</span>
+                      <span>{t("sidebar.invitations")}</span>
                       <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
                         {invitations.length}
                       </span>
@@ -205,7 +207,7 @@ function InvitationsMenu({
 
                 {!isExpanded && (
                   <TooltipContent side="right">
-                    Invitations ({invitations.length})
+                    {t("tooltip.invitations", { count: invitations.length })}
                   </TooltipContent>
                 )}
               </Tooltip>
@@ -224,7 +226,9 @@ function AccountMenu({
   isExpanded: boolean
   handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
+  const t = useTranslations("AppSidebar")
   const pathname = usePathname()
+
   const isAccountPage = accountNavigationItems.some(({ href }) =>
     isActive(pathname, href)
   )
@@ -233,7 +237,9 @@ function AccountMenu({
     <>
       {isAccountPage && (
         <SidebarGroup>
-          {isExpanded && <SidebarGroupLabel>Your Account</SidebarGroupLabel>}
+          {isExpanded && (
+            <SidebarGroupLabel>{t("sidebar.accountLabel")}</SidebarGroupLabel>
+          )}
 
           <SidebarMenu>
             {accountNavigationItems.map(({ name, icon: Icon, href }) => (
@@ -277,6 +283,7 @@ function ProjectMenu({
   isExpanded: boolean
   handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
+  const t = useTranslations("AppSidebar")
   const pathname = usePathname()
 
   const [project, setProject] = useState<Project | null>(null)
@@ -377,7 +384,7 @@ function ProjectMenu({
                       )}
                     >
                       <CogIcon className="h-4 w-4" />
-                      Settings
+                      {t("sidebar.projectSettings")}
                       <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -433,7 +440,7 @@ function ProjectMenu({
                       )}
                     >
                       <CogIcon className="h-4 w-4" />
-                      <span>Settings</span>
+                      <span>{t("sidebar.projectSettings")}</span>
                     </SidebarMenuButton>
                   </HoverCardTrigger>
 
@@ -443,7 +450,7 @@ function ProjectMenu({
                     className="w-auto"
                   >
                     <h2 className="mb-2 text-sm font-semibold">
-                      Project Settings
+                      {t("sidebar.projectSettings")}
                     </h2>
 
                     <div className="flex flex-col gap-1">
@@ -489,6 +496,7 @@ function AdminMenu({
   isExpanded: boolean
   handleLinkClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
 }) {
+  const t = useTranslations("AppSidebar")
   const pathname = usePathname()
 
   const [canAccessAdmin, setCanAccessAdmin] = useState(false)
@@ -515,7 +523,11 @@ function AdminMenu({
     <>
       {canAccessAdmin && (
         <SidebarGroup>
-          {isExpanded && <SidebarGroupLabel>Administration</SidebarGroupLabel>}
+          {isExpanded && (
+            <SidebarGroupLabel>
+              {t("sidebar.administrationLabel")}
+            </SidebarGroupLabel>
+          )}
 
           <SidebarMenu>
             {adminNavigationItems.map(({ name, icon: Icon, href }) => (
@@ -540,7 +552,9 @@ function AdminMenu({
                   </TooltipTrigger>
 
                   {!isExpanded && (
-                    <TooltipContent side="right">{name} (Admin)</TooltipContent>
+                    <TooltipContent side="right">
+                      {t("tooltip.administration", { name })}
+                    </TooltipContent>
                   )}
                 </Tooltip>
               </SidebarMenuItem>

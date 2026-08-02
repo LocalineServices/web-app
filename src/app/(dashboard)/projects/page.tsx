@@ -3,12 +3,18 @@ import { getProjects } from "@/actions/projects"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import ProjectsList from "@/components/dashboard/projects/ProjectsList"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Projects",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("ProjectsPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function ProjectsPage() {
+  const t = await getTranslations("ProjectsPage")
+
   const [projects, defaultPlan] = await Promise.all([
     getProjects({
       includeAll: false,
@@ -20,11 +26,8 @@ export default async function ProjectsPage() {
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">Projects</h1>
-          <p className="text-muted-foreground">
-            Select a project you&rsquo;re a part of, or create a new one to get
-            started.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
 
         <div>

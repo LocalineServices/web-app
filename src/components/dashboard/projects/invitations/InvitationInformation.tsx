@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { generateRoleBadge } from "@/lib/project-utils"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { ProjectInvitationWithProjectAndRole } from "@/types/project"
 import { CalendarIcon, CheckIcon, HashIcon, XIcon } from "lucide-react"
 import { ProjectInvitation } from "@prisma/client"
@@ -15,25 +15,29 @@ import {
 } from "@/actions/project-invitations"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function InvitationInformation({
   invitation,
 }: {
   invitation: ProjectInvitationWithProjectAndRole
 }) {
+  const t = useTranslations("InvitationInformation")
+  const format = useFormatter()
+
   const [loading, setLoading] = useState(false)
 
   return (
     <Card className="gap-0 border-border/60 bg-card/80 py-0 shadow-2xl shadow-black/5 backdrop-blur">
       <CardHeader className="space-y-4 border-b border-border/60 bg-muted/30 px-6 py-6 sm:px-8">
         <CardTitle className="text-2xl leading-none">
-          {invitation.project.name}
+          {t("card.header.title", { projectName: invitation.project.name })}
         </CardTitle>
 
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <HashIcon className="h-4 w-4" />
-            Project ID:{" "}
+            {t("card.header.projectId")}{" "}
             <span className="font-medium text-foreground">
               {invitation.project.id.slice(0, 8)}
             </span>
@@ -43,9 +47,12 @@ export default function InvitationInformation({
 
           <span className="inline-flex items-center gap-1.5">
             <CalendarIcon className="h-4 w-4" />
-            Invited:{" "}
+            {t("card.header.invitedOn")}{" "}
             <span className="font-medium text-foreground">
-              {formatDate(invitation.createdAt)}
+              {format.dateTime(invitation.createdAt, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
             </span>
           </span>
         </div>
@@ -56,7 +63,7 @@ export default function InvitationInformation({
           <section className="space-y-4">
             <div>
               <p className="text-sm font-medium tracking-[0.2em] text-muted-foreground uppercase">
-                Description
+                {t("card.content.description")}
               </p>
               <p
                 className={cn(
@@ -65,7 +72,7 @@ export default function InvitationInformation({
                 )}
               >
                 {invitation.project.description?.trim() ||
-                  "This project does not have a description."}
+                  t("card.content.noDescription")}
               </p>
             </div>
           </section>
@@ -73,19 +80,23 @@ export default function InvitationInformation({
           <aside className="space-y-4 rounded-2xl border border-border/60 bg-background/80 p-4 lg:col-start-2">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">
-                Invitation details
+                {t("card.content.aside.title")}
               </h3>
 
               <dl className="mt-4 space-y-4 text-sm">
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-muted-foreground">Project name</dt>
+                  <dt className="text-muted-foreground">
+                    {t("card.content.aside.projectName")}
+                  </dt>
                   <dd className="text-right font-medium text-foreground">
                     {invitation.project.name}
                   </dd>
                 </div>
 
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-muted-foreground">Your role</dt>
+                  <dt className="text-muted-foreground">
+                    {t("card.content.aside.role")}
+                  </dt>
                   <dd className="text-right font-medium text-foreground">
                     {generateRoleBadge(
                       invitation.role.name,
@@ -96,16 +107,26 @@ export default function InvitationInformation({
                 </div>
 
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-muted-foreground">Invited on</dt>
+                  <dt className="text-muted-foreground">
+                    {t("card.content.aside.invitedOn")}
+                  </dt>
                   <dd className="text-right font-medium text-foreground">
-                    {formatDate(invitation.createdAt)}
+                    {format.dateTime(invitation.createdAt, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
                   </dd>
                 </div>
 
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-muted-foreground">Expires on</dt>
+                  <dt className="text-muted-foreground">
+                    {t("card.content.aside.expiresOn")}
+                  </dt>
                   <dd className="text-right font-medium text-foreground">
-                    {formatDate(invitation.expiresAt)}
+                    {format.dateTime(invitation.expiresAt, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
                   </dd>
                 </div>
               </dl>
@@ -140,6 +161,7 @@ function AcceptInvitationButton({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("InvitationInformation")
 
   const handleAcceptInvitation = async (
     event: MouseEvent<HTMLButtonElement>
@@ -150,16 +172,17 @@ function AcceptInvitationButton({
     await acceptProjectInvitation({ token: invitation.token })
       .then(([invitation]) => {
         toast.success(
-          `You have accepted the invitation to join ${invitation.project.name}.`
+          t("toast.acceptSuccess", {
+            projectName: invitation.project.name,
+            projectId: invitation.project.id.slice(0, 8),
+          })
         )
 
         router.refresh()
         router.push(`/projects/${invitation.project.id}`)
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to accept invitation. Please try again."
-        )
+        toast.error(error?.message || t("toast.acceptFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -174,7 +197,7 @@ function AcceptInvitationButton({
       onClick={handleAcceptInvitation}
     >
       <CheckIcon className="h-4 w-4" />
-      Accept Invitation
+      {t("button.accept")}
     </Button>
   )
 }
@@ -189,6 +212,7 @@ function DeclineInvitationButton({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("InvitationInformation")
 
   const handleDeclineInvitation = async (
     event: MouseEvent<HTMLButtonElement>
@@ -199,15 +223,16 @@ function DeclineInvitationButton({
     await declineProjectInvitation({ token: invitation.token })
       .then((invitation) => {
         toast.success(
-          `You have declined the invitation to join ${invitation.project.name}.`
+          t("toast.declineSuccess", {
+            projectName: invitation.project.name,
+            projectId: invitation.project.id.slice(0, 8),
+          })
         )
 
         router.push("/projects/invitations")
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to decline invitation. Please try again."
-        )
+        toast.error(error?.message || t("toast.declineFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -224,7 +249,7 @@ function DeclineInvitationButton({
     >
       <>
         <XIcon className="h-4 w-4" />
-        Decline Invitation
+        {t("button.decline")}
       </>
     </Button>
   )

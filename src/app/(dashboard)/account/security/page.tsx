@@ -3,13 +3,19 @@ import DeleteAccountCard from "@/components/dashboard/account/security/DeleteAcc
 import SecurityDetailsCard from "@/components/dashboard/account/security/SecurityDetailsCard"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { headers } from "next/headers"
 
-export const metadata: Metadata = {
-  title: "Security",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("SecurityPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function SecurityPage() {
+  const t = await getTranslations("SecurityPage")
+
   const accounts = await auth.api.listUserAccounts({
     headers: await headers(),
   })
@@ -21,10 +27,8 @@ export default async function SecurityPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full gap-4 space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Security</h1>
-        <p className="text-muted-foreground">
-          Manage your security settings and preferences.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">

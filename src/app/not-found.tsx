@@ -6,8 +6,11 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import LocalineLogo from "@/components/logo"
 import { getAppName } from "@/actions/get-env"
+import { getTranslations } from "next-intl/server"
 
 export default async function NotFoundPage() {
+  const t = await getTranslations("NotFoundPage")
+
   const [appName, session] = await Promise.all([
     getAppName(),
     auth.api.getSession({
@@ -29,12 +32,13 @@ export default async function NotFoundPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-4">
             <AlertCircleIcon className="h-16 w-16 text-muted-foreground" />
-            <h1 className="text-8xl font-bold text-muted-foreground">404</h1>
+            <h1 className="text-8xl font-bold text-muted-foreground">
+              {t("title")}
+            </h1>
           </div>
-          <h2 className="text-3xl font-semibold">Page Not Found</h2>
+          <h2 className="text-3xl font-semibold">{t("subtitle")}</h2>
           <p className="mx-auto max-w-lg text-lg text-muted-foreground">
-            The page you&apos;re looking for doesn&apos;t exist or has been
-            moved.
+            {t("description")}
           </p>
         </div>
 
@@ -43,14 +47,14 @@ export default async function NotFoundPage() {
             <Button asChild size="lg">
               <Link href="/">
                 <HomeIcon className="mr-2 h-5 w-5" />
-                Go back to dashboard
+                {t("button.goToDashboard")}
               </Link>
             </Button>
           ) : (
             <Button asChild variant="outline" size="lg">
               <Link href="/auth/signin">
                 <LogInIcon className="mr-2 h-5 w-5" />
-                Sign into your account
+                {t("button.signIn")}
               </Link>
             </Button>
           )}

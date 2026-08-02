@@ -12,8 +12,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 export default function ToggleAdminButton() {
+  const t = useTranslations("ToggleAdminButton")
+
   const router = useRouter()
   const { user } = useSession()
 
@@ -30,14 +33,14 @@ export default function ToggleAdminButton() {
     await setRole(user.id, user.role === "admin" ? "user" : "admin")
       .then(() => {
         toast.success(
-          `${user.role === "admin" ? "Revoked" : "Granted"} admin access successfully.`
+          user.role === "admin"
+            ? t("toast.revokeSuccess")
+            : t("toast.grantSuccess")
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update admin access. Please try again."
-        )
+        toast.error(error?.message || t("toast.updateFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -54,18 +57,14 @@ export default function ToggleAdminButton() {
         >
           <CrownIcon className="mr-1 h-4 w-4" />
           {user?.role === "admin"
-            ? "Revoke Admin Access"
-            : "Grant Admin Access"}
+            ? t("button.revokeAdmin")
+            : t("button.grantAdmin")}
         </Button>
       </TooltipTrigger>
 
       <TooltipContent className="flex items-center gap-2">
         <AlertTriangleIcon className="size-4 shrink-0 text-red-500 dark:text-red-400" />
-        <span>
-          If you see this button in your production environment, you forgot to
-          set your NODE_ENV to production. Please set it to avoid security
-          risks.
-        </span>
+        <span>{t("tooltip.warning")}</span>
       </TooltipContent>
     </Tooltip>
   )

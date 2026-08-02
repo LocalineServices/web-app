@@ -27,6 +27,7 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { getFlagCodeForLocale } from "@/lib/project-utils"
 import { AlertTriangleIcon, ImportIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
@@ -673,6 +674,8 @@ const IMPORTABLE_LOCALE_GROUPS = IMPORTABLE_LOCALES.reduce<
 }, [])
 
 export default function ImportLocalesDialog() {
+  const t = useTranslations("ImportLocalesDialog")
+
   const router = useRouter()
   const { user } = useSession()
 
@@ -715,8 +718,8 @@ export default function ImportLocalesDialog() {
 
   const handleImportLocales = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     try {
       const result = await importLocales(
         selectedLocales.map((locale) => ({
@@ -730,14 +733,16 @@ export default function ImportLocalesDialog() {
       )
 
       toast.success(
-        `Imported ${result.total} locales (${result.created} created, ${result.updated} updated).`
+        t("toast.importSuccess", {
+          total: result.total,
+          created: result.created,
+          updated: result.updated,
+        })
       )
       router.refresh()
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to import locales. Please try again."
+        error instanceof Error ? error.message : t("toast.importFailed")
       )
     } finally {
       setLoading(false)
@@ -765,25 +770,21 @@ export default function ImportLocalesDialog() {
             <DialogTrigger asChild disabled={!canCreateLocales || loading}>
               <Button variant="outline" disabled={!canCreateLocales || loading}>
                 <ImportIcon className="mr-2 h-4 w-4" />
-                Import Locales
+                {t("button.importLocales")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canCreateLocales && (
-          <TooltipContent>
-            You don&rsquo;t have permission to create new locales.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent className="sm:max-w-5xl">
         <DialogHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:pr-12">
           <div className="space-y-1">
-            <DialogTitle>Import Locales</DialogTitle>
-            <DialogDescription>
-              Select which locales you want to import into your system.
-            </DialogDescription>
+            <DialogTitle>{t("dialog.title")}</DialogTitle>
+            <DialogDescription>{t("dialog.description")}</DialogDescription>
           </div>
 
           <div className="flex gap-2 space-y-1">
@@ -794,7 +795,7 @@ export default function ImportLocalesDialog() {
               size="sm"
               className="self-start"
             >
-              Select All
+              {t("dialog.selectAll", { count: IMPORTABLE_LOCALES.length })}
             </Button>
 
             <Button
@@ -804,7 +805,7 @@ export default function ImportLocalesDialog() {
               size="sm"
               className="self-start"
             >
-              Deselect All
+              {t("dialog.deselectAll", { count: selectedLocales.length })}
             </Button>
           </div>
         </DialogHeader>
@@ -812,11 +813,11 @@ export default function ImportLocalesDialog() {
         {selectedLocales.length > 150 && (
           <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
             <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-            <AlertTitle>Importing Many Locales</AlertTitle>
+            <AlertTitle>{t("alert.manyLocalesTitle")}</AlertTitle>
             <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-              You are about to import a large number of locales (
-              {selectedLocales.length}). This may take a few seconds and could
-              impact system performance temporarily.
+              {t("alert.manyLocalesDescription", {
+                count: selectedLocales.length,
+              })}
             </AlertDescription>
           </Alert>
         )}
@@ -878,7 +879,7 @@ export default function ImportLocalesDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -889,12 +890,12 @@ export default function ImportLocalesDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Importing...
+                {t("dialog.importingLocales")}
               </>
             ) : (
               <>
                 <ImportIcon className="h-4 w-4" />
-                Import Locales ({selectedLocales.length})
+                {t("dialog.importLocales", { count: selectedLocales.length })}
               </>
             )}
           </Button>

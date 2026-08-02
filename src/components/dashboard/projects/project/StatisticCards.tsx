@@ -10,8 +10,12 @@ import {
   PercentIcon,
   UsersIcon,
 } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function StatisticCards() {
+  const t = useTranslations("StatisticCards")
+  const format = useFormatter()
+
   const { project } = useProject()
 
   const terms = project?.terms
@@ -36,7 +40,7 @@ export default function StatisticCards() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium">
-            Translation Progress
+            {t("progress.title")}
           </CardTitle>
           <PercentIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -44,15 +48,19 @@ export default function StatisticCards() {
         <CardContent>
           {totalTranslations === 0 ? (
             <p className="text-muted-foreground italic">
-              No translations available.
+              {t("progress.noTranslations")}
             </p>
           ) : (
             <>
-              <div className="text-2xl font-bold">{progress.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">
+                {format.number(progress, { maximumFractionDigits: 1 })}
+              </div>
               <Progress value={progress} className="mt-2" />
               <p className="mt-2 text-xs text-muted-foreground">
-                {translatedCount?.toLocaleString("en-US")} of{" "}
-                {totalTranslations?.toLocaleString("en-US")} translations
+                {t("progress.description", {
+                  translated: format.number(translatedCount),
+                  total: format.number(totalTranslations),
+                })}
               </p>
             </>
           )}
@@ -67,21 +75,21 @@ export default function StatisticCards() {
 
         <CardContent>
           {terms?.length === 0 ? (
-            <p className="text-muted-foreground italic">No terms available.</p>
+            <p className="text-muted-foreground italic">{t("terms.noTerms")}</p>
           ) : (
             <>
               <div className="flex items-baseline gap-1">
                 <div className="text-2xl font-bold">
-                  {terms?.length?.toLocaleString("en-US")}
+                  {format.number(terms?.length ?? 0)}
                 </div>
                 <div className="h-2">
-                  /{plan?.termsLimit?.toLocaleString("en-US") ?? "∞"}
+                  /{format.number(plan?.termsLimit ?? Infinity)}
                 </div>
                 {plan?.termsLimit && terms?.length >= plan?.termsLimit && (
                   <LimitReachedBadge />
                 )}
               </div>
-              <p>terms have been added to this project.</p>
+              <p>{t("terms.description")}</p>
             </>
           )}
         </CardContent>
@@ -89,30 +97,32 @@ export default function StatisticCards() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-sm font-medium">Locales</CardTitle>
+          <CardTitle className="text-sm font-medium">
+            {t("locales.title")}
+          </CardTitle>
           <GlobeIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
 
         <CardContent>
           {locales?.length === 0 ? (
             <p className="text-muted-foreground italic">
-              No locales available.
+              {t("locales.noLocales")}
             </p>
           ) : (
             <>
               <div className="flex items-baseline gap-1">
                 <div className="text-2xl font-bold">
-                  {locales?.length?.toLocaleString("en-US")}
+                  {format.number(locales?.length ?? 0)}
                 </div>
                 <div className="h-2">
-                  /{plan?.localesLimit?.toLocaleString("en-US") ?? "∞"}
+                  /{format.number(plan?.localesLimit ?? Infinity)}
                 </div>
                 {plan?.localesLimit &&
                   locales?.length >= plan?.localesLimit && (
                     <LimitReachedBadge />
                   )}
               </div>
-              <p>locales have been added to this project.</p>
+              <p>{t("locales.description")}</p>
             </>
           )}
         </CardContent>
@@ -120,23 +130,25 @@ export default function StatisticCards() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-sm font-medium">Members</CardTitle>
+          <CardTitle className="text-sm font-medium">
+            {t("member.title")}
+          </CardTitle>
           <UsersIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
 
         <CardContent>
           {members?.length === 0 ? (
             <p className="text-muted-foreground italic">
-              No members available.
+              {t("member.noMembers")}
             </p>
           ) : (
             <>
               <div className="flex items-baseline gap-1">
                 <div className="text-2xl font-bold">
-                  {members?.length?.toLocaleString("en-US")}
+                  {format.number(members?.length ?? 0)}
                 </div>
                 <div className="h-2">
-                  /{plan?.membersLimit?.toLocaleString("en-US") ?? "∞"}
+                  /{format.number(plan?.membersLimit ?? Infinity)}
                 </div>
                 {plan?.membersLimit &&
                   members?.length >= plan?.membersLimit && (
@@ -144,8 +156,10 @@ export default function StatisticCards() {
                   )}
               </div>
               <p>
-                member{members?.length !== 1 ? "s are" : " is"} contributing to
-                this project.
+                {t("member.description", {
+                  members: format.number(members?.length ?? 0),
+                  limit: format.number(plan?.membersLimit ?? Infinity),
+                })}
               </p>
             </>
           )}
@@ -156,10 +170,11 @@ export default function StatisticCards() {
 }
 
 function LimitReachedBadge() {
+  const t = useTranslations("StatisticCards")
   return (
     <span className="ml-2 inline-flex items-center rounded bg-red-200 px-2 py-0.5 text-xs font-medium text-red-800">
       <ClockAlertIcon className="mr-1 h-3 w-3" />
-      Limit reached
+      {t("limitReached")}
     </span>
   )
 }

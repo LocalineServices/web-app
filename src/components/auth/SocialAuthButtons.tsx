@@ -6,6 +6,7 @@ import { DiscordIcon, GitHubIcon, GoogleIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 export default function SocialAuthButtons({
   loading,
@@ -20,6 +21,8 @@ export default function SocialAuthButtons({
   githubEnabled?: boolean
   discordEnabled?: boolean
 }) {
+  const t = useTranslations("SocialAuthButtons")
+
   const [lastMethod, setLastMethod] = useState<string | null>(null)
 
   useEffect(() => {
@@ -33,12 +36,15 @@ export default function SocialAuthButtons({
       provider,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`Redirecting to ${provider} for authentication...`)
+          toast.success(t("toast.requestSent", { provider }))
           setLastMethod(provider)
         },
         onError: ({ error }) => {
           toast.error(
-            `Unable to sign in with ${provider}. ${`(${error?.message})` || "Please try again."}`
+            t("toast.requestFailed", {
+              provider,
+              message: error?.message || "500 Internal Server Error",
+            })
           )
           setLoading(false)
         },
@@ -82,13 +88,14 @@ export default function SocialAuthButtons({
           >
             <Icon className={iconClassName ?? "h-4 w-4"} />
             <span className="sr-only sm:not-sr-only">{label}</span>
+
             {lastMethod === id ? (
               <Badge
                 variant="secondary"
                 className="absolute -top-2 -right-2 px-1 py-0.5 text-[10px] leading-none"
                 aria-hidden
               >
-                Last used
+                {t("badge.lastUsed")}
               </Badge>
             ) : null}
           </Button>

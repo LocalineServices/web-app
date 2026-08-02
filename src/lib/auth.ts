@@ -95,6 +95,11 @@ export const auth = betterAuth({
         type: "string",
         required: false,
       },
+      locale: {
+        type: "string",
+        defaultValue: "en_US",
+        required: true,
+      },
       projectsLimit: {
         type: "number",
         defaultValue: 5,

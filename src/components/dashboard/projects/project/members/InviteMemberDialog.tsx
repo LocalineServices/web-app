@@ -25,12 +25,16 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function InviteMemberDialog() {
   const router = useRouter()
+  const t = useTranslations("InviteMemberDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -58,27 +62,30 @@ export default function InviteMemberDialog() {
 
   const handleInviteMember = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+
+    if (!roleId) return
+
     setLoading(true)
-
-    if (!roleId) {
-      toast.error("Please select a role for the new member.")
-      setLoading(false)
-      return
-    }
-
     await createProjectInvitation({
       projectId: project.id,
       email: email.trim(),
       roleId,
     })
-      .then(() => {
-        toast.success(`Invitation sent to ${email}.`)
+      .then((invitation) => {
+        toast.success(
+          t("toast.inviteSuccess", {
+            email: invitation.email,
+            invitationId: invitation.id.slice(0, 8),
+            roleName:
+              project.memberRoles.find((r) => r.id === invitation.roleId)
+                ?.name ?? "",
+            roleId: invitation.roleId,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || `Failed to invite ${email}. Please try again.`
-        )
+        toast.error(error?.message || t("toast.inviteError", { email }))
       })
       .finally(() => {
         setLoading(false)
@@ -109,21 +116,22 @@ export default function InviteMemberDialog() {
                 disabled={!canInviteMembers || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                Invite Member
+                {t("button.inviteMember")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canInviteMembers ? (
-          <TooltipContent>
-            You don&rsquo;t have permission to invite members in this project.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         ) : (
           isLimitReached && (
             <TooltipContent>
               {project.plan.membersLimit === 0
-                ? "Your current plan does not allow inviting members."
-                : `This project has reached the maximum number of members allowed by your plan (${project.members.length}/${project.plan.membersLimit}).`}
+                ? t("tooltip.limitZero")
+                : t("tooltip.limitReached", {
+                    current: format.number(project.members.length),
+                    limit: format.number(project.plan.membersLimit ?? 0),
+                  })}
             </TooltipContent>
           )
         )}
@@ -131,25 +139,23 @@ export default function InviteMemberDialog() {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite new member</DialogTitle>
-          <DialogDescription>
-            Add a new member to your project.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("dialog.emailLabel")}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="member@example.com"
+            placeholder={t("dialog.emailPlaceholder")}
             value={email}
             onChange={({ target: { value } }) => setEmail(value)}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="role">Role</Label>
+          <Label htmlFor="role">{t("dialog.roleLabel")}</Label>
           <RolePickerField
             id="role"
             roles={project.memberRoles
@@ -177,7 +183,7 @@ export default function InviteMemberDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
           <Button
             variant="outline"
@@ -187,12 +193,12 @@ export default function InviteMemberDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Inviting...
+                {t("dialog.invitingMember")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Invite Member
+                {t("dialog.inviteMember")}
               </>
             )}
           </Button>

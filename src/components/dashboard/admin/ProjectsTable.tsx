@@ -56,16 +56,19 @@ import { toast } from "sonner"
 import { FullProject } from "@/types/project"
 import { useSession } from "@/components/session-provider"
 import { authClient } from "@/lib/auth-client"
+import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function ProjectsTable({
+export default function AdminProjectsTable({
   projects,
   plans,
 }: {
   projects: FullProject[]
   plans: Plan[]
 }) {
+  const t = useTranslations("AdminProjectsTable")
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -95,11 +98,9 @@ export default function ProjectsTable({
             <FoldersIcon />
           </EmptyMedia>
 
-          <EmptyTitle>No Projects Yet</EmptyTitle>
+          <EmptyTitle>{t("empty.title")}</EmptyTitle>
 
-          <EmptyDescription>
-            There have been no projects created yet.
-          </EmptyDescription>
+          <EmptyDescription>{t("empty.description")}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     )
@@ -109,7 +110,7 @@ export default function ProjectsTable({
     <div>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search projects by name or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -125,11 +126,15 @@ export default function ProjectsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("table.header.id")}
+              </TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.description")}</TableHead>
+              <TableHead>{t("table.header.owner")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("table.header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -153,21 +158,21 @@ export default function ProjectsTable({
                         !project.description && "text-muted-foreground italic"
                       )}
                     >
-                      {project.description ?? "None"}
+                      {project.description ?? t("table.row.noDescription")}
                     </TableCell>
 
                     <TableCell className="max-w-30">
                       {owner ? (
                         <>
                           <span className="text-sm font-medium text-foreground sm:hidden">
-                            {owner.name || "Unknown User"}
+                            {owner.name || t("table.row.unknownUser")}
                           </span>
 
                           <div className="hidden w-fit items-center gap-2 rounded-full bg-muted px-3 py-1 sm:inline-flex">
                             <Avatar className="h-6 w-6 shrink-0">
                               <AvatarImage
                                 src={owner.image || undefined}
-                                alt={owner.name || "Unknown User"}
+                                alt={owner.name || t("table.row.unknownUser")}
                               />
                               <AvatarFallback className="bg-primary text-primary-foreground">
                                 {owner.name
@@ -176,13 +181,13 @@ export default function ProjectsTable({
                               </AvatarFallback>
                             </Avatar>
                             <span className="max-w-full truncate text-sm font-medium text-foreground">
-                              {owner.name || "Unknown User"}
+                              {owner.name || t("table.row.unknownUser")}
                             </span>
                           </div>
                         </>
                       ) : (
                         <span className="text-sm text-muted-foreground italic">
-                          No owner
+                          {t("table.row.noOwner")}
                         </span>
                       )}
                     </TableCell>
@@ -219,8 +224,8 @@ export default function ProjectsTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No projects found matching your search."
-                    : "No projects found."}
+                    ? t("table.noProjectsFound", { query: searchQuery })
+                    : t("table.noProjectsFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -251,6 +256,8 @@ function ChangePlanDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
+  const t = useTranslations("AdminProjectsTable")
+
   const router = useRouter()
   const { user } = useSession()
 
@@ -267,28 +274,32 @@ function ChangePlanDialog({
 
   const handleUpdatePlan = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+
+    if (!plan) return
+
     setLoading(true)
-
-    if (!plan) {
-      toast.error("Please select a plan to update.")
-      setLoading(false)
-      return
-    }
-
     await updateProjectPlan({
       projectId: project.id,
       planId: plan.id,
     })
       .then(() => {
         toast.success(
-          `${project.name} has been successfully updated to the ${plan?.displayName} plan.`
+          t("toast.updatePlanSuccess", {
+            projectName: project.name,
+            projectId: project.id,
+            planName: plan.displayName,
+          })
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
-            "Failed to update the project plan. Please try again."
+            t("toast.updatePlanFailed", {
+              projectName: project.name,
+              projectId: project.id,
+              planName: plan.displayName,
+            })
         )
       })
       .finally(() => {
@@ -330,17 +341,23 @@ function ChangePlanDialog({
           </span>
         </TooltipTrigger>
         {!canUpdatePlan && (
-          <TooltipContent>
-            You don&rsquo;t have permission to change project&rsquo;s plan.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdatePlan")}</TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change Plan</DialogTitle>
+          <DialogTitle>
+            {t("dialog.updatePlan.title", {
+              projectName: project.name,
+              projectId: project.id.slice(0, 8),
+            })}
+          </DialogTitle>
           <DialogDescription>
-            Update the plan for this project.
+            {t("dialog.updatePlan.description", {
+              projectName: project.name,
+              projectId: project.id.slice(0, 8),
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -365,7 +382,7 @@ function ChangePlanDialog({
             onClick={() => setEditingProject(null)}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -376,12 +393,12 @@ function ChangePlanDialog({
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Saving...
+                {t("dialog.updatePlan.updatingPlan")}
               </>
             ) : (
               <>
                 <PencilIcon className="h-4 w-4" />
-                Save changes
+                {t("dialog.updatePlan.updatePlan")}
               </>
             )}
           </Button>

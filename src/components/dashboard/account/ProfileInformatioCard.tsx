@@ -19,11 +19,15 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { Separator } from "@/components/ui/separator"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { useSession } from "@/components/session-provider"
 import { Spinner } from "@/components/ui/spinner"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function ProfileInformationCard() {
+  const t = useTranslations("ProfileInformationCard")
+  const format = useFormatter()
+
   const { user } = useSession()
 
   if (!user) {
@@ -31,7 +35,7 @@ export default function ProfileInformationCard() {
       <Card className="w-full">
         <CardContent className="flex items-center justify-center gap-2">
           <Spinner />
-          <p>Loading user information...</p>
+          <p>{t("card.loadingUserInformation")}</p>
         </CardContent>
       </Card>
     )
@@ -42,7 +46,7 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <IdCardIcon className="size-4" />
-          <p>ID:</p>
+          <p>{t("card.id")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
@@ -57,9 +61,9 @@ export default function ProfileInformationCard() {
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(user.id)
-                toast.success("User ID copied to clipboard.")
+                toast.success(t("toast.copyToClipboard"))
               } catch {
-                toast.error("Failed to copy user ID.")
+                toast.error(t("toast.copyFailed"))
               }
             }}
           >
@@ -73,7 +77,7 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <TagIcon className="size-4" />
-          <p>Role:</p>
+          <p>{t("card.role")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-foreground">
@@ -93,7 +97,7 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <Link2Icon className="size-4" />
-          <p>Last Login Method:</p>
+          <p>{t("card.lastLoginMethod")}</p>
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground capitalize">
@@ -106,13 +110,13 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <FoldersIcon className="size-4" />
-          <p>Projects Limit:</p>
+          <p>{t("card.projectsLimit")}</p>
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
           {user.projectsLimit !== null
-            ? user.projectsLimit.toLocaleString("en-US")
-            : "Unlimited"}
+            ? format.number(user.projectsLimit)
+            : t("card.projectsLimitUnlimited")}
         </p>
       </CardContent>
 
@@ -121,7 +125,7 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <MailCheckIcon className="size-4" />
-          <p>Email Verified:</p>
+          <p>{t("card.emailVerified")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-foreground">
@@ -138,7 +142,9 @@ export default function ProfileInformationCard() {
                 : "text-red-600 dark:text-red-400"
             )}
           >
-            {user.emailVerified ? "Yes" : "No"}
+            {user.emailVerified
+              ? t("card.emailVerifiedYes")
+              : t("card.emailVerifiedNo")}
           </p>
         </div>
       </CardContent>
@@ -148,7 +154,7 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <BanIcon className="size-4" />
-          <p>Banned:</p>
+          <p>{t("card.banned")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-foreground">
@@ -165,7 +171,7 @@ export default function ProfileInformationCard() {
                 : "text-emerald-600 dark:text-emerald-400"
             )}
           >
-            {user.banned ? "Yes" : "No"}
+            {user.banned ? t("card.bannedYes") : t("card.bannedNo")}
           </p>
         </div>
       </CardContent>
@@ -175,11 +181,17 @@ export default function ProfileInformationCard() {
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <CalendarIcon className="size-4" />
-          <p>Created at:</p>
+          <p>{t("card.createdAt")}</p>
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
-          {formatDate(user.createdAt)}
+          {format.dateTime(new Date(user.createdAt), {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </p>
       </CardContent>
     </Card>

@@ -12,11 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 
 const THEMES = [
-  { icon: SunIcon, label: "Light", value: "light" },
-  { icon: MoonIcon, label: "Dark", value: "dark" },
-  { icon: MonitorIcon, label: "System", value: "system" },
+  { icon: SunIcon, value: "light" },
+  { icon: MoonIcon, value: "dark" },
+  { icon: MonitorIcon, value: "system" },
 ] as const
 
 function ThemeProvider({
@@ -37,7 +38,10 @@ function ThemeProvider({
 }
 
 function ThemeModeSelector() {
+  const t = useTranslations("ThemeModeSelector")
+
   const { theme, setTheme } = useTheme()
+
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -59,7 +63,7 @@ function ThemeModeSelector() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8}>
-        {THEMES.map(({ value, label, icon: Icon }) => (
+        {THEMES.map(({ value, icon: Icon }) => (
           <DropdownMenuItem
             key={value}
             onClick={() => {
@@ -69,7 +73,7 @@ function ThemeModeSelector() {
           >
             <span className="flex items-center gap-2">
               <Icon className="h-4 w-4" aria-hidden />
-              {label}
+              {t(`theme.${value}`)}
             </span>
             {activeTheme === value ? (
               <CheckIcon className="h-4 w-4" aria-hidden />

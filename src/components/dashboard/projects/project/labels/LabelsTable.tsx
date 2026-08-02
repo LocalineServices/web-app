@@ -64,10 +64,13 @@ import { authClient } from "@/lib/auth-client"
 import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function LabelsTable() {
+export default function ProjectLabelsTable() {
+  const t = useTranslations("ProjectLabelsTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -109,7 +112,7 @@ export default function LabelsTable() {
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search labels by name or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -125,12 +128,20 @@ export default function LabelsTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-center">Color</TableHead>
-              <TableHead className="text-center">Icon</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("table.header.id")}
+              </TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.description")}</TableHead>
+              <TableHead className="text-center">
+                {t("table.header.color")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("table.header.icon")}
+              </TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("table.header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -149,7 +160,7 @@ export default function LabelsTable() {
                       <span className="line-clamp-2">{label.description}</span>
                     ) : (
                       <span className="text-muted-foreground italic">
-                        No description
+                        {t("table.row.noDescription")}
                       </span>
                     )}
                   </TableCell>
@@ -172,7 +183,7 @@ export default function LabelsTable() {
                         <p className="sr-only">{label.color}</p>
                       </>
                     ) : (
-                      <p>No color specified</p>
+                      <p>{t("table.row.noColor")}</p>
                     )}
                   </TableCell>
 
@@ -191,17 +202,17 @@ export default function LabelsTable() {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>Invalid icon</p>
+                          <p>{t("table.row.invalidIcon")}</p>
                         )
                       })()
                     ) : (
-                      <p>No icon specified</p>
+                      <p>{t("table.row.noIcon")}</p>
                     )}
                   </TableCell>
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditLabelSheet
+                      <UpdateLabelSheet
                         projectId={project.id}
                         label={label}
                         canUpdateLabels={canManageLabels}
@@ -226,8 +237,8 @@ export default function LabelsTable() {
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No labels found matching your search."
-                    : "No labels found."}
+                    ? t("table.noLabelsFound", { query: searchQuery })
+                    : t("table.noLabelsFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -247,7 +258,7 @@ export default function LabelsTable() {
   )
 }
 
-function EditLabelSheet({
+function UpdateLabelSheet({
   projectId,
   label,
   canUpdateLabels,
@@ -261,8 +272,9 @@ function EditLabelSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectLabelsTable")
 
-  const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null)
+  const [updatingLabel, setUpdatingLabel] = useState<ProjectLabel | null>(null)
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
@@ -274,11 +286,11 @@ function EditLabelSheet({
     setDescription(currentLabel.description ?? null)
     setColor(currentLabel.color ?? "")
     setIcon(currentLabel.icon ?? "")
-    setEditingLabel(currentLabel)
+    setUpdatingLabel(currentLabel)
   }
 
   function closeEditor() {
-    setEditingLabel(null)
+    setUpdatingLabel(null)
     setName("")
     setDescription(null)
     setColor("")
@@ -288,25 +300,35 @@ function EditLabelSheet({
   async function handleUpdateLabel(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingLabel) return
-    setLoading(true)
+    if (!updatingLabel) return
 
+    setLoading(true)
     await updateProjectLabel({
       projectId,
-      labelId: editingLabel.id,
+      labelId: updatingLabel.id,
       name: name.trim(),
       description: description?.trim() || null,
       color,
       icon,
     })
       .then((updatedLabel) => {
-        toast.success(`Updated label ${updatedLabel.name}.`)
+        toast.success(
+          t("toast.updateSuccess", {
+            labelName: updatedLabel.name,
+            labelId: updatedLabel.id.slice(0, 8),
+          })
+        )
+
         closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update label. Please try again."
+          error?.message ||
+            t("toast.updateFailed", {
+              labelName: updatingLabel.name,
+              labelId: updatingLabel.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -316,7 +338,7 @@ function EditLabelSheet({
 
   return (
     <Sheet
-      open={editingLabel?.id === label.id}
+      open={updatingLabel?.id === label.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -339,9 +361,7 @@ function EditLabelSheet({
           </SheetTrigger>
         </TooltipTrigger>
         {!canUpdateLabels && (
-          <TooltipContent>
-            You don&rsquo;t have permission to edit labels.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdate")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -352,23 +372,29 @@ function EditLabelSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              Edit{" "}
-              <span className="font-mono">
-                {editingLabel?.name} ({editingLabel?.id.slice(0, 8)})
-              </span>
+              {t("sheet.updateLabel.title", {
+                labelName: updatingLabel?.name ?? "",
+                labelId: updatingLabel?.id.slice(0, 8) ?? "",
+              })}
             </SheetTitle>
             <SheetDescription>
-              Here you can edit the label&rsquo;s details.
+              {t("sheet.updateLabel.description", {
+                labelName: updatingLabel?.name ?? "",
+                labelId: updatingLabel?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="labelName">Name</Label>
+                <Label htmlFor="labelName">
+                  {t("sheet.updateLabel.labelNameLabel")}
+                </Label>
                 <Input
                   id="labelName"
                   value={name}
+                  placeholder={t("sheet.updateLabel.labelNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={({ target: { value } }) => setName(value)}
@@ -376,17 +402,22 @@ function EditLabelSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="labelDescription">Description (optional)</Label>
+                <Label htmlFor="labelDescription">
+                  {t("sheet.updateLabel.descriptionLabel")}
+                </Label>
                 <Input
                   id="labelDescription"
                   value={description || ""}
+                  placeholder={t("sheet.updateLabel.descriptionPlaceholder")}
                   disabled={loading}
                   onChange={({ target: { value } }) => setDescription(value)}
                 />
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="labelColor">Color (optional)</Label>
+                <Label htmlFor="labelColor">
+                  {t("sheet.updateLabel.colorLabel")}
+                </Label>
                 <ColorPickerField
                   id="labelColor"
                   value={color}
@@ -396,7 +427,9 @@ function EditLabelSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="labelIcon">Icon (optional)</Label>
+                <Label htmlFor="labelIcon">
+                  {t("sheet.updateLabel.iconLabel")}
+                </Label>
                 <IconPickerField
                   id="labelIcon"
                   value={icon}
@@ -408,29 +441,32 @@ function EditLabelSheet({
           </ScrollArea>
 
           <SheetFooter className="shrink-0">
-            <Button
-              type="submit"
-              disabled={loading || !editingLabel || !name.trim()}
-            >
-              {loading ? (
-                <>
-                  <Spinner className="h-4 w-4" />
-                  Saving changes...
-                </>
-              ) : (
-                "Save changes"
-              )}
-            </Button>
-
             <SheetClose asChild>
               <Button
                 variant="outline"
                 disabled={loading}
                 onClick={closeEditor}
               >
-                Close
+                {t("sheet.close")}
               </Button>
             </SheetClose>
+
+            <Button
+              type="submit"
+              disabled={loading || !updatingLabel || !name.trim()}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  {t("sheet.updateLabel.updatingLabel")}
+                </>
+              ) : (
+                <>
+                  <PencilIcon className="h-4 w-4" />
+                  {t("sheet.updateLabel.updateLabel")}
+                </>
+              )}
+            </Button>
           </SheetFooter>
         </form>
       </SheetContent>
@@ -452,23 +488,33 @@ function DeleteLabelDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectLabelsTable")
 
   const [deletingLabel, setDeletingLabel] = useState<ProjectLabel | null>(null)
 
-  async function handleDeleteLabel(currentLabel: ProjectLabel) {
+  async function handleDeleteLabel(deletingLabel: ProjectLabel) {
     setLoading(true)
 
     await deleteProjectLabel({
       projectId,
-      labelId: currentLabel.id,
+      labelId: deletingLabel.id,
     })
       .then((deletedLabel) => {
-        toast.success(`Deleted label ${deletedLabel.name}.`)
+        toast.success(
+          t("toast.deleteSuccess", {
+            labelName: deletedLabel.name,
+            labelId: deletedLabel.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to delete label. Please try again."
+          error?.message ||
+            t("toast.deleteFailed", {
+              labelName: deletingLabel.name,
+              labelId: deletingLabel.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -504,9 +550,7 @@ function DeleteLabelDialog({
           </span>
         </TooltipTrigger>
         {!canDeleteLabels && (
-          <TooltipContent>
-            You don&rsquo;t have permission to delete labels.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionDelete")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -515,14 +559,17 @@ function DeleteLabelDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete label?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteLabel.title", {
+                labelName: deletingLabel?.name ?? "",
+                labelId: deletingLabel?.id.slice(0, 8) ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              label{" "}
-              <span className="font-mono">
-                {deletingLabel?.name} ({deletingLabel?.id.slice(0, 8)})
-              </span>
-              .
+              {t("dialog.deleteLabel.description", {
+                labelName: deletingLabel?.name ?? "",
+                labelId: deletingLabel?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -532,7 +579,7 @@ function DeleteLabelDialog({
               disabled={loading}
               onClick={() => setDeletingLabel(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -547,12 +594,12 @@ function DeleteLabelDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting label...
+                  {t("dialog.deleteLabel.deletingLabel")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete Label
+                  {t("dialog.deleteLabel.deleteLabel")}
                 </>
               )}
             </Button>

@@ -6,12 +6,18 @@ import {
 import ToggleAdminButton from "@/components/dashboard/ToggleAdminButton"
 import { Metadata } from "next"
 import DashboardCards from "@/components/dashboard/DashboardCards"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Dashboard",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("DashboardPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function DashboardPage() {
+  const t = await getTranslations("DashboardPage")
+
   const [emailVerificationRequired, version] = await Promise.all([
     isEmailVerificationRequired(),
     getVersion(),
@@ -28,11 +34,8 @@ export default async function DashboardPage() {
       <div className="mx-auto flex w-full flex-1 flex-col gap-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-
-            <p className="mt-1 text-muted-foreground">
-              Look forward to the latest features and improvements of Localine.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+            <p className="mt-1 text-muted-foreground">{t("description")}</p>
           </div>
 
           {!(await isProduction()) && <ToggleAdminButton />}

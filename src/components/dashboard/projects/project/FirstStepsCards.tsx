@@ -7,8 +7,10 @@ import { CheckIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useProject } from "@/components/project-provider"
+import { useTranslations } from "next-intl"
 
 export default function FirstStepsCards() {
+  const t = useTranslations("FirstStepsCards")
   const { project } = useProject()
 
   const hasLocales = project.locales.length > 0
@@ -21,26 +23,26 @@ export default function FirstStepsCards() {
   return (
     <div className="grid gap-2">
       <StepCard
-        title="Add Locales"
-        description="Add the locales you want to support in your project."
+        title={t("locales.title")}
+        description={t("locales.description")}
         href={`/projects/${project.id}/locales`}
         isCompleted={hasLocales}
       />
       <StepCard
-        title="Add Terms"
-        description="Add the terms you want to translate in your project."
+        title={t("terms.title")}
+        description={t("terms.description")}
         href={`/projects/${project.id}/terms`}
         isCompleted={hasTerms}
       />
       <StepCard
-        title="Add Translations"
-        description="Add translations for your terms in each locale."
+        title={t("translations.title")}
+        description={t("translations.description")}
         href={`/projects/${project.id}/translations`}
         isCompleted={hasTranslations}
       />
       <StepCard
-        title="Invite Members"
-        description="Invite team members to collaborate on your project."
+        title={t("members.title")}
+        description={t("members.description")}
         href={`/projects/${project.id}/members`}
         isCompleted={hasMembers}
       />
@@ -59,6 +61,8 @@ function StepCard({
   href: string
   isCompleted: boolean
 }) {
+  const t = useTranslations("FirstStepsCards")
+
   return (
     <Card>
       <CardContent className="flex items-start justify-between gap-3">
@@ -88,7 +92,7 @@ function StepCard({
           <div className="flex items-center self-stretch">
             <Button variant="outline" asChild>
               <Link href={href} className="text-sm font-medium text-primary">
-                Open
+                {t("button.open")}
               </Link>
             </Button>
           </div>

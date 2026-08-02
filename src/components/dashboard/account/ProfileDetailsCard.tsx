@@ -36,6 +36,7 @@ import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Account } from "better-auth"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 type AvatarSource = "none" | "gravatar" | "github" | "custom"
 
@@ -79,6 +80,8 @@ export default function ProfileDetailsCard({
 }: {
   githubAccount: Account | undefined
 }) {
+  const t = useTranslations("ProfileDetailsCard")
+
   const router = useRouter()
   const { user } = useSession()
 
@@ -127,21 +130,19 @@ export default function ProfileDetailsCard({
 
   const handleUpdateName = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setNameLoading(true)
 
+    setNameLoading(true)
     await authClient.updateUser({
       name: name.trim(),
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Your name has been successfully updated.")
+          toast.success(t("toast.nameUpdated", { name: name.trim() }))
           setNameDialogOpen(false)
           setNameLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to update your name. Please try again."
-          )
+          toast.error(error?.message || t("toast.nameUpdateFailed"))
           setNameDialogOpen(false)
           setNameLoading(false)
         },
@@ -151,21 +152,19 @@ export default function ProfileDetailsCard({
 
   const handleUpdateAvatar = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setAvatarLoading(true)
 
+    setAvatarLoading(true)
     await authClient.updateUser({
       image: selectedAvatarUrl ?? null,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Your avatar has been successfully updated.")
+          toast.success(t("toast.avatarUpdated"))
           setAvatarDialogOpen(false)
           setAvatarLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to update your avatar. Please try again."
-          )
+          toast.error(error?.message || t("toast.avatarUpdateFailed"))
           setAvatarLoading(false)
         },
       },
@@ -177,7 +176,7 @@ export default function ProfileDetailsCard({
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <TagIcon className="size-4" />
-          <p>Name:</p>
+          <p>{t("card.name")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
@@ -193,18 +192,20 @@ export default function ProfileDetailsCard({
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Edit name</DialogTitle>
+                <DialogTitle>{t("dialog.updateName.title")}</DialogTitle>
                 <DialogDescription>
-                  Update the public name shown on your profile.
+                  {t("dialog.updateName.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">
+                  {t("dialog.updateName.inputLabel")}
+                </Label>
                 <Input
                   id="name"
                   value={name}
-                  placeholder="Enter your name"
+                  placeholder={t("dialog.updateName.inputPlaceholder")}
                   disabled={nameLoading}
                   onChange={(event) => setName(event.target.value)}
                 />
@@ -216,7 +217,7 @@ export default function ProfileDetailsCard({
                   onClick={() => setNameDialogOpen(false)}
                   disabled={nameLoading}
                 >
-                  Close
+                  {t("dialog.close")}
                 </Button>
 
                 <Button
@@ -231,12 +232,12 @@ export default function ProfileDetailsCard({
                   {nameLoading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Saving...
+                      {t("dialog.updateName.updatingName")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      Save changes
+                      {t("dialog.updateName.updateName")}
                     </>
                   )}
                 </Button>
@@ -251,7 +252,7 @@ export default function ProfileDetailsCard({
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <MailIcon className="size-4" />
-          <p>Email:</p>
+          <p>{t("card.email")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
@@ -297,7 +298,7 @@ export default function ProfileDetailsCard({
       <CardContent className="flex items-center justify-between gap-4">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <ImageIcon className="size-4" />
-          <p>Avatar:</p>
+          <p>{t("card.avatar")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-3">
@@ -317,9 +318,9 @@ export default function ProfileDetailsCard({
 
             <DialogContent className="sm:max-w-xl">
               <DialogHeader>
-                <DialogTitle>Edit avatar</DialogTitle>
+                <DialogTitle>{t("dialog.updateAvatar.title")}</DialogTitle>
                 <DialogDescription>
-                  Choose None, Gravatar, or your linked GitHub avatar.
+                  {t("dialog.updateAvatar.description")}
                 </DialogDescription>
               </DialogHeader>
 
@@ -327,11 +328,11 @@ export default function ProfileDetailsCard({
                 {currentAvatarSource === "custom" ? (
                   <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                     <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                    <AlertTitle>Custom avatar URL</AlertTitle>
+                    <AlertTitle>
+                      {t("dialog.updateAvatar.customUrl.title")}
+                    </AlertTitle>
                     <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                      This profile is using a custom avatar URL. If you save a
-                      different avatar source, this URL will be replaced and you
-                      will not be able to revert to this exact URL.
+                      {t("dialog.updateAvatar.customUrl.description")}
                     </AlertDescription>
                   </Alert>
                 ) : null}
@@ -344,7 +345,9 @@ export default function ProfileDetailsCard({
                     />
                   </Avatar>
 
-                  <p className="font-medium">Preview</p>
+                  <p className="font-medium">
+                    {t("dialog.updateAvatar.preview")}
+                  </p>
                 </div>
 
                 <RadioGroup
@@ -367,9 +370,11 @@ export default function ProfileDetailsCard({
                       className="mt-1"
                     />
                     <div className="space-y-1">
-                      <span className="text-sm font-medium">None</span>
+                      <span className="text-sm font-medium">
+                        {t("dialog.updateAvatar.avatar.none.label")}
+                      </span>
                       <p className="text-xs text-muted-foreground">
-                        Use a generated avatar based on your name.
+                        {t("dialog.updateAvatar.avatar.none.description")}
                       </p>
                     </div>
                   </Label>
@@ -388,9 +393,11 @@ export default function ProfileDetailsCard({
                       className="mt-1"
                     />
                     <div className="space-y-1">
-                      <span className="text-sm font-medium">Gravatar</span>
+                      <span className="text-sm font-medium">
+                        {t("dialog.updateAvatar.avatar.gravatar.label")}
+                      </span>
                       <p className="text-xs text-muted-foreground">
-                        Uses the gravatar associated with your email address.
+                        {t("dialog.updateAvatar.avatar.gravatar.description")}
                       </p>
                     </div>
                   </Label>
@@ -413,13 +420,15 @@ export default function ProfileDetailsCard({
                     <div className="space-y-1">
                       <span className="flex items-center gap-2 text-sm font-medium">
                         <GitHubIcon className="size-4" />
-                        GitHub
+                        {t("dialog.updateAvatar.avatar.github.label")}
                         {!githubAvatarUrl && (
-                          <Badge variant="outline">Not linked</Badge>
+                          <Badge variant="outline">
+                            {t("dialog.updateAvatar.avatar.github.notLinked")}
+                          </Badge>
                         )}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        Uses the avatar from your linked GitHub account.
+                        {t("dialog.updateAvatar.avatar.github.description")}
                       </p>
                     </div>
                   </Label>
@@ -432,7 +441,7 @@ export default function ProfileDetailsCard({
                   onClick={() => setAvatarDialogOpen(false)}
                   disabled={avatarLoading}
                 >
-                  Close
+                  {t("dialog.close")}
                 </Button>
 
                 <Button
@@ -447,12 +456,12 @@ export default function ProfileDetailsCard({
                   {avatarLoading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Saving...
+                      {t("dialog.updateAvatar.updatingAvatar")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      Save avatar
+                      {t("dialog.updateAvatar.updateAvatar")}
                     </>
                   )}
                 </Button>

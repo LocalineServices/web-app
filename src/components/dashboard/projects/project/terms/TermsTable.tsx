@@ -66,14 +66,17 @@ import {
   SearchIcon,
   TrashIcon,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
-export default function TermsTable() {
+export default function ProjectTermsTable() {
   const router = useRouter()
+  const t = useTranslations("ProjectTermsTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -120,16 +123,27 @@ export default function TermsTable() {
       termId: term.id,
       locked: !term.locked,
     })
-      .then(() => {
+      .then((updatedTerm) => {
         toast.success(
-          `${term.locked ? "Unlocked" : "Locked"} term ${term.key} (${term.id.slice(0, 8)}).`
+          updatedTerm.locked
+            ? t("toast.lockSuccess", {
+                termKey: updatedTerm.key,
+                termId: updatedTerm.id.slice(0, 8),
+              })
+            : t("toast.unlockSuccess", {
+                termKey: updatedTerm.key,
+                termId: updatedTerm.id.slice(0, 8),
+              })
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
-            "Failed to update term lock status. Please try again."
+            t("toast.updateLockedFailed", {
+              termKey: term.key,
+              termId: term.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -141,7 +155,7 @@ export default function TermsTable() {
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search terms by ID, key, or context..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -157,22 +171,25 @@ export default function TermsTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Key</TableHead>
-              <TableHead>Context</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("table.header.id")}
+              </TableHead>
+              <TableHead>{t("table.header.key")}</TableHead>
+              <TableHead>{t("table.header.context")}</TableHead>
               <TableHead className="text-center">
                 <HoverCard openDelay={10} closeDelay={10}>
                   <HoverCardTrigger asChild>
-                    <Button variant="ghost">Locked</Button>
+                    <Button variant="ghost">{t("table.header.locked")}</Button>
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    In order to translate locked terms, the editor must have the{" "}
-                    <strong>TRANSLATE_LOCKED</strong> permission.
+                    {t("table.header.lockedHoverContent")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("table.header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -188,7 +205,9 @@ export default function TermsTable() {
 
                   <TableCell className="min-w-80">
                     {term.context || (
-                      <span className="text-muted-foreground italic">None</span>
+                      <span className="text-muted-foreground italic">
+                        {t("table.row.noContext")}
+                      </span>
                     )}
                   </TableCell>
 
@@ -214,8 +233,7 @@ export default function TermsTable() {
                       </TooltipTrigger>
                       {!canLockTerms && (
                         <TooltipContent>
-                          You don&rsquo;t have permission to lock or unlock
-                          terms.
+                          {t("tooltip.noPermissionLock")}
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -223,7 +241,7 @@ export default function TermsTable() {
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditTermSheet
+                      <UpdateTermSheet
                         term={term}
                         loading={loading}
                         setLoading={setLoading}
@@ -244,8 +262,8 @@ export default function TermsTable() {
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No terms found matching your search."
-                    : "No terms found."}
+                    ? t("table.noTermsFound", { query: searchQuery })
+                    : t("table.noTermsFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -265,7 +283,7 @@ export default function TermsTable() {
   )
 }
 
-function EditTermSheet({
+function UpdateTermSheet({
   term,
   loading,
   setLoading,
@@ -275,10 +293,12 @@ function EditTermSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectTermsTable")
+
   const { user } = useSession()
   const { member } = useProject()
 
-  const [editingTerm, setEditingTerm] = useState<ProjectTerm | null>(null)
+  const [updatingTerm, setUpdatingTerm] = useState<ProjectTerm | null>(null)
 
   const [key, setKey] = useState("")
   const [context, setContext] = useState<string | null>(null)
@@ -301,11 +321,11 @@ function EditTermSheet({
     setKey(currentTerm.key)
     setContext(currentTerm.context ?? null)
     setLocked(currentTerm.locked)
-    setEditingTerm(currentTerm)
+    setUpdatingTerm(currentTerm)
   }
 
   function closeEditor() {
-    setEditingTerm(null)
+    setUpdatingTerm(null)
     setKey("")
     setContext(null)
     setLocked(false)
@@ -314,24 +334,33 @@ function EditTermSheet({
   async function handleUpdateTerm(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingTerm) return
-    setLoading(true)
+    if (!updatingTerm) return
 
+    setLoading(true)
     await updateProjectTerm({
-      projectId: editingTerm.projectId,
-      termId: editingTerm.id,
+      projectId: updatingTerm.projectId,
+      termId: updatingTerm.id,
       key: key.trim(),
       context: context?.trim() || null,
       locked,
     })
       .then((updatedTerm) => {
-        toast.success(`Updated term ${updatedTerm.key}.`)
+        toast.success(
+          t("toast.updateSuccess", {
+            termKey: updatedTerm.key,
+            termId: updatedTerm.id.slice(0, 8),
+          })
+        )
         closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update term. Please try again."
+          error?.message ||
+            t("toast.updateFailed", {
+              termKey: updatingTerm.key,
+              termId: updatingTerm.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -341,7 +370,7 @@ function EditTermSheet({
 
   return (
     <Sheet
-      open={editingTerm?.id === term.id}
+      open={updatingTerm?.id === term.id}
       onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
@@ -364,9 +393,7 @@ function EditTermSheet({
           </SheetTrigger>
         </TooltipTrigger>
         {!canUpdateTerms && (
-          <TooltipContent>
-            You don&rsquo;t have permission to edit terms.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdate")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -377,20 +404,25 @@ function EditTermSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              Edit{" "}
-              <span className="font-mono">
-                {editingTerm?.key} ({editingTerm?.id.slice(0, 8)})
-              </span>
+              {t("sheet.updateTerm.title", {
+                termKey: updatingTerm?.key ?? "",
+                termId: updatingTerm?.id.slice(0, 8) ?? "",
+              })}
             </SheetTitle>
             <SheetDescription>
-              Here you can edit the term&rsquo;s details.
+              {t("sheet.updateTerm.description", {
+                termKey: updatingTerm?.key ?? "",
+                termId: updatingTerm?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="termKey">Key</Label>
+                <Label htmlFor="termKey">
+                  {t("sheet.updateTerm.keyLabel")}
+                </Label>
                 <Input
                   id="termKey"
                   value={key}
@@ -401,7 +433,9 @@ function EditTermSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="termContext">Context (optional)</Label>
+                <Label htmlFor="termContext">
+                  {t("sheet.updateTerm.contextLabel")}
+                </Label>
                 <Input
                   id="termContext"
                   value={context || ""}
@@ -411,7 +445,9 @@ function EditTermSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="termLocked">Locked</Label>
+                <Label htmlFor="termLocked">
+                  {t("sheet.updateTerm.lockedLabel")}
+                </Label>
                 <ToggleGroup
                   type="single"
                   className="grid w-full grid-cols-2 border-2"
@@ -427,13 +463,13 @@ function EditTermSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    Yes
+                    {t("sheet.updateTerm.lockedYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    No
+                    {t("sheet.updateTerm.lockedNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -443,15 +479,18 @@ function EditTermSheet({
           <SheetFooter className="shrink-0">
             <Button
               type="submit"
-              disabled={loading || !editingTerm || !key.trim()}
+              disabled={loading || !updatingTerm || !key.trim()}
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Saving changes...
+                  {t("sheet.updateTerm.updatingTerm")}
                 </>
               ) : (
-                "Save changes"
+                <>
+                  <PencilIcon className="h-4 w-4" />
+                  {t("sheet.updateTerm.updateTerm")}
+                </>
               )}
             </Button>
 
@@ -461,7 +500,7 @@ function EditTermSheet({
                 disabled={loading}
                 onClick={closeEditor}
               >
-                Close
+                {t("sheet.close")}
               </Button>
             </SheetClose>
           </SheetFooter>
@@ -481,6 +520,8 @@ function DeleteTermDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectTermsTable")
+
   const { user } = useSession()
   const { member } = useProject()
 
@@ -507,12 +548,21 @@ function DeleteTermDialog({
       termId: term.id,
     })
       .then(() => {
-        toast.success(`Deleted term ${term.key} (${term.id.slice(0, 8)}).`)
+        toast.success(
+          t("toast.deleteSuccess", {
+            termKey: term.key,
+            termId: term.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to delete term. Please try again."
+          error?.message ||
+            t("toast.deleteFailed", {
+              termKey: term.key,
+              termId: term.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -548,9 +598,7 @@ function DeleteTermDialog({
           </span>
         </TooltipTrigger>
         {!canDeleteTerms && (
-          <TooltipContent>
-            You don&rsquo;t have permission to delete terms.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionDelete")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -559,15 +607,17 @@ function DeleteTermDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteTerm.title", {
+                termKey: deletingTerm?.key ?? "",
+                termId: deletingTerm?.id.slice(0, 8) ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently remove the
-              term{" "}
-              <span className="font-mono">
-                {deletingTerm?.key} ({deletingTerm?.id.slice(0, 8)})
-              </span>{" "}
-              and all associated translations in the projects. Please confirm
-              that you want to proceed.
+              {t("dialog.deleteTerm.description", {
+                termKey: deletingTerm?.key ?? "",
+                termId: deletingTerm?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -577,7 +627,7 @@ function DeleteTermDialog({
               disabled={loading}
               onClick={() => setDeletingTerm(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -593,12 +643,12 @@ function DeleteTermDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting term...
+                  {t("dialog.deleteTerm.deletingTerm")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete Term
+                  {t("dialog.deleteTerm.deleteTerm")}
                 </>
               )}
             </Button>

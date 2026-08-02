@@ -6,9 +6,13 @@ import {
 } from "@/actions/get-env"
 import SignInForm from "@/components/auth/form/SignInForm"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Sign In",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("SignInPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function SignInPage() {

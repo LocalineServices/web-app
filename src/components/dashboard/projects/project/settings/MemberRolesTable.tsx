@@ -69,7 +69,7 @@ import {
   TrashIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { SubmitEvent, useState } from "react"
+import { MouseEvent, SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 import {
   deleteProjectMemberRole,
@@ -78,6 +78,7 @@ import {
 import { useProject } from "@/components/project-provider"
 import { useSession } from "@/components/session-provider"
 import { authClient } from "@/lib/auth-client"
+import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
@@ -184,7 +185,9 @@ const PERMISSION_GROUPS: {
 
 const PERMISSION_ITEMS = PERMISSION_GROUPS.flatMap((group) => group.items)
 
-export default function MemberRolesTable() {
+export default function ProjectMemberRolesTable() {
+  const t = useTranslations("ProjectMemberRolesTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -233,7 +236,7 @@ export default function MemberRolesTable() {
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search roles by name or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -249,14 +252,22 @@ export default function MemberRolesTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-center">Color</TableHead>
-              <TableHead className="text-center">Icon</TableHead>
-              <TableHead className="max-w-32 text-center">
-                Permissions
+              <TableHead className="max-w-28 text-center">
+                {t("table.header.id")}
               </TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead className="text-center">
+                {t("table.header.color")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("table.header.icon")}
+              </TableHead>
+              <TableHead className="max-w-32 text-center">
+                {t("table.header.permissions")}
+              </TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("table.header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -276,9 +287,7 @@ export default function MemberRolesTable() {
                           <StarIcon className="ml-2 inline h-4 w-4 cursor-pointer text-yellow-500 hover:opacity-80" />
                         </HoverCardTrigger>
                         <HoverCardContent>
-                          This is the Owner role, which is automatically
-                          assigned to the project creator and has all
-                          permissions by default.
+                          {t("hoverCard.ownerRole")}
                         </HoverCardContent>
                       </HoverCard>
                     )}
@@ -302,7 +311,7 @@ export default function MemberRolesTable() {
                         <p className="sr-only">{role.color}</p>
                       </>
                     ) : (
-                      <p>No color specified</p>
+                      <p>{t("table.row.noColor")}</p>
                     )}
                   </TableCell>
 
@@ -321,11 +330,11 @@ export default function MemberRolesTable() {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>Invalid icon</p>
+                          <p>{t("table.row.invalidIcon")}</p>
                         )
                       })()
                     ) : (
-                      <p>No icon specified</p>
+                      <p>{t("table.row.noIcon")}</p>
                     )}
                   </TableCell>
 
@@ -337,7 +346,7 @@ export default function MemberRolesTable() {
                     )}
                   >
                     {role.permissions === BigInt(0) ? (
-                      <p>No permissions</p>
+                      <p>{t("table.row.noPermissions")}</p>
                     ) : (
                       <>{getPermissions(role.permissions).length}</>
                     )}
@@ -345,14 +354,14 @@ export default function MemberRolesTable() {
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <EditMemberRoleSheet
+                      <UpdateMemberRoleSheet
                         projectId={project.id}
                         role={role}
                         canUpdateRoles={canManageRoles}
                         loading={loading}
                         setLoading={setLoading}
                       />
-                      <EditMemberRolePermissionsSheet
+                      <UpdateMemberRolePermissionsSheet
                         project={project}
                         role={role}
                         canUpdateRoles={canManageRoles}
@@ -378,8 +387,8 @@ export default function MemberRolesTable() {
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No roles found matching your search."
-                    : "No roles found."}
+                    ? t("table.noRolesFound", { query: searchQuery })
+                    : t("table.noRolesFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -399,7 +408,7 @@ export default function MemberRolesTable() {
   )
 }
 
-function EditMemberRoleSheet({
+function UpdateMemberRoleSheet({
   projectId,
   role,
   canUpdateRoles,
@@ -413,8 +422,11 @@ function EditMemberRoleSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMemberRolesTable")
 
-  const [editingRole, setEditingRole] = useState<ProjectMemberRole | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(
+    null
+  )
 
   const [name, setName] = useState("")
   const [color, setColor] = useState("")
@@ -424,11 +436,11 @@ function EditMemberRoleSheet({
     setName(currentRole.name ?? "")
     setColor(currentRole.color ?? "")
     setIcon(currentRole.icon ?? "")
-    setEditingRole(currentRole)
+    setUpdatingRole(currentRole)
   }
 
   function closeEditor() {
-    setEditingRole(null)
+    setUpdatingRole(null)
     setName("")
     setColor("")
     setIcon("")
@@ -437,25 +449,33 @@ function EditMemberRoleSheet({
   async function handleUpdateRole(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingRole) return
+    if (!updatingRole) return
 
     setLoading(true)
-
     await updateProjectMemberRole({
       projectId,
-      roleId: editingRole.id,
+      roleId: updatingRole.id,
       name: name.trim(),
       color,
       icon,
     })
       .then((updatedRole) => {
-        toast.success(`Updated role ${updatedRole.name}.`)
+        toast.success(
+          t("toast.updateRoleSuccess", {
+            roleName: updatedRole.name,
+            roleId: updatedRole.id.slice(0, 8),
+          })
+        )
         closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update role. Please try again."
+          error?.message ||
+            t("toast.updateRoleFailed", {
+              roleName: updatingRole.name,
+              roleId: updatingRole.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -465,7 +485,7 @@ function EditMemberRoleSheet({
 
   return (
     <Sheet
-      open={editingRole?.id === role.id}
+      open={updatingRole?.id === role.id}
       onOpenChange={(open) => {
         if (!open) {
           closeEditor()
@@ -492,9 +512,7 @@ function EditMemberRoleSheet({
           </SheetTrigger>
         </TooltipTrigger>
         {!canUpdateRoles && (
-          <TooltipContent>
-            You don&rsquo;t have permission to edit roles.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionEditRole")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -505,20 +523,25 @@ function EditMemberRoleSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              Edit{" "}
-              <span className="font-mono">
-                {editingRole?.name} ({editingRole?.id.slice(0, 8)})
-              </span>{" "}
+              {t("sheet.updateRole.title", {
+                roleName: updatingRole?.name || "",
+                roleId: updatingRole?.id.slice(0, 8) || "",
+              })}
             </SheetTitle>
             <SheetDescription>
-              Here you can edit the role&rsquo;s name, color, and icon.
+              {t("sheet.updateRole.description", {
+                roleName: updatingRole?.name || "",
+                roleId: updatingRole?.id.slice(0, 8) || "",
+              })}
             </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="roleName">Name</Label>
+                <Label htmlFor="roleName">
+                  {t("sheet.updateRole.nameLabel")}
+                </Label>
                 <Input
                   id="roleName"
                   value={name}
@@ -529,7 +552,9 @@ function EditMemberRoleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="roleColor">Color (optional)</Label>
+                <Label htmlFor="roleColor">
+                  {t("sheet.updateRole.colorLabel")}
+                </Label>
                 <ColorPickerField
                   id="roleColor"
                   value={color}
@@ -539,7 +564,9 @@ function EditMemberRoleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="roleIcon">Icon (optional)</Label>
+                <Label htmlFor="roleIcon">
+                  {t("sheet.updateRole.iconLabel")}
+                </Label>
                 <IconPickerField
                   id="roleIcon"
                   value={icon}
@@ -553,15 +580,18 @@ function EditMemberRoleSheet({
           <SheetFooter className="shrink-0">
             <Button
               type="submit"
-              disabled={loading || !editingRole || !name.trim()}
+              disabled={loading || !updatingRole || !name.trim()}
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Saving changes...
+                  {t("sheet.updateRole.updatingRole")}
                 </>
               ) : (
-                "Save changes"
+                <>
+                  <PencilIcon className="h-4 w-4" />
+                  {t("sheet.updateRole.updateRole")}
+                </>
               )}
             </Button>
 
@@ -571,7 +601,7 @@ function EditMemberRoleSheet({
                 disabled={loading}
                 onClick={closeEditor}
               >
-                Close
+                {t("sheet.close")}
               </Button>
             </SheetClose>
           </SheetFooter>
@@ -581,7 +611,7 @@ function EditMemberRoleSheet({
   )
 }
 
-function EditMemberRolePermissionsSheet({
+function UpdateMemberRolePermissionsSheet({
   project,
   role,
   canUpdateRoles,
@@ -595,9 +625,12 @@ function EditMemberRolePermissionsSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMemberRolesTable")
 
   const isOwnerRole = role.id === project.id
-  const [editingRole, setEditingRole] = useState<ProjectMemberRole | null>(null)
+  const [updatingRole, setUpdatingRole] = useState<ProjectMemberRole | null>(
+    null
+  )
   const [selectedPermissions, setSelectedPermissions] = useState<Set<bigint>>(
     new Set()
   )
@@ -610,7 +643,12 @@ function EditMemberRolePermissionsSheet({
         ).map((permission) => permission.value)
       )
     )
-    setEditingRole(currentRole)
+    setUpdatingRole(currentRole)
+  }
+
+  function closeEditor() {
+    setUpdatingRole(null)
+    setSelectedPermissions(new Set())
   }
 
   function togglePermission(permission: bigint) {
@@ -625,8 +663,10 @@ function EditMemberRolePermissionsSheet({
     })
   }
 
-  async function handleSavePermissions() {
-    if (!editingRole || isOwnerRole) return
+  async function handleSavePermissions(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+
+    if (!updatingRole || isOwnerRole) return
 
     const permissions = Array.from(selectedPermissions).reduce(
       (combined, permission) => combined | permission,
@@ -634,21 +674,29 @@ function EditMemberRolePermissionsSheet({
     )
 
     setLoading(true)
-
     await updateProjectMemberRole({
       projectId: project.id,
-      roleId: editingRole.id,
+      roleId: updatingRole.id,
       permissions,
     })
       .then((updatedRole) => {
-        toast.success(`Updated permissions for ${updatedRole.name}.`)
-        setEditingRole(null)
+        toast.success(
+          t("toast.updatePermissionsSuccess", {
+            roleName: updatedRole.name,
+            roleId: updatedRole.id.slice(0, 8),
+          })
+        )
+
+        closeEditor()
         router.refresh()
       })
       .catch((error) => {
         toast.error(
           error?.message ||
-            "Failed to update role permissions. Please try again."
+            t("toast.updatePermissionsFailed", {
+              roleName: updatingRole.name,
+              roleId: updatingRole.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -658,12 +706,8 @@ function EditMemberRolePermissionsSheet({
 
   return (
     <Sheet
-      open={editingRole?.id === role.id}
-      onOpenChange={(open) => {
-        if (!open) {
-          setEditingRole(null)
-        }
-      }}
+      open={updatingRole?.id === role.id}
+      onOpenChange={(open) => !open && closeEditor()}
     >
       <Tooltip>
         <TooltipTrigger
@@ -690,12 +734,12 @@ function EditMemberRolePermissionsSheet({
         </TooltipTrigger>
         {!canUpdateRoles && (
           <TooltipContent>
-            You don&rsquo;t have permission to edit role permissions.
+            {t("tooltip.noPermissionUpdatePermissions")}
           </TooltipContent>
         )}
         {isOwnerRole && (
           <TooltipContent>
-            The Owner role always has all permissions and cannot be edited.
+            {t("tooltip.ownerRoleUpdatePermissions")}
           </TooltipContent>
         )}
       </Tooltip>
@@ -703,10 +747,16 @@ function EditMemberRolePermissionsSheet({
       <SheetContent className="flex flex-col overflow-hidden">
         <SheetHeader className="shrink-0">
           <SheetTitle>
-            Edit permissions for {editingRole?.name || role.name}
+            {t("sheet.updatePermissions.title", {
+              roleName: updatingRole?.name || "",
+              roleId: updatingRole?.id.slice(0, 8) || "",
+            })}
           </SheetTitle>
           <SheetDescription>
-            Manage this role&rsquo;s project permissions.
+            {t("sheet.updatePermissions.description", {
+              roleName: updatingRole?.name || "",
+              roleId: updatingRole?.id.slice(0, 8) || "",
+            })}
           </SheetDescription>
         </SheetHeader>
 
@@ -741,26 +791,25 @@ function EditMemberRolePermissionsSheet({
 
         <SheetFooter className="shrink-0">
           <Button
-            onClick={() => void handleSavePermissions()}
-            disabled={loading || !editingRole || isOwnerRole}
+            onClick={handleSavePermissions}
+            disabled={loading || !updatingRole || isOwnerRole}
           >
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Saving permissions...
+                {t("sheet.updatePermissions.updatingPermissions")}
               </>
             ) : (
-              "Save permissions"
+              <>
+                <ShieldIcon className="h-4 w-4" />
+                {t("sheet.updatePermissions.updatePermissions")}
+              </>
             )}
           </Button>
 
           <SheetClose asChild>
-            <Button
-              variant="outline"
-              disabled={loading}
-              onClick={() => setEditingRole(null)}
-            >
-              Close
+            <Button variant="outline" disabled={loading} onClick={closeEditor}>
+              {t("sheet.close")}
             </Button>
           </SheetClose>
         </SheetFooter>
@@ -785,6 +834,7 @@ function DeleteMemberRoleDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMemberRolesTable")
 
   const [deletingRole, setDeletingRole] = useState<ProjectMemberRole | null>(
     null
@@ -798,13 +848,22 @@ function DeleteMemberRoleDialog({
       roleId: currentRole.id,
     })
       .then((deletedRole) => {
-        toast.success(`Deleted role ${deletedRole.name}.`)
+        toast.success(
+          t("toast.deleteRoleSuccess", {
+            roleName: deletedRole.name,
+            roleId: deletedRole.id.slice(0, 8),
+          })
+        )
         setDeletingRole(null)
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to delete role. Please try again."
+          error?.message ||
+            t("toast.deleteRoleFailed", {
+              roleName: currentRole.name,
+              roleId: currentRole.id.slice(0, 8),
+            })
         )
       })
       .finally(() => {
@@ -841,15 +900,10 @@ function DeleteMemberRoleDialog({
           </span>
         </TooltipTrigger>
         {!canDeleteRoles && (
-          <TooltipContent>
-            You don&rsquo;t have permission to delete roles.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionDeleteRole")}</TooltipContent>
         )}
         {isOwnerRole && (
-          <TooltipContent>
-            The Owner role cannot be deleted as it is required for project
-            ownership and permissions management.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.ownerRoleDelete")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -857,14 +911,17 @@ function DeleteMemberRoleDialog({
         <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteRole.title", {
+                roleName: deletingRole?.name || "",
+                roleId: deletingRole?.id.slice(0, 8) || "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              role{" "}
-              <span className="font-mono">
-                {deletingRole?.name} ({deletingRole?.id.slice(0, 8)})
-              </span>
-              .
+              {t("dialog.deleteRole.description", {
+                roleName: deletingRole?.name || "",
+                roleId: deletingRole?.id.slice(0, 8) || "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -874,7 +931,7 @@ function DeleteMemberRoleDialog({
               disabled={loading}
               onClick={() => setDeletingRole(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -890,12 +947,12 @@ function DeleteMemberRoleDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting role...
+                  {t("dialog.deleteRole.deletingRole")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete Role
+                  {t("dialog.deleteRole.deleteRole")}
                 </>
               )}
             </Button>

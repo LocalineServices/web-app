@@ -23,11 +23,13 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
 import { TrashIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function DeleteAccountCard() {
+  const t = useTranslations("DeleteAccountCard")
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -35,21 +37,19 @@ export default function DeleteAccountCard() {
 
   const handleDeleteAccount = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.deleteUser({
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Your account has been successfully deleted.")
+          toast.success(t("toast.accountDeleted"))
           setDialogOpen(false)
           setLoading(false)
 
           router.push("/")
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to delete your account. Please try again."
-          )
+          toast.error(error?.message || t("toast.deleteFailed"))
           setDialogOpen(false)
           setLoading(false)
         },
@@ -60,12 +60,8 @@ export default function DeleteAccountCard() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Delete Account</CardTitle>
-        <CardDescription>
-          Once you delete your account, there is no going back. Deleting your
-          account will remove all attached data, including projects, from the
-          system.
-        </CardDescription>
+        <CardTitle>{t("card.title")}</CardTitle>
+        <CardDescription>{t("card.description")}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -73,7 +69,7 @@ export default function DeleteAccountCard() {
           <AlertDialogTrigger asChild>
             <Button variant="destructive" disabled={loading}>
               <TrashIcon className="me-1" />
-              Delete Account
+              {t("button.deleteAccount")}
             </Button>
           </AlertDialogTrigger>
 
@@ -82,10 +78,9 @@ export default function DeleteAccountCard() {
 
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from the system.
+                  {t("dialog.description")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -95,7 +90,7 @@ export default function DeleteAccountCard() {
                   onClick={() => setDialogOpen(false)}
                   disabled={loading}
                 >
-                  Cancel
+                  {t("dialog.cancel")}
                 </AlertDialogCancel>
 
                 <Button
@@ -106,12 +101,12 @@ export default function DeleteAccountCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Deleting account...
+                      {t("dialog.deletingAccount")}
                     </>
                   ) : (
                     <>
                       <TrashIcon className="h-4 w-4" />
-                      Delete account
+                      {t("dialog.deleteAccount")}
                     </>
                   )}
                 </Button>

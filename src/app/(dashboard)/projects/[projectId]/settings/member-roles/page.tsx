@@ -1,17 +1,23 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import CreateMemberRoleDialog from "@/components/dashboard/projects/project/settings/CreateMemberRoleDialog"
-import MemberRolesTable from "@/components/dashboard/projects/project/settings/MemberRolesTable"
+import ProjectMemberRolesTable from "@/components/dashboard/projects/project/settings/MemberRolesTable"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Member Roles",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("ProjectMemberRoleSettingsPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function ProjectMemberRoleSettingsPage() {
+  const t = await getTranslations("ProjectMemberRoleSettingsPage")
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
-        <ProjectNavigation description="Manage member roles for your project." />
+        <ProjectNavigation description={t("description")} />
 
         <div className="flex gap-2">
           <CreateMemberRoleDialog />
@@ -19,7 +25,7 @@ export default async function ProjectMemberRoleSettingsPage() {
       </div>
 
       <div>
-        <MemberRolesTable />
+        <ProjectMemberRolesTable />
       </div>
     </div>
   )

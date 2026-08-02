@@ -24,12 +24,16 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateLabelDialog() {
   const router = useRouter()
+  const t = useTranslations("CreateLabelDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -65,12 +69,17 @@ export default function CreateLabelDialog() {
       description: description?.trim() || null,
     })
       .then((label) => {
-        toast.success(`Created label ${label.name}.`)
+        toast.success(
+          t("toast.createSuccess", {
+            labelName: label.name,
+            labelId: label.id.slice(0, 8),
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to create label. Please try again."
+          error?.message || t("toast.createFailed", { labelName: name })
         )
       })
       .finally(() => {
@@ -102,21 +111,22 @@ export default function CreateLabelDialog() {
                 disabled={!canManageLabels || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                New Label
+                {t("button.createLabel")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canManageLabels ? (
-          <TooltipContent>
-            You don&rsquo;t have permission to create labels in this project.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         ) : (
           isLimitReached && (
             <TooltipContent>
               {project.plan.labelsLimit === 0
-                ? "Your current plan does not allow adding labels."
-                : `This project has reached the maximum number of labels allowed by your plan (${project.labels.length}/${project.plan.labelsLimit}).`}
+                ? t("tooltip.limitZero")
+                : t("tooltip.limitReached", {
+                    current: format.number(project.labels.length),
+                    limit: format.number(project.plan.labelsLimit ?? 0),
+                  })}
             </TooltipContent>
           )
         )}
@@ -124,28 +134,28 @@ export default function CreateLabelDialog() {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new label</DialogTitle>
-          <DialogDescription>
-            Add a new label to your project.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="labelName">Label name</Label>
+            <Label htmlFor="labelName">{t("dialog.labelNameLabel")}</Label>
             <Input
               id="labelName"
-              placeholder="My Label"
+              placeholder={t("dialog.labelNamePlaceholder")}
               value={name}
               onChange={({ target: { value } }) => setName(value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="labelDescription">Description (optional)</Label>
+            <Label htmlFor="labelDescription">
+              {t("dialog.descriptionLabel")}
+            </Label>
             <Input
               id="labelDescription"
-              placeholder="A brief description of your label"
+              placeholder={t("dialog.descriptionPlaceholder")}
               value={description ?? ""}
               onChange={({ target: { value } }) => setDescription(value)}
             />
@@ -162,7 +172,7 @@ export default function CreateLabelDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -173,12 +183,12 @@ export default function CreateLabelDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Creating...
+                {t("dialog.creatingLabel")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Create Label
+                {t("dialog.createLabel")}
               </>
             )}
           </Button>

@@ -26,6 +26,7 @@ import remarkGfm from "remark-gfm"
 import { authClient } from "@/lib/auth-client"
 import { useSession } from "@/components/session-provider"
 import DashboardAlerts from "@/components/dashboard/DashboardAlerts"
+import { useTranslations } from "next-intl"
 
 function formatVersion(version: string) {
   return version.replace(/^v/, "")
@@ -38,6 +39,8 @@ export default function DashboardCards({
   emailVerificationRequired: boolean
   currentVersion: string
 }) {
+  const t = useTranslations("DashboardCards")
+
   const { user } = useSession()
 
   const [latestRelease, setLatestRelease] = useState<string | null>(null)
@@ -108,10 +111,8 @@ export default function DashboardCards({
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle>Version</CardTitle>
-              <CardDescription>
-                Current installed application version
-              </CardDescription>
+              <CardTitle>{t("version.title")}</CardTitle>
+              <CardDescription>{t("version.description")}</CardDescription>
             </div>
 
             {hasUpdate && (
@@ -128,7 +129,7 @@ export default function DashboardCards({
                     target="_blank"
                     prefetch={false}
                   >
-                    Update
+                    {t("version.updateButton")}
                   </Link>
                 </Button>
               </div>
@@ -144,7 +145,7 @@ export default function DashboardCards({
 
             {hasUpdate && (
               <div className="mt-2 text-sm font-medium text-red-600 dark:text-red-400">
-                New version available: {latestRelease}
+                {t("version.updateAvailable", { latestRelease })}
               </div>
             )}
           </div>
@@ -158,13 +159,11 @@ export default function DashboardCards({
               <CardTitle>
                 <div className="flex items-center gap-2">
                   <GitHubIcon width={16} />
-                  GitHub
+                  {t("github.title")}
                 </div>
               </CardTitle>
 
-              <CardDescription>
-                Browse the source code, releases and contribute to the project.
-              </CardDescription>
+              <CardDescription>{t("github.description")}</CardDescription>
             </div>
 
             <CardAction className="ml-auto">
@@ -174,7 +173,7 @@ export default function DashboardCards({
                   target="_blank"
                   prefetch={false}
                 >
-                  Open GitHub
+                  {t("github.visitButton")}
                 </Link>
               </Button>
             </CardAction>
@@ -182,8 +181,7 @@ export default function DashboardCards({
 
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Visit the GitHub repository to explore the source code, open
-              issues, contribute changes, and stay up to date with new releases.
+              {t("github.content")}
             </p>
           </CardContent>
         </Card>
@@ -194,12 +192,12 @@ export default function DashboardCards({
               <CardTitle>
                 <div className="flex items-center gap-2">
                   <FileTextIcon width={16} />
-                  Documentation
+                  {t("documentation.title")}
                 </div>
               </CardTitle>
 
               <CardDescription>
-                Read the documentation and API reference.
+                {t("documentation.description")}
               </CardDescription>
             </div>
 
@@ -210,7 +208,7 @@ export default function DashboardCards({
                   target="_blank"
                   prefetch={false}
                 >
-                  Read Documentation
+                  {t("documentation.visitButton")}
                 </Link>
               </Button>
             </CardAction>
@@ -218,8 +216,7 @@ export default function DashboardCards({
 
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Check the documentation for installation, configuration,
-              troubleshooting, and best practices.
+              {t("documentation.content")}
             </p>
           </CardContent>
         </Card>
@@ -235,6 +232,8 @@ function ChangelogDialog({
   changelog: string
   version: string
 }) {
+  const t = useTranslations("DashboardCards")
+
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   function stripGitHubAlerts(value: string) {
@@ -252,14 +251,14 @@ function ChangelogDialog({
     <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          Show Changelog
+          {t("changelogDialog.button.showChangelog")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="flex h-140 max-h-[calc(100dvh-4rem)] flex-col overflow-hidden sm:max-w-230">
         <DialogTitle className="flex items-center gap-2 text-3xl font-bold">
           <ClipboardListIcon />
-          Changelog of {version}
+          {t("changelogDialog.title", { version })}
         </DialogTitle>
 
         <DialogDescription className="hidden" />

@@ -31,7 +31,7 @@
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. [Fork](https://github.com/localineapp/web-app/fork) the repository
-2. Clone your fork (`git clone https://github.com/your-username/web-app.git`)
+2. Clone your fork (`git clone --recurse-submodules https://github.com/your-username/web-app.git`)
 3. Create your feature branch (`git checkout -b feat/amazing-feature`)
 4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
 5. Push to the branch (`git push origin feat/amazing-feature`)

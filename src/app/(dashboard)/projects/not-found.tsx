@@ -8,9 +8,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { AlertTriangleIcon, HomeIcon } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import Link from "next/link"
 
-export default function NotFoundPage() {
+export default async function ProjectNotFoundPage() {
+  const t = await getTranslations("ProjectNotFoundPage")
+
   return (
     <div className="flex min-h-full flex-col">
       <Empty>
@@ -19,10 +22,10 @@ export default function NotFoundPage() {
             <AlertTriangleIcon />
           </EmptyMedia>
 
-          <EmptyTitle className="text-4xl">Project Not Found</EmptyTitle>
+          <EmptyTitle className="text-4xl font-bold">{t("title")}</EmptyTitle>
 
           <EmptyDescription className="text-lg">
-            The project you are looking for does not exist.
+            {t("description")}
           </EmptyDescription>
         </EmptyHeader>
 
@@ -30,7 +33,7 @@ export default function NotFoundPage() {
           <Button asChild size="lg">
             <Link href="/">
               <HomeIcon className="mr-2 h-5 w-5" />
-              Go back to dashboard
+              {t("button.goToDashboard")}
             </Link>
           </Button>
         </EmptyContent>

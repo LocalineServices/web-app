@@ -28,8 +28,10 @@ import { useRouter } from "next/navigation"
 import { Trash2Icon, TrashIcon } from "lucide-react"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 export function RevokeOtherSessionsDialog() {
+  const t = useTranslations("RevokeOtherSessionsDialog")
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -37,20 +39,18 @@ export function RevokeOtherSessionsDialog() {
 
   const handleRevokeSessions = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.revokeOtherSessions({
       fetchOptions: {
         onSuccess: () => {
-          toast.success("All sessions revoked except the current one.")
+          toast.success(t("toast.sessionsRevoked"))
           setDialogOpen(false)
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to revoke sessions. Please try again."
-          )
+          toast.error(error?.message || t("toast.revokeFailed"))
           setDialogOpen(false)
           setLoading(false)
         },
@@ -63,16 +63,14 @@ export function RevokeOtherSessionsDialog() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <TrashIcon className="mr-2 h-4 w-4" />
-          Revoke Other Sessions
+          {t("button.revokeOtherSessions")}
         </Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Revoke Other Sessions</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to revoke all other active sessions?
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <DialogFooter>
@@ -81,7 +79,7 @@ export function RevokeOtherSessionsDialog() {
             onClick={() => setDialogOpen(false)}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -92,12 +90,12 @@ export function RevokeOtherSessionsDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Revoking Sessions...
+                {t("dialog.revokingOtherSessions")}
               </>
             ) : (
               <>
                 <TrashIcon className="h-4 w-4" />
-                Revoke Sessions
+                {t("dialog.revokeOtherSessions")}
               </>
             )}
           </Button>
@@ -108,6 +106,7 @@ export function RevokeOtherSessionsDialog() {
 }
 
 export function RevokeAllSessionsDialog() {
+  const t = useTranslations("RevokeAllSessionsDialog")
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -115,20 +114,18 @@ export function RevokeAllSessionsDialog() {
 
   const handleRevokeSessions = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
+    setLoading(true)
     await authClient.revokeSessions({
       fetchOptions: {
         onSuccess: () => {
-          toast.success("All sessions revoked.")
+          toast.success(t("toast.sessionsRevoked"))
           setDialogOpen(false)
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to revoke sessions. Please try again."
-          )
+          toast.error(error?.message || t("toast.revokeFailed"))
           setDialogOpen(false)
           setLoading(false)
         },
@@ -142,7 +139,7 @@ export function RevokeAllSessionsDialog() {
         <AlertDialogTrigger asChild>
           <Button variant="destructive">
             <Trash2Icon className="mr-2 h-4 w-4" />
-            Revoke All Sessions
+            {t("button.revokeAllSessions")}
           </Button>
         </AlertDialogTrigger>
 
@@ -151,10 +148,9 @@ export function RevokeAllSessionsDialog() {
 
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Revoke All Sessions</AlertDialogTitle>
+              <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This will revoke all active sessions, including the current one.
-                Are you sure you want to proceed?
+                {t("dialog.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
 
@@ -164,7 +160,7 @@ export function RevokeAllSessionsDialog() {
                 onClick={() => setDialogOpen(false)}
                 disabled={loading}
               >
-                Cancel
+                {t("dialog.cancel")}
               </AlertDialogCancel>
 
               <Button
@@ -175,12 +171,12 @@ export function RevokeAllSessionsDialog() {
                 {loading ? (
                   <>
                     <Spinner className="h-4 w-4" />
-                    Revoking Sessions...
+                    {t("dialog.revokingAllSessions")}
                   </>
                 ) : (
                   <>
                     <Trash2Icon className="h-4 w-4" />
-                    Revoke Sessions
+                    {t("dialog.revokeAllSessions")}
                   </>
                 )}
               </Button>

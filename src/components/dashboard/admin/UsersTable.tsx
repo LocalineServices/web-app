@@ -68,10 +68,13 @@ import {
 import { cn } from "@/lib/utils"
 import { UserWithRole } from "better-auth/plugins"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function UsersTable({ users }: { users: UserWithRole[] }) {
+export default function AdminUsersTable({ users }: { users: UserWithRole[] }) {
+  const t = useTranslations("AdminUsersTable")
+
   const { user: currentUser } = useSession()
 
   const [page, setPage] = useState(1)
@@ -100,7 +103,7 @@ export default function UsersTable({ users }: { users: UserWithRole[] }) {
     <div>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search users by name, email, or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -116,12 +119,20 @@ export default function UsersTable({ users }: { users: UserWithRole[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="text-center">Role</TableHead>
-              <TableHead className="text-center">Banned</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("table.header.id")}
+              </TableHead>
+              <TableHead>{t("table.header.name")}</TableHead>
+              <TableHead>{t("table.header.email")}</TableHead>
+              <TableHead className="text-center">
+                {t("table.header.role")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("table.header.banned")}
+              </TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("table.header.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -137,7 +148,9 @@ export default function UsersTable({ users }: { users: UserWithRole[] }) {
                     <TableCell className="min-w-40">
                       <div className="flex gap-2">
                         <span className="font-mono text-sm">{user.name}</span>
-                        {user.id === currentUser?.id && <Badge>You</Badge>}
+                        {user.id === currentUser?.id && (
+                          <Badge>{t("table.row.badge.you")}</Badge>
+                        )}
                       </div>
                     </TableCell>
 
@@ -178,7 +191,7 @@ export default function UsersTable({ users }: { users: UserWithRole[] }) {
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
-                        <EditUserSheet
+                        <UpdateUserSheet
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
@@ -205,8 +218,8 @@ export default function UsersTable({ users }: { users: UserWithRole[] }) {
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No users found matching your search."
-                    : "No users found."}
+                    ? t("table.noUsersFound", { query: searchQuery })
+                    : t("table.noUsersFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -226,7 +239,7 @@ export default function UsersTable({ users }: { users: UserWithRole[] }) {
   )
 }
 
-function EditUserSheet({
+function UpdateUserSheet({
   user,
   loading,
   setLoading,
@@ -235,10 +248,12 @@ function EditUserSheet({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
+  const t = useTranslations("AdminUsersTable")
+
   const router = useRouter()
   const { user: currentUser } = useSession()
 
-  const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
+  const [updatingUser, setUpdatingUser] = useState<UserWithRole | null>(null)
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -281,11 +296,11 @@ function EditUserSheet({
     setBanReason(user.banReason ?? "")
     setBanExpires(toDateTimeLocalValue(user.banExpires))
     setProjectsLimit(getProjectsLimit(user))
-    setEditingUser(user)
+    setUpdatingUser(user)
   }
 
   function closeEditor() {
-    setEditingUser(null)
+    setUpdatingUser(null)
     setName("")
     setEmail("")
     setPassword("")
@@ -300,16 +315,16 @@ function EditUserSheet({
   async function handleUpdateUser(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingUser) return
+    if (!updatingUser) return
 
-    const initialName = editingUser.name?.trim() ?? ""
-    const initialEmail = editingUser.email?.trim() ?? ""
-    const initialEmailVerified = Boolean(editingUser.emailVerified)
-    const initialRole = editingUser.role === "admin" ? "admin" : "user"
-    const initialBanned = Boolean(editingUser.banned)
-    const initialBanReason = (editingUser.banReason ?? "").trim()
-    const initialBanExpires = toDateTimeLocalValue(editingUser.banExpires)
-    const initialProjectsLimit = getProjectsLimit(editingUser)
+    const initialName = updatingUser.name?.trim() ?? ""
+    const initialEmail = updatingUser.email?.trim() ?? ""
+    const initialEmailVerified = Boolean(updatingUser.emailVerified)
+    const initialRole = updatingUser.role === "admin" ? "admin" : "user"
+    const initialBanned = Boolean(updatingUser.banned)
+    const initialBanReason = (updatingUser.banReason ?? "").trim()
+    const initialBanExpires = toDateTimeLocalValue(updatingUser.banExpires)
+    const initialProjectsLimit = getProjectsLimit(updatingUser)
 
     const currentName = name.trim()
     const currentEmail = email.trim()
@@ -319,20 +334,17 @@ function EditUserSheet({
     const currentProjectsLimit = projectsLimit
 
     if (!currentName || !currentEmail) {
-      toast.error("Name and email are required.")
-      return
-    }
-
-    if (
-      currentProjectsLimit !== undefined &&
-      Number.isNaN(currentProjectsLimit)
-    ) {
-      toast.error("Projects limit must be a valid number.")
+      toast.error(t("toast.nameAndEmailRequired"))
       return
     }
 
     if (currentProjectsLimit === undefined && initialProjectsLimit !== null) {
-      toast.error("Projects limit cannot be empty.")
+      toast.error(t("toast.projectsLimitEmpty"))
+      return
+    }
+
+    if (Number.isNaN(currentProjectsLimit)) {
+      toast.error(t("toast.projectsLimitInvalid"))
       return
     }
 
@@ -340,12 +352,12 @@ function EditUserSheet({
       const parsedBanExpires = new Date(currentBanExpires)
 
       if (Number.isNaN(parsedBanExpires.getTime())) {
-        toast.error("Ban expiry must be a valid date and time.")
+        toast.error(t("toast.banExpiresInvalid"))
         return
       }
 
       if (parsedBanExpires.getTime() <= Date.now()) {
-        toast.error("Ban expiry must be in the future.")
+        toast.error(t("toast.banExpiresFuture"))
         return
       }
     }
@@ -363,7 +375,7 @@ function EditUserSheet({
       currentProjectsLimit !== initialProjectsLimit
 
     if (!hasChanges) {
-      toast.info("No changes to save.")
+      toast.info(t("toast.noChanges"))
       closeEditor()
       return
     }
@@ -391,42 +403,39 @@ function EditUserSheet({
 
       if (Object.keys(updateData).length > 0) {
         const updateResult = await authClient.admin.updateUser({
-          userId: editingUser.id,
+          userId: updatingUser.id,
           data: updateData,
         })
 
         if (updateResult.error) {
           throw new Error(
-            updateResult.error.message ||
-              "Failed to update user. Please try again."
+            updateResult.error.message || t("toast.updateGenericFailed")
           )
         }
       }
 
       if (role !== initialRole) {
         const roleResult = await authClient.admin.setRole({
-          userId: editingUser.id,
+          userId: updatingUser.id,
           role,
         })
 
         if (roleResult.error) {
           throw new Error(
-            roleResult.error.message ||
-              "Failed to update user role. Please try again."
+            roleResult.error.message || t("toast.updateRoleFailed")
           )
         }
       }
 
       if (currentPassword !== "") {
         const passwordResult = await authClient.admin.setUserPassword({
-          userId: editingUser.id,
+          userId: updatingUser.id,
           newPassword: currentPassword,
         })
 
         if (passwordResult.error) {
           throw new Error(
-            passwordResult.error.message ||
-              "Failed to update user password. Please try again."
+            passwordResult.error.message || t("toast.updatePasswordFailed")
           )
         }
       }
@@ -446,39 +455,46 @@ function EditUserSheet({
                 )
 
           const banResult = await authClient.admin.banUser({
-            userId: editingUser.id,
+            userId: updatingUser.id,
             banReason: currentBanReason || undefined,
             banExpiresIn,
           })
 
           if (banResult.error) {
             throw new Error(
-              banResult.error.message ||
-                "Failed to update user ban status. Please try again."
+              banResult.error.message || t("toast.updateBanFailed")
             )
           }
         } else {
           const unbanResult = await authClient.admin.unbanUser({
-            userId: editingUser.id,
+            userId: updatingUser.id,
           })
 
           if (unbanResult.error) {
             throw new Error(
-              unbanResult.error.message ||
-                "Failed to update user ban status. Please try again."
+              unbanResult.error.message || t("toast.updateBanFailed")
             )
           }
         }
       }
 
-      toast.success(`Updated ${currentName} (${editingUser.id.slice(0, 8)}).`)
+      toast.success(
+        t("toast.updateSuccess", {
+          userName: currentName,
+          userId: updatingUser.id.slice(0, 8),
+        })
+      )
+
       closeEditor()
       router.refresh()
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to update user. Please try again."
+          : t("toast.updateGenericFailed", {
+              userName: updatingUser?.name ?? "",
+              userId: updatingUser?.id.slice(0, 8) ?? "",
+            })
       )
     } finally {
       setLoading(false)
@@ -487,12 +503,8 @@ function EditUserSheet({
 
   return (
     <Sheet
-      open={editingUser?.id === user.id}
-      onOpenChange={(open) => {
-        if (!open) {
-          closeEditor()
-        }
-      }}
+      open={updatingUser?.id === user.id}
+      onOpenChange={(open) => !open && closeEditor()}
     >
       <SheetTrigger asChild>
         <Button
@@ -513,23 +525,23 @@ function EditUserSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              Edit{" "}
-              <span className="font-mono">
-                {editingUser?.name} ({editingUser?.id.slice(0, 8)})
-              </span>{" "}
+              {t("sheet.updateUser.title", {
+                userName: updatingUser?.name ?? "",
+                userId: updatingUser?.id.slice(0, 8) ?? "",
+              })}
             </SheetTitle>
             <SheetDescription>
-              Here you can edit the user&rsquo;s details, change their role, or
-              ban/unban the user.
+              {t("sheet.updateUser.description", {
+                userName: updatingUser?.name ?? "",
+                userId: updatingUser?.id.slice(0, 8) ?? "",
+              })}
             </SheetDescription>
-            {editingUser?.id === currentUser?.id && (
+            {updatingUser?.id === currentUser?.id && (
               <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                 <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                <AlertTitle>Editing Own Profile</AlertTitle>
+                <AlertTitle>{t("alert.updatingSelfTitle")}</AlertTitle>
                 <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                  You are currently editing your own profile. Changes you make
-                  here may lock you out of your account or cause other issues.
-                  Please be careful!
+                  {t("alert.updatingSelfDescription")}
                 </AlertDescription>
               </Alert>
             )}
@@ -538,10 +550,11 @@ function EditUserSheet({
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("sheet.updateUser.nameLabel")}</Label>
                 <Input
                   id="name"
                   value={name}
+                  placeholder={t("sheet.updateUser.namePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setName(event.target.value)}
@@ -549,10 +562,13 @@ function EditUserSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">
+                  {t("sheet.updateUser.emailLabel")}
+                </Label>
                 <Input
                   id="email"
                   value={email}
+                  placeholder={t("sheet.updateUser.emailPlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setEmail(event.target.value)}
@@ -560,19 +576,23 @@ function EditUserSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">
+                  {t("sheet.updateUser.passwordLabel")}
+                </Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
-                  placeholder="Leave blank to keep the current password"
+                  placeholder={t("sheet.updateUser.passwordPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="emailVerified">Email Verified</Label>
+                <Label htmlFor="emailVerified">
+                  {t("sheet.updateUser.emailVerifiedLabel")}
+                </Label>
                 <ToggleGroup
                   type="single"
                   className="grid w-full grid-cols-2 border-2"
@@ -588,19 +608,19 @@ function EditUserSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    Yes
+                    {t("sheet.updateUser.emailVerifiedYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    No
+                    {t("sheet.updateUser.emailVerifiedNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">{t("sheet.updateUser.roleLabel")}</Label>
                 <NativeSelect
                   id="role"
                   value={role}
@@ -610,13 +630,19 @@ function EditUserSheet({
                     setRole(event.target.value === "admin" ? "admin" : "user")
                   }
                 >
-                  <NativeSelectOption value="user">User</NativeSelectOption>
-                  <NativeSelectOption value="admin">Admin</NativeSelectOption>
+                  <NativeSelectOption value="user">
+                    {t("sheet.updateUser.roleUser")}
+                  </NativeSelectOption>
+                  <NativeSelectOption value="admin">
+                    {t("sheet.updateUser.roleAdmin")}
+                  </NativeSelectOption>
                 </NativeSelect>
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="banned">Banned</Label>
+                <Label htmlFor="banned">
+                  {t("sheet.updateUser.bannedLabel")}
+                </Label>
                 <ToggleGroup
                   type="single"
                   className="grid w-full grid-cols-2 border-2"
@@ -632,13 +658,13 @@ function EditUserSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    Yes
+                    {t("sheet.updateUser.bannedYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    No
+                    {t("sheet.updateUser.bannedNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -646,22 +672,27 @@ function EditUserSheet({
               {banned && (
                 <>
                   <div className="grid gap-3">
-                    <Label htmlFor="banReason">Ban Reason</Label>
+                    <Label htmlFor="banReason">
+                      {t("sheet.updateUser.banReasonLabel")}
+                    </Label>
                     <Input
                       id="banReason"
                       value={banReason}
-                      placeholder="Enter ban reason..."
+                      placeholder={t("sheet.updateUser.banReasonPlaceholder")}
                       disabled={loading}
                       onChange={(event) => setBanReason(event.target.value)}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="banExpires">Ban Expires</Label>
+                    <Label htmlFor="banExpires">
+                      {t("sheet.updateUser.banExpiresLabel")}
+                    </Label>
                     <Input
                       id="banExpires"
                       type="datetime-local"
                       value={banExpires}
+                      placeholder={t("sheet.updateUser.banExpiresPlaceholder")}
                       disabled={loading}
                       onChange={(event) => setBanExpires(event.target.value)}
                     />
@@ -670,12 +701,14 @@ function EditUserSheet({
               )}
 
               <div className="grid gap-3">
-                <Label htmlFor="projectsLimit">Projects Limit</Label>
+                <Label htmlFor="projectsLimit">
+                  {t("sheet.updateUser.projectsLimitLabel")}
+                </Label>
                 <Input
                   id="projectsLimit"
                   type="number"
                   value={projectsLimit ?? ""}
-                  placeholder="Enter projects limit..."
+                  placeholder={t("sheet.updateUser.projectsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setProjectsLimit(
@@ -693,16 +726,19 @@ function EditUserSheet({
             <Button
               type="submit"
               disabled={
-                loading || !editingUser || !name.trim() || !email.trim()
+                loading || !updatingUser || !name.trim() || !email.trim()
               }
             >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Saving changes...
+                  {t("sheet.updateUser.updatingUser")}
                 </>
               ) : (
-                "Save changes"
+                <>
+                  <PencilIcon className="mr-1 size-4" />
+                  {t("sheet.updateUser.updateUser")}
+                </>
               )}
             </Button>
 
@@ -710,9 +746,9 @@ function EditUserSheet({
               <Button
                 variant="outline"
                 disabled={loading}
-                onClick={() => setEditingUser(null)}
+                onClick={() => setUpdatingUser(null)}
               >
-                Close
+                {t("sheet.close")}
               </Button>
             </SheetClose>
           </SheetFooter>
@@ -731,6 +767,8 @@ function ImpersonateUserButton({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
+  const t = useTranslations("AdminUsersTable")
+
   const router = useRouter()
   const { user: currentUser } = useSession()
 
@@ -738,20 +776,26 @@ function ImpersonateUserButton({
 
   function handleImpersonateUser(user: { id: string; name: string }) {
     setLoading(true)
-
     authClient.admin.impersonateUser({
       userId: user.id,
       fetchOptions: {
         onSuccess: () => {
           toast.success(
-            `Started impersonating ${user.name} (${user.id.slice(0, 8)}).`
+            t("toast.impersonationSuccess", {
+              userName: user.name,
+              userId: user.id.slice(0, 8),
+            })
           )
           router.push("/")
           router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
-            error?.message || "Failed to impersonate user. Please try again."
+            error?.message ||
+              t("toast.impersonationError", {
+                userName: user.name,
+                userId: user.id.slice(0, 8),
+              })
           )
           setLoading(false)
         },
@@ -781,8 +825,8 @@ function ImpersonateUserButton({
       {!canImpersonateUser && (
         <TooltipContent>
           {user.id === currentUser?.id
-            ? "You can't impersonate yourself."
-            : "You can't impersonate a banned user."}
+            ? t("tooltip.cannotImpersonateSelf")
+            : t("tooltip.cannotImpersonateBanned")}
         </TooltipContent>
       )}
     </Tooltip>
@@ -798,6 +842,8 @@ function DeleteUserDialog({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
+  const t = useTranslations("AdminUsersTable")
+
   const router = useRouter()
   const { user: currentUser } = useSession()
 
@@ -811,14 +857,23 @@ function DeleteUserDialog({
       userId: user.id,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`Deleted user ${user.name} (${user.id.slice(0, 8)}).`)
+          toast.success(
+            t("toast.deleteSuccess", {
+              userName: user.name,
+              userId: user.id.slice(0, 8),
+            })
+          )
           setLoading(false)
           setDeletingUser(null)
           router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
-            error?.message || "Failed to delete user. Please try again."
+            error?.message ||
+              t("toast.deleteFailed", {
+                userName: user.name,
+                userId: user.id.slice(0, 8),
+              })
           )
           setLoading(false)
           setDeletingUser(null)
@@ -854,9 +909,7 @@ function DeleteUserDialog({
           </span>
         </TooltipTrigger>
         {!canDeleteUser && (
-          <TooltipContent>
-            You can&rsquo;t delete your own account.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.cannotDeleteSelf")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -865,14 +918,17 @@ function DeleteUserDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteUser.title", {
+                userName: deletingUser?.name ?? "",
+                userId: deletingUser?.id.slice(0, 8) ?? "",
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              user account{" "}
-              <span className="font-mono">
-                {user.name} ({user.id.slice(0, 8)})
-              </span>{" "}
-              and all associated data. Please confirm that you want to proceed.
+              {t("dialog.deleteUser.description", {
+                userName: deletingUser?.name ?? "",
+                userId: deletingUser?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -882,7 +938,7 @@ function DeleteUserDialog({
               disabled={loading}
               onClick={() => setDeletingUser(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -898,12 +954,12 @@ function DeleteUserDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting user...
+                  {t("dialog.deleteUser.deletingUser")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete User
+                  {t("dialog.deleteUser.deleteUser")}
                 </>
               )}
             </Button>

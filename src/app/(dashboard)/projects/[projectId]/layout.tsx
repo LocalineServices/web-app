@@ -1,6 +1,7 @@
 import { getProject } from "@/actions/projects"
 import { ProjectProvider } from "@/components/project-provider"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
 
 export async function generateMetadata({
@@ -9,11 +10,13 @@ export async function generateMetadata({
   params: Promise<{ projectId: string }>
 }): Promise<Metadata> {
   const { projectId } = await params
+  const t = await getTranslations("ProjectLayout")
+
   const project = await getProject(projectId)
 
   if (!project) {
     return {
-      title: "Project Not Found",
+      title: t("notFoundTitle"),
       robots: "noindex",
     }
   }

@@ -1,14 +1,20 @@
 import { getLocales } from "@/actions/locales"
 import AddLocaleDialog from "@/components/dashboard/projects/project/locales/AddLocaleDialog"
-import LocalesTable from "@/components/dashboard/projects/project/locales/LocalesTable"
+import ProjectLocalesTable from "@/components/dashboard/projects/project/locales/LocalesTable"
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "Locales",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("ProjectLocalesPage")
+  return {
+    title: t("metadata.title"),
+  }
 }
 
 export default async function ProjectLocalesPage() {
+  const t = await getTranslations("ProjectLocalesPage")
+
   const locales = await getLocales({
     includeDisabled: false,
   })
@@ -16,7 +22,7 @@ export default async function ProjectLocalesPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
-        <ProjectNavigation description="Manage the locales for your project." />
+        <ProjectNavigation description={t("description")} />
 
         <div className="flex gap-2">
           <AddLocaleDialog locales={locales} />
@@ -24,7 +30,7 @@ export default async function ProjectLocalesPage() {
       </div>
 
       <div>
-        <LocalesTable />
+        <ProjectLocalesTable />
       </div>
     </div>
   )
