@@ -19,7 +19,7 @@
     "@better-auth/prisma-adapter": "^1.6.19",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@scalar/nextjs-api-reference": "^0.11.4",
-    "@teispace/next-themes": "^2.0.2",
+    "@teispace/next-themes": "^3.0.2",
     "better-auth": "^1.6.19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
